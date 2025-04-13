@@ -1,0 +1,33 @@
+@startuml linrob_containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title [Container diagram] Linrob containers
+
+System_Boundary(linrob, "CtrlX System") {
+  Container(PLC, "PCL", "ctrlX", "Used to control the robot")
+  Container(data_layer, "Data Layer", "C++", "Communicates with the PLC")
+  Rel(data_layer, PLC, "Sends commands and receives state")
+
+  System_Boundary(ros2_control, "ros2_control") {
+    Container(ctrlX_resource, "Resource", "c++", "Used to abstract a joint")
+    Container(ctrlX_controller, "Joint trajectory Controller", "c++", "Used to control the joint")
+
+    Rel(ctrlX_controller, ctrlX_resource, "Sends commands and receives state")
+    Rel(ctrlX_resource, data_layer, "Uses")
+
+  }
+
+}
+
+System_Boundary(client, "Client System") {
+  Container(custom_node, "ROS2 Node", "c++", "Used to extract relevant joint trajectory")
+
+  Rel(custom_node, ctrlX_controller, "trajectory_msgs/msg/JointTrajectory", "ROS2 message")
+
+  Container(moveit, "Movit2", "c++", "Used to plan the trajectory")
+  Rel(moveit, custom_node, "trajectory_msgs/msg/JointTrajectory")
+}
+
+LAYOUT_LEFT_RIGHT()
+
+@enduml
