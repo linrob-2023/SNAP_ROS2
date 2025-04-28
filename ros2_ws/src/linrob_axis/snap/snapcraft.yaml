@@ -1,0 +1,50 @@
+name: ros2-linrob
+version: "0.0.1"
+summary: Snap with ROS 2 controllers and resource for linrob hardware.
+description: |
+  This snap contains the ROS 2 controllers and resources for the linrob hardware.
+  It is designed to be used with the ctrlX CORE platform.
+
+base: core22
+grade: stable
+confinement: strict
+
+parts:
+  ros-app:
+    plugin: dump
+    source: install
+    stage-packages:
+      - ros-humble-ros2-control
+      - ros-humble-ros2-control-controllers
+    override-build: |
+      snapcraftctl build
+
+  # TODO: Finish setup for current package from here.
+  wrapper-scripts:
+    plugin: dump
+    source: wrapper/
+    organize:
+      ./run-listener.sh: usr/bin/run-listener
+
+apps:
+  listener:
+    command: usr/bin/run-listener
+    plugs:
+      - ros-base
+      - network
+      - network-bind
+    daemon: simple
+    passthrough:
+      restart-condition: always
+      restart-delay: 10s
+
+plugs:
+  ros-base:
+    interface: content
+    content: executables
+    target: $SNAP/rosruntime
+
+  datalayer:
+    interface: content
+    content: datalayer
+    target: $SNAP_DATA/.datalayer
