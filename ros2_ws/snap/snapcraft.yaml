@@ -1,5 +1,5 @@
 name: ros2-linrob
-version: "0.0.1"
+version: "0.1.0"
 summary: Snap with ROS 2 controllers and resource for linrob hardware.
 description: |
   This snap contains the ROS 2 controllers and resources for the linrob hardware.
@@ -14,21 +14,21 @@ parts:
     plugin: dump
     source: install
     stage-packages:
-      - ros-humble-ros2-control
-      - ros-humble-ros2-control-controllers
+      - ros-humble-xacro
+      - libzmq5
+      - ctrlx-datalayer
     override-build: |
       snapcraftctl build
 
-  # TODO: Finish setup for current package from here.
   wrapper-scripts:
     plugin: dump
     source: wrapper/
     organize:
-      ./run-listener.sh: usr/bin/run-listener
+      ./run-position-controller.sh: usr/bin/run-position-controller
 
 apps:
-  listener:
-    command: usr/bin/run-listener
+  position-controller:
+    command: usr/bin/run-position-controller
     plugs:
       - ros-base
       - network

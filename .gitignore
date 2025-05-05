@@ -33,3 +33,6 @@
 
 # VS Code workspace
 .vscode/
+
+# SNAP
+*.snap

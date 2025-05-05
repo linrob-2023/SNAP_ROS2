@@ -1,100 +1,357 @@
 #include "linrob_axis/Resource.h"
 
-#include "linrob_axis/ctrlx_datalayer_helper.h"
-
+#include <linrob_axis/ctrlx_datalayer_helper.h>
 #include <rclcpp/rclcpp.hpp>
 
 #include <iostream>
 
 namespace linrob
 {
-hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo&)
+
+const auto LINROB = "linrob";
+// TODO: Currently I have no address in VirtualControl with plc/app/... addresses. plc/app exists, but probably I need
+// to add something more to have these addresses.
+hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
 {
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource STARTED...");
+
   // TODO: Read parameters from config file.
   // TODO: Initialize required resources.
 
-  mConnection.ip = "127.0.0.1";
-  mConnection.user = "boschrexroth";
-  mConnection.password = "boschrexroth";
-  mConnection.sslPort = 443;
+  // Connection.
+  const auto& params = info.hardware_parameters;
+  mConnection.ip = params.at("ip");
+  mConnection.user = params.at("user");
+  mConnection.password = params.at("password");
+  mConnection.sslPort = std::stoi(params.at("ssl_port"));
 
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Initializing resource");
+  // Node addresses.
+  registerDatalayerNode("new_position", params.at("new_position"));
+  registerDatalayerNode("next_pos_index", params.at("next_pos_index"));
+  registerDatalayerNode("execute_movements", params.at("execute_movements"));
+  registerDatalayerNode("position", params.at("position"));
+  registerDatalayerNode("velocity", params.at("velocity"));
+  registerDatalayerNode("status", params.at("status"));
+  registerDatalayerNode("read_mode", params.at("read_mode"));
+  registerDatalayerNode("set_mode", params.at("set_mode"));
+
+  // Hardware settings.
+  mPositionSettings.initialIndex = static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
+  mPositionSettings.nextPositionIndex = mPositionSettings.initialIndex;
+  mPositionSettings.maxPositionIndices = static_cast<uint16_t>(std::stoi(params.at("max_position_indices")));
+  mPositionSettings.newPositionsReceivedCount = 0U;
+  mPositionSettings.executeMovementsOnIndex =
+    static_cast<uint16_t>(std::stoi(params.at("execute_movements_on_next_index")));
+
+  mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State&)
 {
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Configuring resource");
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Configure resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State&)
 {
-  // Activate the datalayer system and create a client connection.
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Activate resource STARTED...");
   auto connectionResult = connect();
   if (connectionResult != hardware_interface::CallbackReturn::SUCCESS)
   {
-    RCLCPP_ERROR(rclcpp::get_logger("linrob"), "Failed to connect to datalayer");
     return connectionResult;
   }
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Activating resource");
+
+  // TODO: If state is not in STANDSTILL, should it be changed here?
+  auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
+  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return axisStateResult;
+  }
+
+  // TODO: What is initial mode of the system? If mode is not AUTO_EXTERNAL, should it be changed here?
+  auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
+  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return systemModeResult;
+  }
+
+  // Next position index.
+  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
+  if (!nextPosIndexWriteResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycle::State&)
 {
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Deactivating resource");
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Deactivate resource STARTED...");
+  auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
+
+  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return axisStateResult;
+  }
+
+  // TODO: If mode is not AUTO_EXTERNAL, should it be changed here?
+  auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
+  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return systemModeResult;
+  }
+
+  mPositionSettings.newPositionsReceivedCount = 0U;
+  auto writeResult = writeToDatalayerNode("execute_movements", false);
+  if (!writeResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Deactivate resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type Resource::write(const rclcpp::Time&, const rclcpp::Duration&)
+hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Writing to resource");
+  // Check if new command is received.
+  auto newPositionReceived = checkNewPositionReceived(time);
+  if (!newPositionReceived)
+  {
+    return hardware_interface::return_type::OK;
+  }
+
+  // Write latest position command to the datalayer node.
+  auto newPositionWriteResult = writeToDatalayerNode("new_position", mPositionCommand);
+  if (!newPositionWriteResult)
+  {
+    return hardware_interface::return_type::ERROR;
+  }
+
+  // Set next position index.
+  auto nextPosIndexWriteResult = setNextIndex();
+  if (!nextPosIndexWriteResult)
+  {
+    return hardware_interface::return_type::ERROR;
+  }
+
   return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
-  RCLCPP_INFO(rclcpp::get_logger("linrob"), "Reading from resource");
+  auto updateResult = true;
+  // Update current system and axis info.
+  updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
+  updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
+
+  // Update current position and velocity info.
+  updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT32);
+  updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT32);
+  if (!updateResult)
+  {
+    return hardware_interface::return_type::ERROR;
+  }
+
+  updateState();
+
   return hardware_interface::return_type::OK;
 }
 
 std::vector<hardware_interface::StateInterface> Resource::export_state_interfaces()
 {
-  // TODO: Temporary implementation. Requires to know how to bind this with actual hardware.
   std::vector<hardware_interface::StateInterface> state_interfaces;
-  state_interfaces.emplace_back("joint_1", "position", &mPosition);
-  state_interfaces.emplace_back("joint_1", "velocity", &mVelocity);
-  state_interfaces.emplace_back("joint_1", "effort", &mEffort);
+  state_interfaces.emplace_back("joint_1", "position", &mState.at("position"));
+  state_interfaces.emplace_back("joint_1", "velocity", &mState.at("velocity"));
   return state_interfaces;
 }
 
 std::vector<hardware_interface::CommandInterface> Resource::export_command_interfaces()
 {
-  // TODO: Temporary implementation. Requires to know how to bind this with actual hardware.
   std::vector<hardware_interface::CommandInterface> command_interfaces;
-  command_interfaces.emplace_back("joint_1", "position", &mPosition);
-  command_interfaces.emplace_back("joint_1", "effort", &mEffort);
+  command_interfaces.emplace_back("joint_1", "position", &mPositionCommand);
   return command_interfaces;
 }
 
 hardware_interface::CallbackReturn Resource::connect()
 {
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Connecting to datalayer...");
   auto connectionString =
     getConnectionString(mConnection.ip, mConnection.user, mConnection.password, mConnection.sslPort);
 
-  mClient = std::unique_ptr<comm::datalayer::IClient>(mDatalayerSystem.factory()->createClient(connectionString));
+  mDatalayerSystem.start(false);
+  auto client = mDatalayerSystem.factory()->createClient3(connectionString);
+  mClient = std::unique_ptr<comm::datalayer::IClient>(client);
   if (mClient == nullptr)
   {
-    RCLCPP_ERROR(rclcpp::get_logger("linrob"), "Failed to create client");
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to create client");
     return hardware_interface::CallbackReturn::ERROR;
   }
   if (!mClient->isConnected())
   {
-    RCLCPP_ERROR(rclcpp::get_logger("linrob"), "Failed to connect to client");
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to connect to client");
+    return hardware_interface::CallbackReturn::FAILURE;
+  }
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Connected to the datalayer.");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedState)
+{
+  // TODO: Documentation mentions that status returns array of INT of size 6. Does each array element represent
+  // different axis?
+  auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
+  if (!statusUpdateResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  // Check updated data.
+  auto& statusData = mConnection.datalayerNodeMap.at("status");
+
+  // TODO: WARNING
+  // ASSUMING that the first element is axis we are interested in.
+  auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
+  if (axisStatus != expectedState)
+  {
+    RCLCPP_INFO(rclcpp::get_logger(LINROB),
+                "Axis is not in expected state. Expected: %u, Actual: %u",
+                static_cast<unsigned int>(expectedState),
+                static_cast<unsigned int>(axisStatus));
+    return hardware_interface::CallbackReturn::FAILURE;
+  }
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string& expectedMode)
+{
+  auto modeUpdateResult = updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
+  if (!modeUpdateResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  // Check updated data.
+  const auto& modeData = mConnection.datalayerNodeMap.at("read_mode");
+  // TODO: Only check or mode should be set if not expected?
+  auto mode = std::string(modeData.second);
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "System mode: %s", mode.c_str());
+  if (mode != expectedMode)
+  {
+    RCLCPP_INFO(rclcpp::get_logger(LINROB), ("System is not in AUTO_EXTERNAL mode" + expectedMode).c_str());
     return hardware_interface::CallbackReturn::FAILURE;
   }
   return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+void Resource::registerDatalayerNode(const std::string& key, const std::string& address)
+{
+  mConnection.datalayerNodeMap.emplace(key, std::make_pair(address, comm::datalayer::Variant()));
+}
+
+bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::VariantType expectedType)
+{
+  auto& data = mConnection.datalayerNodeMap.at(key);
+  auto result = mClient->readSync(data.first, &data.second);
+  if (result != DL_OK)
+  {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to read data at %s. %s", data.first.c_str(), result.toString());
+    return false;
+  }
+  if (data.second.getType() != expectedType)
+  {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB),
+                 "Invalid type for data at %s. Expected: %u; Actual: %u",
+                 data.first.c_str(),
+                 static_cast<unsigned int>(expectedType),
+                 static_cast<unsigned int>(data.second.getType()));
+    return false;
+  }
+  return true;
+}
+
+void Resource::updateState()
+{
+  // TODO: Requires clarification. Assuming first element of the array is the one we are interested in.
+  mState.at("position") =
+    static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("position").second)[0U]);
+  mState.at("velocity") =
+    static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("velocity").second)[0U]);
+}
+
+bool Resource::setNextIndex()
+{
+  if (mPositionSettings.nextPositionIndex == mPositionSettings.maxPositionIndices)
+  {
+    mPositionSettings.nextPositionIndex = mPositionSettings.initialIndex;
+  }
+  else
+  {
+    ++mPositionSettings.nextPositionIndex;
+  }
+
+  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
+  return nextPosIndexWriteResult;
+}
+
+bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
+{
+  // Check if last position and current positions are different.
+  auto positionsReceived = true;
+  positionsReceived &= mPositionCommand != mLastPositionCommand;
+
+  // Position not received.
+  // Check if we should still wait for new position or no new positions will be received.
+  auto newCommandsExpected = true;
+  if (!positionsReceived)
+  {
+    // Assuming we always receive new positions at 500 Hz.
+    // Assuming during single runtime we will receive single stream of commands and after that new commands will not be
+    // streamed.
+    auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
+    newCommandsExpected = currentTime - mLastPositionCommandTime < expectedDurationBetweenCommands;
+    mPositionSettings.newPositionsReceivedCount = 0U;
+  }
+
+  if (positionsReceived)
+  {
+    mLastPositionCommand = mPositionCommand;
+    mLastPositionCommandTime = currentTime;
+    ++mPositionSettings.newPositionsReceivedCount;
+  }
+
+  // Check if at least 3 new positions are received.
+  if (mPositionSettings.newPositionsReceivedCount == mPositionSettings.executeMovementsOnIndex)
+  {
+    auto execMovementsResult = writeToDatalayerNode("execute_movements", true);
+    if (!execMovementsResult)
+    {
+      return false;
+    }
+  }
+
+  // Stopped receiving new positions.
+  if (!newCommandsExpected)
+  {
+    auto newPositionWriteResult = writeToDatalayerNode("new_position", mState.at("position"));
+    if (!newPositionWriteResult)
+    {
+      return false;
+    }
+    auto execMovementsResult = writeToDatalayerNode("execute_movements", false);
+    if (!execMovementsResult)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 }
 
