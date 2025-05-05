@@ -1,5 +1,5 @@
 name: ros2-linrob
-version: "0.1.0"
+version: "0.1.1"
 summary: Snap with ROS 2 controllers and resource for linrob hardware.
 description: |
   This snap contains the ROS 2 controllers and resources for the linrob hardware.

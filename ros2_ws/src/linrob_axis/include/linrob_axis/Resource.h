@@ -188,6 +188,9 @@ private:
 
   /// Expected max delay in milliseconds between commands.
   uint32_t mExpectedDelayBetweenCommandsMs {0U};
+
+  /// Flag to mark if the movement execution was already stopped.
+  bool mMovementExecutionStopped {true};
 };
 
 template <typename T>

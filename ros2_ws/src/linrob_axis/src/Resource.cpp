@@ -9,14 +9,10 @@ namespace linrob
 {
 
 const auto LINROB = "linrob";
-// TODO: Currently I have no address in VirtualControl with plc/app/... addresses. plc/app exists, but probably I need
-// to add something more to have these addresses.
+
 hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
 {
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource STARTED...");
-
-  // TODO: Read parameters from config file.
-  // TODO: Initialize required resources.
 
   // Connection.
   const auto& params = info.hardware_parameters;
@@ -64,21 +60,18 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return connectionResult;
   }
 
-  // TODO: If state is not in STANDSTILL, should it be changed here?
   auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
   if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
   {
     return axisStateResult;
   }
 
-  // TODO: What is initial mode of the system? If mode is not AUTO_EXTERNAL, should it be changed here?
   auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
   {
     return systemModeResult;
   }
 
-  // Next position index.
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
   if (!nextPosIndexWriteResult)
   {
@@ -99,7 +92,6 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return axisStateResult;
   }
 
-  // TODO: If mode is not AUTO_EXTERNAL, should it be changed here?
   auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
   {
@@ -203,8 +195,7 @@ hardware_interface::CallbackReturn Resource::connect()
 
 hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedState)
 {
-  // TODO: Documentation mentions that status returns array of INT of size 6. Does each array element represent
-  // different axis?
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Checking axis state...");
   auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
   if (!statusUpdateResult)
   {
@@ -214,8 +205,6 @@ hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedSt
   // Check updated data.
   auto& statusData = mConnection.datalayerNodeMap.at("status");
 
-  // TODO: WARNING
-  // ASSUMING that the first element is axis we are interested in.
   auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
   if (axisStatus != expectedState)
   {
@@ -226,6 +215,7 @@ hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedSt
     return hardware_interface::CallbackReturn::FAILURE;
   }
 
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis state: %u", static_cast<unsigned int>(axisStatus));
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -239,12 +229,11 @@ hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string& 
 
   // Check updated data.
   const auto& modeData = mConnection.datalayerNodeMap.at("read_mode");
-  // TODO: Only check or mode should be set if not expected?
   auto mode = std::string(modeData.second);
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "System mode: %s", mode.c_str());
   if (mode != expectedMode)
   {
-    RCLCPP_INFO(rclcpp::get_logger(LINROB), ("System is not in AUTO_EXTERNAL mode" + expectedMode).c_str());
+    RCLCPP_INFO(rclcpp::get_logger(LINROB), ("System is not in expected mode: " + expectedMode).c_str());
     return hardware_interface::CallbackReturn::FAILURE;
   }
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -278,7 +267,6 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
 
 void Resource::updateState()
 {
-  // TODO: Requires clarification. Assuming first element of the array is the one we are interested in.
   mState.at("position") =
     static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("position").second)[0U]);
   mState.at("velocity") =
@@ -311,15 +299,13 @@ bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
   auto newCommandsExpected = true;
   if (!positionsReceived)
   {
-    // Assuming we always receive new positions at 500 Hz.
-    // Assuming during single runtime we will receive single stream of commands and after that new commands will not be
-    // streamed.
+    // Assuming we always receive new positions at specified frequency. Therefore each new position is expected to be
+    // received within the specified time (1 sec / frequency). Requires reliable connection between this interface and
+    // hardware.
     auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
     newCommandsExpected = currentTime - mLastPositionCommandTime < expectedDurationBetweenCommands;
-    mPositionSettings.newPositionsReceivedCount = 0U;
   }
-
-  if (positionsReceived)
+  else
   {
     mLastPositionCommand = mPositionCommand;
     mLastPositionCommandTime = currentTime;
@@ -327,8 +313,9 @@ bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
   }
 
   // Check if at least 3 new positions are received.
-  if (mPositionSettings.newPositionsReceivedCount == mPositionSettings.executeMovementsOnIndex)
+  if (newCommandsExpected && (mPositionSettings.newPositionsReceivedCount == mPositionSettings.executeMovementsOnIndex))
   {
+    mMovementExecutionStopped = false;
     auto execMovementsResult = writeToDatalayerNode("execute_movements", true);
     if (!execMovementsResult)
     {
@@ -339,6 +326,11 @@ bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
   // Stopped receiving new positions.
   if (!newCommandsExpected)
   {
+    mPositionSettings.newPositionsReceivedCount = 0U;
+    if (mMovementExecutionStopped)
+    {
+      return false;
+    }
     auto newPositionWriteResult = writeToDatalayerNode("new_position", mState.at("position"));
     if (!newPositionWriteResult)
     {
@@ -349,6 +341,7 @@ bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
     {
       return false;
     }
+    mMovementExecutionStopped = true;
   }
 
   return true;
