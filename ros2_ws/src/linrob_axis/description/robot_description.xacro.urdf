@@ -62,7 +62,7 @@
         <param name="velocity">plc/app/Application/sym/GVL/alrAxisVelocities</param>
         <param name="status">plc/app/Application/sym/GVL/anAxisStatus</param>
         <param name="read_mode">plc/app/Application/sym/GVL/sOperationMode</param>
-        <param name="set_mode">plc/app/Application/sym/GVL/nOperationMode</param>
+        <param name="set_mode">plc/app/Application/sym/GVL/nOperationModeRequest</param>
 
         <param name="initial_position_index">1</param>
         <param name="max_position_indices">1000</param>

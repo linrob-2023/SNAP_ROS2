@@ -66,6 +66,12 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return axisStateResult;
   }
 
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", "AUTO_EXTERNAL");
+  if (!setSystemModeResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
   auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
   {
@@ -92,7 +98,13 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return axisStateResult;
   }
 
-  auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", "MANUAL");
+  if (!setSystemModeResult)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  auto systemModeResult = checkSystemMode("MANUAL");
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
   {
     return systemModeResult;
