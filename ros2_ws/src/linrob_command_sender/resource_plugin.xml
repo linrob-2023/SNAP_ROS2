@@ -1,0 +1,3 @@
+<library path="linrob_command_sender">
+  <class name="linrob/ClientResource" type="linrob::ClientResource" base_class_type="hardware_interface::SystemInterface"/>
+</library>

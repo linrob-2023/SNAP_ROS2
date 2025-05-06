@@ -1,0 +1,57 @@
+from pathlib import Path
+
+import xacro
+from launch import LaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+
+
+def generate_launch_description():
+
+    # Get URDF via xacro
+    xacro_file = Path(__file__).parents[1] / "description" / "robot_description.xacro.urdf"
+    doc = xacro.parse(open(xacro_file))
+    xacro.process_doc(doc)
+
+    robot_description = {"robot_description": doc.toxml()}
+    publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='screen',
+        parameters=[robot_description],
+        remappings=[('robot_description', 'client_robot_description')],
+    )
+
+    controllers = PathJoinSubstitution(
+        [
+            FindPackageShare("linrob_command_sender"),
+            "config",
+            "position_controller.yaml"
+        ]
+    )
+
+    controller_manager = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[controllers],
+        output="both",
+        remappings=[
+            ("~/robot_description", "/client_robot_description")
+        ]
+    )
+
+    controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["client_position_controller", "-c", "/controller_manager"],
+    )
+
+    return LaunchDescription([
+        publisher,
+        controller_manager,
+        controller_spawner
+    ])

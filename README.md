@@ -42,16 +42,54 @@ Navigate to:
 cd path/to/Linrob/ros2_ws
 ```
 
-Run:
+Build:
 
 ```bash
-colcon build
+colcon build --packages-select linrob_axis
 ```
 
 Launch package:
 
 ```bash
 ros2 launch linrob_axis start.launch.py
+```
+
+## Package: linrob_command_sender
+
+### Summary
+
+This package is responsible for publishing commands to the server.
+
+Starts:
+
+- Client position controller.
+- Client resource plugin that can process client commands and send them to server via command topic.
+
+### Configurations
+
+All plugin parameters should be specified in robot description urdf file.
+Current parameters:
+
+- command_topic - Topic where plugin command publisher will publish new commands.
+
+### Local build
+
+Navigate to:
+
+```bash
+cd path/to/Linrob/ros2_ws
+```
+
+Build:
+
+```bash
+colcon build --packages-select linrob_command_sender
+```
+
+Launch:
+
+```bash
+ros2 launch linrob_command_sender start.launch.py
 ```
 
 ## ros2-base-humble-deb
