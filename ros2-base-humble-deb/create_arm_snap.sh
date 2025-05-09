@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Script to run inside a docker runtime container
-# For snapcraft core* installation it follows the following description: 
+# For snapcraft core* installation it follows the following description:
 # https://raw.githubusercontent.com/snapcore/snapcraft/master/docker/Dockerfile
 
 mkdir -p snap
@@ -9,7 +9,7 @@ mkdir -p snap
 apt-get update
 apt-get install -y curl jq squashfs-tools
 apt-get install -y git
-apt-get install -y make 
+apt-get install -y make
 apt-get install -y build-essential
 apt-get install -y zlib1g-dev
 apt-get install -y liblzma-dev
@@ -86,7 +86,7 @@ if [ ! -d "/snap/snapcraft" ]; then
     ln -s x1 /snap/snapcraft/current
 fi
 
-# Fix Python3 Installation: 
+# Fix Python3 Installation:
 unlink /snap/snapcraft/current/usr/bin/python3
 ln -s /snap/snapcraft/current/usr/bin/python3.* /snap/snapcraft/current/usr/bin/python3
 echo /snap/snapcraft/current/lib/python3.*/site-packages >> /snap/snapcraft/current/usr/lib/python3/dist-packages/site-packages.pth
@@ -119,7 +119,7 @@ export LANG=en_US.UTF-8
 
 apt-get install -y software-properties-common
 add-apt-repository universe
-apt-get update 
+apt-get update
 
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" |  tee /etc/apt/sources.list.d/ros2.list > /dev/null
@@ -128,8 +128,9 @@ apt-get install -y ca-certificates
 apt-get install -y ros-humble-ros-base python3-argcomplete
 apt-get install -y ros-dev-tools
 apt-get install -y python3-rosdep
+apt-get install -y ros-humble-ros2-control
+apt-get install -y ros-humble-ros2-controllers
 rosdep init
 
 snapcraft clean --destructive-mode
-snapcraft  --destructive-mode --target-arch=arm64 
-
+snapcraft  --destructive-mode --target-arch=arm64
