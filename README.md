@@ -8,7 +8,7 @@ This package contains logic to start:
 
 - Position controller
 - Joint State publisher
-- Resource plugin that establishes connection between ctrlX datalayer and ROS2 topics. /position_controller/commands for sending commands to the hardware nad /joint_states for reading current hardware state.
+- Resource plugin that establishes connection between ctrlX datalayer and ROS2 topics. /position_controller/commands for sending commands to the hardware and /joint_states for reading current hardware state.
 
 ### Configurations
 
