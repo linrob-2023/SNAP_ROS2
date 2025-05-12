@@ -1,8 +1,11 @@
 #include "linrob_axis/Resource.h"
 
+#include "linrob_axis/Mode.h"
+
 #include <linrob_axis/ctrlx_datalayer_helper.h>
 #include <rclcpp/rclcpp.hpp>
 
+#include <cstdint>
 #include <iostream>
 
 namespace linrob
@@ -66,7 +69,7 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return axisStateResult;
   }
 
-  auto setSystemModeResult = writeToDatalayerNode("set_mode", "AUTO_EXTERNAL");
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", Mode::AUTO_EXTERNAL);
   if (!setSystemModeResult)
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -98,7 +101,7 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return axisStateResult;
   }
 
-  auto setSystemModeResult = writeToDatalayerNode("set_mode", "MANUAL");
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", Mode::MANUAL);
   if (!setSystemModeResult)
   {
     return hardware_interface::CallbackReturn::ERROR;
