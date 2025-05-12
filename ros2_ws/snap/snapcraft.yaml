@@ -16,7 +16,7 @@ parts:
     stage-packages:
       - ros-humble-xacro
       - libzmq5
-      - ctrlx-datalayer==3.3.0
+      - ctrlx-datalayer=3.3.0
     override-build: |
       snapcraftctl build
 
