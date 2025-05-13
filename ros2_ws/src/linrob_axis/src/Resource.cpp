@@ -69,7 +69,7 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return axisStateResult;
   }
 
-  auto setSystemModeResult = writeToDatalayerNode("set_mode", Mode::AUTO_EXTERNAL);
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", (uint8_t) 2); //Mode::AUTO_EXTERNAL);
   if (!setSystemModeResult)
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -101,7 +101,7 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return axisStateResult;
   }
 
-  auto setSystemModeResult = writeToDatalayerNode("set_mode", Mode::MANUAL);
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", (uint8_t) 0);//Mode::MANUAL);
   if (!setSystemModeResult)
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -158,8 +158,8 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
   updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
 
   // Update current position and velocity info.
-  updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT32);
-  updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT32);
+  updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+  updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
   if (!updateResult)
   {
     return hardware_interface::return_type::ERROR;

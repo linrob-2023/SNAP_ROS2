@@ -9,7 +9,7 @@ namespace linrob
 {
 const std::unordered_map<std::string, comm::datalayer::VariantType> VARIANT_ARRAY_TYPE_MAP = {
   {typeid(int).name(), comm::datalayer::VariantType::ARRAY_OF_INT32},
-  {typeid(float).name(), comm::datalayer::VariantType::ARRAY_OF_FLOAT32}};
+  {typeid(float).name(), comm::datalayer::VariantType::ARRAY_OF_FLOAT64}};
 }
 
 #endif // LINROB_VARIANT_TYPE_H
