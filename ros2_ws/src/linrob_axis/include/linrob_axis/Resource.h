@@ -162,6 +162,11 @@ private:
   template <typename T>
   std::vector<T> variantDataToVector(const comm::datalayer::Variant& data);
 
+  /**
+   * Waits until state, status and mode datalayer nodes are valid.
+   */
+  void waitUntilRequiredNodesAreValid();
+
   /// Connection settings.
   linrob::Connection mConnection;
 

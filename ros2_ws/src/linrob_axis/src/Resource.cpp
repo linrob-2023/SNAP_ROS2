@@ -63,6 +63,8 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return connectionResult;
   }
 
+  waitUntilRequiredNodesAreValid();
+
   auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
   if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
   {
@@ -126,6 +128,12 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
+  // Check if clock types matches.
+  if (time.get_clock_type() != mLastPositionCommandTime.get_clock_type())
+  {
+    mLastPositionCommandTime = time;
+  }
+
   // Check if new command is received.
   auto newPositionReceived = checkNewPositionReceived(time);
   if (!newPositionReceived)
@@ -360,6 +368,27 @@ bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
   }
 
   return true;
+}
+
+void Resource::waitUntilRequiredNodesAreValid()
+{
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting until required nodes are valid...");
+  auto wait = true;
+  while (wait)
+  {
+    // Slow down the loop to avoid busy waiting.
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    // Check if required addresses are valid.
+    auto updateResult = true;
+    updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_UINT16);
+    updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
+    updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+    updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+
+    wait != updateResult;
+  }
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Required nodes are valid.");
 }
 }
 
