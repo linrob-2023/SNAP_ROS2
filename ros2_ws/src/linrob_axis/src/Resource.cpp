@@ -381,7 +381,7 @@ void Resource::waitUntilRequiredNodesAreValid()
 
     // Check if required addresses are valid.
     auto updateResult = true;
-    updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_UINT16);
+    updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
     updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
     updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
     updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
