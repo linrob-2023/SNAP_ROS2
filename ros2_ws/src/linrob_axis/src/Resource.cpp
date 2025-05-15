@@ -44,6 +44,9 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 
   mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
 
+  // Logger.
+  setLogLevel(params.at("log_level"));
+
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -270,10 +273,18 @@ void Resource::registerDatalayerNode(const std::string& key, const std::string& 
 bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::VariantType expectedType)
 {
   auto& data = mConnection.datalayerNodeMap.at(key);
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Reading data from %s...", data.first.c_str());
   auto result = mClient->readSync(data.first, &data.second);
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Data received from %s.", data.first.c_str());
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Result is DL_OK %s.", std::to_string(result == DL_OK).c_str());
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+               "Result type is %u. Expected type is %u.",
+               static_cast<unsigned int>(data.second.getType()),
+               static_cast<unsigned int>(expectedType));
   if (result != DL_OK)
   {
     RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to read data at %s. %s", data.first.c_str(), result.toString());
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Failed to update. Returning FALSE.");
     return false;
   }
   if (data.second.getType() != expectedType)
@@ -283,8 +294,10 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
                  data.first.c_str(),
                  static_cast<unsigned int>(expectedType),
                  static_cast<unsigned int>(data.second.getType()));
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Failed to update. Returning FALSE.");
     return false;
   }
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Update successful. Returning TRUE.");
   return true;
 }
 
@@ -385,10 +398,45 @@ void Resource::waitUntilRequiredNodesAreValid()
     updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
     updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
     updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                 "Update final result value: %s; If all valid: 1",
+                 std::to_string(updateResult).c_str());
 
-    wait != updateResult;
+    wait = !updateResult;
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Wait value: %s", std::to_string(wait).c_str());
   }
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Required nodes are valid.");
+}
+
+void Resource::setLogLevel(const std::string& level)
+{
+  auto logger = rclcpp::get_logger(LINROB);
+  auto loggerLevel = rclcpp::Logger::Level::Info;
+  if (level == "DEBUG")
+  {
+    loggerLevel = rclcpp::Logger::Level::Debug;
+  }
+  else if (level == "INFO")
+  {
+    loggerLevel = rclcpp::Logger::Level::Info;
+  }
+  else if (level == "WARN")
+  {
+    loggerLevel = rclcpp::Logger::Level::Warn;
+  }
+  else if (level == "ERROR")
+  {
+    loggerLevel = rclcpp::Logger::Level::Error;
+  }
+  else if (level == "FATAL")
+  {
+    loggerLevel = rclcpp::Logger::Level::Fatal;
+  }
+  else
+  {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Invalid log level: %s", level.c_str());
+    return;
+  }
+  logger.set_level(loggerLevel);
 }
 }
 

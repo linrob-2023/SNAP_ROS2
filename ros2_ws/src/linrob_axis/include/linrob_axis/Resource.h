@@ -167,6 +167,21 @@ private:
    */
   void waitUntilRequiredNodesAreValid();
 
+  /**
+   * Sets the log level for the datalayer system.
+   *
+   * Possible log levels:
+   * - DEBUG
+   * - INFO
+   * - WARN
+   * - ERROR
+   * - FATAL
+   *
+   * @param level log level to be set.
+   *
+   */
+  void setLogLevel(const std::string& level);
+
   /// Connection settings.
   linrob::Connection mConnection;
 

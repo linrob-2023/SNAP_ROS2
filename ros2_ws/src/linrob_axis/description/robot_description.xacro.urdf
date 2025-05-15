@@ -70,6 +70,8 @@
 
         <param name="update_frequency_hz">500</param>
 
+        <param name="log_level">INFO</param>
+
 
     </hardware>
     <joint name="joint_1">
