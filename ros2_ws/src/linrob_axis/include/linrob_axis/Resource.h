@@ -162,6 +162,26 @@ private:
   template <typename T>
   std::vector<T> variantDataToVector(const comm::datalayer::Variant& data);
 
+  /**
+   * Waits until state, status and mode datalayer nodes are valid.
+   */
+  void waitUntilRequiredNodesAreValid();
+
+  /**
+   * Sets the log level for the datalayer system.
+   *
+   * Possible log levels:
+   * - DEBUG
+   * - INFO
+   * - WARN
+   * - ERROR
+   * - FATAL
+   *
+   * @param level log level to be set.
+   *
+   */
+  void setLogLevel(const std::string& level);
+
   /// Connection settings.
   linrob::Connection mConnection;
 
