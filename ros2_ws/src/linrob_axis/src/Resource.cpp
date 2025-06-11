@@ -53,6 +53,12 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 
 hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State&)
 {
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Configure resource STARTED...");
+  auto connectionResult = connect();
+  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return connectionResult;
+  }
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Configure resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -60,11 +66,6 @@ hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle
 hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State&)
 {
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Activate resource STARTED...");
-  auto connectionResult = connect();
-  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS)
-  {
-    return connectionResult;
-  }
 
   waitUntilRequiredNodesAreValid();
 
@@ -125,8 +126,22 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  disconnect();
+
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Deactivate resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+void Resource::disconnect()
+{
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Disconnecting..");
+  if (mClient)
+  {
+    mClient->disconnect();
+    mClient.reset();
+  }
+  mDatalayerSystem.stop();
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Disconnected.");
 }
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
