@@ -88,6 +88,18 @@ public:
    */
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+  /**
+   * Waits for the axis state to reach the expected state within a timeout.
+   * Returns SUCCESS if reached, FAILURE on timeout, ERROR if error state detected.
+   */
+  hardware_interface::CallbackReturn waitForAxisState(AxisState expectedState, std::chrono::milliseconds timeout);
+
+  /**
+   * Waits for the system mode to reach the expected mode within a timeout.
+   * Returns SUCCESS if reached, FAILURE on timeout.
+   */
+  hardware_interface::CallbackReturn waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout);
+
 private:
   /**
    * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
