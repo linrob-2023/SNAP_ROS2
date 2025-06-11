@@ -47,6 +47,9 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   // Logger.
   setLogLevel(params.at("log_level"));
 
+  // Reset PLC buffer and index on init
+  resetPlcBufferAndIndex();
+
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -85,6 +88,9 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
   {
     return systemModeResult;
   }
+
+  // Reset PLC buffer and index
+  resetPlcBufferAndIndex();
 
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
   if (!nextPosIndexWriteResult)
@@ -144,18 +150,30 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     return hardware_interface::return_type::OK;
   }
 
-  // Write latest position command to the datalayer node.
-  auto newPositionWriteResult = writeToDatalayerNode("new_position", mPositionCommand);
-  if (!newPositionWriteResult)
-  {
-    return hardware_interface::return_type::ERROR;
-  }
+  // Increment next position index
+  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
+    mPositionSettings.nextPositionIndex = 1;
+  else
+    ++mPositionSettings.nextPositionIndex;
 
-  // Set next position index.
-  auto nextPosIndexWriteResult = setNextIndex();
-  if (!nextPosIndexWriteResult)
-  {
+  // PLC uses 1-based indices, C++ uses 0-based
+  size_t pos = mPositionSettings.nextPositionIndex - 1;
+  if (pos >= kMaxPositionsExt) pos = 0;
+
+  // Update position command buffer with the new position
+  mAxisTargetPositionsExt[pos] = mPositionCommand;
+
+  // Send updated buffer and index to the PLC
+  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
     return hardware_interface::return_type::ERROR;
+  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
+    return hardware_interface::return_type::ERROR;
+
+  // Start movement if at least 2 new positions have been received
+  if (mPositionSettings.newPositionsReceivedCount >= 2)
+  {
+    if (!writeToDatalayerNode("execute_movements", true))
+      return hardware_interface::return_type::ERROR;
   }
 
   return hardware_interface::return_type::OK;
@@ -301,27 +319,23 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
   return true;
 }
 
+void Resource::resetPlcBufferAndIndex()
+{
+  resetAxisTargetPositionsExt();
+  if (mPositionSettings.initialIndex == 1)
+    mPositionSettings.nextPositionIndex = kMaxPositionsExt;
+  else
+    mPositionSettings.nextPositionIndex = mPositionSettings.initialIndex - 1;
+  writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
+  writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
+}
+
 void Resource::updateState()
 {
   mState.at("position") =
     static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("position").second)[0U]);
   mState.at("velocity") =
     static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("velocity").second)[0U]);
-}
-
-bool Resource::setNextIndex()
-{
-  if (mPositionSettings.nextPositionIndex == mPositionSettings.maxPositionIndices)
-  {
-    mPositionSettings.nextPositionIndex = mPositionSettings.initialIndex;
-  }
-  else
-  {
-    ++mPositionSettings.nextPositionIndex;
-  }
-
-  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
-  return nextPosIndexWriteResult;
 }
 
 bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
