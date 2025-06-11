@@ -12,6 +12,9 @@ namespace linrob
 {
 
 const auto LINROB = "linrob";
+constexpr std::chrono::milliseconds kStatePollInterval{100};
+constexpr std::chrono::seconds kStateWaitTimeout{10};
+constexpr std::chrono::seconds kSetModeSleep{2};
 
 hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
 {
@@ -68,10 +71,9 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
 
   waitUntilRequiredNodesAreValid();
 
-  auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
-  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
-  {
-    return axisStateResult;
+  auto axisStateResult = waitForAxisState(AxisState::STANDSTILL, kStateWaitTimeout);
+  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS) {
+      return axisStateResult;
   }
 
   auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
@@ -80,10 +82,12 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  auto systemModeResult = checkSystemMode("AUTO_EXTERNAL");
-  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
-  {
-    return systemModeResult;
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %lld seconds for PLC to change operation mode...", kSetModeSleep.count());
+  std::this_thread::sleep_for(kSetModeSleep);
+
+  auto systemModeResult = waitForSystemMode("AUTO_EXTERNAL", kStateWaitTimeout);
+  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
+      return systemModeResult;
   }
 
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
@@ -111,6 +115,9 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %lld seconds for PLC to change operation mode...", kSetModeSleep.count());
+  std::this_thread::sleep_for(kSetModeSleep);
 
   auto systemModeResult = checkSystemMode("MANUAL");
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
@@ -194,6 +201,48 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   std::vector<hardware_interface::CommandInterface> command_interfaces;
   command_interfaces.emplace_back("joint_1", "position", &mPositionCommand);
   return command_interfaces;
+}
+
+hardware_interface::CallbackReturn Resource::waitForAxisState(AxisState expectedState, std::chrono::milliseconds timeout)
+{
+    auto start = std::chrono::steady_clock::now();
+    const std::chrono::milliseconds pollInterval(kStatePollInterval);
+
+    while (std::chrono::steady_clock::now() - start < timeout) {
+        auto result = checkAxisState(expectedState);
+        if (result == hardware_interface::CallbackReturn::SUCCESS) {
+            RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis reached expected state: %u", static_cast<unsigned int>(expectedState));
+            return result;
+        }
+        auto& statusData = mConnection.datalayerNodeMap.at("status");
+        auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
+        if (axisStatus == AxisState::ERROR_STOP) {
+            RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR_STOP state, aborting wait.");
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting for axis state %u, current: %u", static_cast<unsigned int>(expectedState), static_cast<unsigned int>(axisStatus));
+        std::this_thread::sleep_for(pollInterval);
+    }
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Timeout waiting for axis state %u", static_cast<unsigned int>(expectedState));
+    return hardware_interface::CallbackReturn::FAILURE;
+}
+
+hardware_interface::CallbackReturn Resource::waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout)
+{
+    auto start = std::chrono::steady_clock::now();
+    const std::chrono::milliseconds pollInterval(kStatePollInterval);
+
+    while (std::chrono::steady_clock::now() - start < timeout) {
+        auto result = checkSystemMode(expectedMode);
+        if (result == hardware_interface::CallbackReturn::SUCCESS) {
+            RCLCPP_INFO(rclcpp::get_logger(LINROB), "System reached expected mode: %s", expectedMode.c_str());
+            return result;
+        }
+        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting for system mode '%s'", expectedMode.c_str());
+        std::this_thread::sleep_for(pollInterval);
+    }
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Timeout waiting for system mode '%s'", expectedMode.c_str());
+    return hardware_interface::CallbackReturn::FAILURE;
 }
 
 hardware_interface::CallbackReturn Resource::connect()
