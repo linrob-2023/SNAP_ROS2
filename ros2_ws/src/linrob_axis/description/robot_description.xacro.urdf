@@ -49,10 +49,10 @@
     <hardware>
         <plugin>linrob/Resource</plugin>
         <!-- Datalayer Connection -->
-        <param name="ip">127.0.0.1</param>
+        <param name="ip">10.0.2.2</param>
         <param name="user">boschrexroth</param>
         <param name="password">boschrexroth</param>
-        <param name="ssl_port">443</param>
+        <param name="ssl_port">5443</param>
 
         <!-- Datalayer Nodes addresses -->
         <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
@@ -68,7 +68,7 @@
         <param name="max_position_indices">1000</param>
         <param name="execute_movements_on_next_index">3</param>
 
-        <param name="update_frequency_hz">500</param>
+        <param name="update_frequency_hz">10</param>
 
         <param name="log_level">INFO</param>
 
