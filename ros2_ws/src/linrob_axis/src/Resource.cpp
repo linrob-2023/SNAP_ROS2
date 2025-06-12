@@ -137,10 +137,8 @@ void Resource::disconnect()
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Disconnecting..");
   if (mClient)
   {
-    mClient->disconnect();
     mClient.reset();
   }
-  mDatalayerSystem.stop();
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Disconnected.");
 }
 
