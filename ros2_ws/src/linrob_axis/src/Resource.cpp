@@ -370,6 +370,10 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
 
 void Resource::resetPlcBufferAndIndex()
 {
+  if (!updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64)) {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to fetch axis position before resetting PLC buffer!");
+  }
+  updateState();
   resetAxisTargetPositionsExt();
   if (mPositionSettings.initialIndex == 1)
     mPositionSettings.nextPositionIndex = kMaxPositionsExt;
