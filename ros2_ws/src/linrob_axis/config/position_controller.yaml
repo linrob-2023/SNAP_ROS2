@@ -9,8 +9,8 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
 
 position_controller:
-  state: inactive
   ros__parameters:
+    state: inactive
     joints:
       - joint_1
 
