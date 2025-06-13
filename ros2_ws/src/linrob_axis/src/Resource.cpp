@@ -50,9 +50,6 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   // Logger.
   setLogLevel(params.at("log_level"));
 
-  // Reset PLC buffer and index on init
-  resetPlcBufferAndIndex();
-
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -92,9 +89,6 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
       return systemModeResult;
   }
-
-  // Reset PLC buffer and index
-  resetPlcBufferAndIndex();
 
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
   if (!nextPosIndexWriteResult)
@@ -157,23 +151,8 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     return hardware_interface::return_type::OK;
   }
 
-  // Increment next position index
-  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
-    mPositionSettings.nextPositionIndex = 1;
-  else
-    ++mPositionSettings.nextPositionIndex;
-
-  // PLC uses 1-based indices, C++ uses 0-based
-  size_t pos = mPositionSettings.nextPositionIndex - 1;
-  if (pos >= kMaxPositionsExt) pos = 0;
-
-  // Update position command buffer with the new position
-  mAxisTargetPositionsExt[pos] = mPositionCommand;
-
-  // Send updated buffer and index to the PLC
-  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
-    return hardware_interface::return_type::ERROR;
-  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
+  // Write latest position command to the datalayer node
+  if (!writeToDatalayerNode("new_position", mPositionCommand))
     return hardware_interface::return_type::ERROR;
 
   // Start movement if at least 2 new positions have been received
@@ -193,9 +172,9 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
   updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
   updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
 
-  // Update current position and velocity info.
-  updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
-  updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+  // Update current position and velocity info
+  updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::FLOAT64);
+  updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::FLOAT64);
   if (!updateResult)
   {
     return hardware_interface::return_type::ERROR;
@@ -368,27 +347,10 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
   return true;
 }
 
-void Resource::resetPlcBufferAndIndex()
-{
-  if (!updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64)) {
-    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to fetch axis position before resetting PLC buffer!");
-  }
-  updateState();
-  resetAxisTargetPositionsExt();
-  if (mPositionSettings.initialIndex == 1)
-    mPositionSettings.nextPositionIndex = kMaxPositionsExt;
-  else
-    mPositionSettings.nextPositionIndex = mPositionSettings.initialIndex - 1;
-  writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
-  writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
-}
-
 void Resource::updateState()
 {
-  mState.at("position") =
-    static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("position").second)[0U]);
-  mState.at("velocity") =
-    static_cast<double>(variantDataToVector<float>(mConnection.datalayerNodeMap.at("velocity").second)[0U]);
+  mAxisPositionX = static_cast<double>(mConnection.datalayerNodeMap.at("position").second.value<double>());
+  mAxisVelocityX = static_cast<double>(mConnection.datalayerNodeMap.at("velocity").second.value<double>());
 }
 
 bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
@@ -463,8 +425,8 @@ void Resource::waitUntilRequiredNodesAreValid()
     auto updateResult = true;
     updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
     updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
-    updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
-    updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::ARRAY_OF_FLOAT64);
+    updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::FLOAT64);
+    updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::FLOAT64);
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
                  "Update final result value: %s; If all valid: 1",
                  std::to_string(updateResult).c_str());

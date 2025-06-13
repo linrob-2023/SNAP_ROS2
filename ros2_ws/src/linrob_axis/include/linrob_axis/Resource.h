@@ -11,8 +11,6 @@
 #include <rclcpp/duration.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
-#include <array>
-#include <unordered_map>
 
 namespace linrob
 {
@@ -145,11 +143,6 @@ private:
   void updateState();
 
   /**
-   * Resets the PLC buffer and index.
-   */
-  void resetPlcBufferAndIndex();
-
-  /**
    * Checks if new position was received.
    * @param currentTime current time.
    * @return true if new position was received, false otherwise.
@@ -225,17 +218,10 @@ private:
   /// Flag to mark if the movement execution was already stopped.
   bool mMovementExecutionStopped {true};
 
-  /// Buffer for axis target positions
-  static constexpr size_t kMaxPositionsExt = 1000;
-  double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
-
-  /// Helper to reset axis target positions
-  inline void resetAxisTargetPositionsExt() {
-    double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
-    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-      mAxisTargetPositionsExt[i] = pos;
-    }
-  }
+  /// Scalar axis values for single-axis hardware.
+  double mAxisTargetPositionX = 0.0;
+  double mAxisPositionX = 0.0;
+  double mAxisVelocityX = 0.0;
 };
 
 template <typename T>
