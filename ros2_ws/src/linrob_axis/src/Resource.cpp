@@ -365,8 +365,8 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
 
 void Resource::updateState()
 {
-  mAxisPositionX = mConnection.datalayerNodeMap.at("position").second.getFloat64();
-  mAxisVelocityX = mConnection.datalayerNodeMap.at("velocity").second.getFloat64();
+  mAxisPositionX = *mConnection.datalayerNodeMap.at("position").second.getData<double>();
+  mAxisVelocityX = *mConnection.datalayerNodeMap.at("velocity").second.getData<double>();
 }
 
 bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
