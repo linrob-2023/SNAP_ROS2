@@ -11,6 +11,8 @@
 #include <rclcpp/duration.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
+#include <unordered_map>
+#include <cmath>
 
 namespace linrob
 {
@@ -188,6 +190,23 @@ private:
    */
   void setLogLevel(const std::string& level);
 
+  /**
+   * Helper to reset the axis target positions buffer (local only).
+   * Fills the buffer with the current position (rounded to 4 decimal places).
+   */
+  inline void resetAxisTargetPositionsExt() {
+    double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
+    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
+      mAxisTargetPositionsExt[i] = pos;
+    }
+  }
+
+  /**
+   * Helper to reset PLC buffer and index (writes to PLC).
+   * Fills local buffer with current position, resets index, and writes both to the PLC.
+   */
+  void resetPlcBufferAndIndex();
+
   /// Connection settings.
   linrob::Connection mConnection;
 
@@ -218,8 +237,11 @@ private:
   /// Flag to mark if the movement execution was already stopped.
   bool mMovementExecutionStopped {true};
 
-  /// Scalar axis values for single-axis hardware.
-  double mAxisTargetPositionX = 0.0;
+  /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
+  static constexpr size_t kMaxPositionsExt = 1000;
+  double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
+
+  /// Scalar axis values for reading (single-axis hardware).
   double mAxisPositionX = 0.0;
   double mAxisVelocityX = 0.0;
 };

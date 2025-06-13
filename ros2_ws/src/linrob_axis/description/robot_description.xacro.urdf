@@ -55,7 +55,7 @@
         <param name="ssl_port">5443</param>
 
         <!-- Datalayer Nodes addresses -->
-        <param name="new_position">plc/app/Application/sym/GVL/lrAxisTargetPositionX</param>
+        <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
         <param name="next_pos_index">plc/app/Application/sym/GVL/nAxisTargetPosExtIdx</param>
         <param name="execute_movements">plc/app/Application/sym/GVL/xAxisTargetPosExtExecute</param>
         <param name="position">plc/app/Application/sym/GVL/lrAxisPositionX</param>
