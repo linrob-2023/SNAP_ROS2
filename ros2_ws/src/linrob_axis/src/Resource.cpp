@@ -83,7 +83,7 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %lld seconds for PLC to change operation mode...", kSetModeSleep.count());
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
   std::this_thread::sleep_for(kSetModeSleep);
 
   auto systemModeResult = waitForSystemMode("AUTO_EXTERNAL", kStateWaitTimeout);
@@ -117,7 +117,7 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %lld seconds for PLC to change operation mode...", kSetModeSleep.count());
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
   std::this_thread::sleep_for(kSetModeSleep);
 
   auto systemModeResult = checkSystemMode("MANUAL");
@@ -365,8 +365,8 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
 
 void Resource::updateState()
 {
-  mAxisPositionX = *mConnection.datalayerNodeMap.at("position").second.getData<double>();
-  mAxisVelocityX = *mConnection.datalayerNodeMap.at("velocity").second.getData<double>();
+  mAxisPositionX = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("position").second.getData());
+  mAxisVelocityX = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("velocity").second.getData());
 }
 
 bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
