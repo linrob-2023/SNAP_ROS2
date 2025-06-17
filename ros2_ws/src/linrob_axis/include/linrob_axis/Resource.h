@@ -77,6 +77,12 @@ public:
   hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
   /**
+   * Disconnects the datalayer client
+   * @return state of the function.
+   */
+  void disconnect();
+
+  /**
    * Exports all state interfaces for this hardware interface.
    * @return vector of state interfaces.
    */

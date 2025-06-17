@@ -54,6 +54,31 @@ Launch package:
 ros2 launch linrob_axis start.launch.py
 ```
 
+### Resource Activation & Deactivation
+
+By default, after startup and launching, the resource is configured but remains **inactive** until you activate it using ROS 2 controller commands.
+
+#### Activation
+
+To activate the resource controllers, run:
+```sh
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster
+```
+
+#### Deactivation
+
+To deactivate the resource controller, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster
+```
+
+#### Check Controller State
+
+To verify the controller state:
+```sh
+ros2 control list_controllers
+```
+
 ## Package: linrob_command_sender
 
 ### Summary
