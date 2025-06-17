@@ -99,7 +99,7 @@ static std::string getConnectionString(
 //! @param[in] password The password
 //! @param[in] sslPort  The port number for SSL: 8443 if ctrlX COREvirtual with port forwarding 8443:443
 //! @result IClient instance or nullptr on error
-static comm::datalayer::IClient3* getClient(comm::datalayer::DatalayerSystem& datalayerSystem,
+inline comm::datalayer::IClient3* getClient(comm::datalayer::DatalayerSystem& datalayerSystem,
                                            const std::string& ip = "192.168.1.1",
                                            const std::string& user = "boschrexroth",
                                            const std::string& password = "boschrexroth", int sslPort = 443)
@@ -123,7 +123,7 @@ static comm::datalayer::IClient3* getClient(comm::datalayer::DatalayerSystem& da
 //! @param[in] password The password
 //! @param[in] sslPort  The port number for SSL: 8443 if ctrlX COREvirtual with port forwarding 8443:443
 //! @result IProvider instance or nullptr on error
-static comm::datalayer::IProvider3* getProvider(comm::datalayer::DatalayerSystem& datalayerSystem,
+inline comm::datalayer::IProvider3* getProvider(comm::datalayer::DatalayerSystem& datalayerSystem,
                                                const std::string& ip = "192.168.1.1",
                                                const std::string& user = "boschrexroth",
                                                const std::string& password = "boschrexroth", int sslPort = 443)
