@@ -62,14 +62,14 @@ By default, after startup and launching, the resource is configured but remains 
 
 To activate the resource controller, run:
 ```sh
-ros2 control switch_controllers --start-controllers position_controller
+ros2 control switch_controllers --activate position_controller
 ```
 
 #### Deactivation
 
 To deactivate the resource controller, run:
 ```sh
-ros2 control switch_controllers --stop-controllers position_controller
+ros2 control switch_controllers --deactivate position_controller
 ```
 
 #### Check Controller State
