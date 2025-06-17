@@ -60,16 +60,16 @@ By default, after startup and launching, the resource is configured but remains 
 
 #### Activation
 
-To activate the resource controller, run:
+To activate the resource controllers, run:
 ```sh
-ros2 control switch_controllers --activate position_controller
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster
 ```
 
 #### Deactivation
 
 To deactivate the resource controller, run:
 ```sh
-ros2 control switch_controllers --deactivate position_controller
+ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster
 ```
 
 #### Check Controller State
