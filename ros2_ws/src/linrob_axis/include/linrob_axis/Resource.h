@@ -211,7 +211,7 @@ private:
    * Helper to reset PLC buffer and index (writes to PLC).
    * Fills local buffer with current position, resets index, and writes both to the PLC.
    */
-  void resetPlcBufferAndIndex();
+  bool resetPlcBufferAndIndex();
 
   /// Connection settings.
   linrob::Connection mConnection;
@@ -246,10 +246,6 @@ private:
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
   double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
-
-  /// Scalar axis values for reading (single-axis hardware).
-  double mAxisPositionX = 0.0;
-  double mAxisVelocityX = 0.0;
 };
 
 template <typename T>

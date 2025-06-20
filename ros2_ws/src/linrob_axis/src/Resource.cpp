@@ -48,9 +48,6 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   // Logger.
   setLogLevel(params.at("log_level"));
 
-  // Reset PLC buffer and index to current position.
-  resetPlcBufferAndIndex();
-
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -92,9 +89,10 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
       return systemModeResult;
   }
 
-  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
-  if (!nextPosIndexWriteResult)
+  auto resetResult = resetPlcBufferAndIndex();
+  if (!resetResult)
   {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index.");
     return hardware_interface::CallbackReturn::ERROR;
   }
 
@@ -201,7 +199,7 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
   updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
   updateResult &= updateDataFromNode("read_mode", comm::datalayer::VariantType::STRING);
 
-  // Update current position and velocity info
+  // Update current position and velocity info.
   updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::FLOAT64);
   updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::FLOAT64);
   if (!updateResult)
@@ -465,11 +463,12 @@ void Resource::waitUntilRequiredNodesAreValid()
   }
 }
 
-void Resource::resetPlcBufferAndIndex() {
+bool Resource::resetPlcBufferAndIndex() {
   resetAxisTargetPositionsExt();
   mPositionSettings.nextPositionIndex = 1;
-  writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
-  writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
+  auto newPositionWriteResult = writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
+  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
+  return newPositionWriteResult && nextPosIndexWriteResult;
 }
 
 void Resource::setLogLevel(const std::string& level)
