@@ -175,6 +175,36 @@ To verify the controller state:
 ros2 control list_controllers
 ```
 
+## Running the Simulation in Docker
+
+**Note:** The following commands should be run from your `ros2_ws` directory.
+
+### Build the Docker Image
+
+```bash
+docker build -t linrob_sim_cart -f src/linrob_sim_cart/Dockerfile .
+```
+
+### Run the Simulation (Headless/No GUI)
+
+```bash
+docker run --rm linrob_sim_cart
+```
+
+This will launch the simulation in headless mode.
+Controllers are loaded as inactive by default; activate controllers using ROS 2 control commands.
+
+#### Interacting with the Running Container
+
+To list or activate controllers after the simulation is running, open a new terminal and enter the container:
+
+```bash
+docker exec -it $(docker ps -q -f ancestor=linrob_sim_cart) bash
+source /opt/ros/humble/setup.bash
+ros2 control list_controllers
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
+```
+
 ## ros2-base-humble-deb
 
 This directory is copied from [here](https://github.com/boschrexroth/ctrlx-automation-sdk-ros2/tree/main/ros2-base-humble-deb) and slightly modified to have required ros2 base and ros2 control packages.
