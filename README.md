@@ -60,16 +60,16 @@ By default, after startup and launching, the resource is configured but remains 
 
 #### Activation
 
-To activate the resource controllers, run:
+To activate the resource controller, run:
 ```sh
-ros2 control switch_controllers --activate position_controller joint_state_broadcaster
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
 ```
 
 #### Deactivation
 
 To deactivate the resource controller, run:
 ```sh
-ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster
+ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster --strict
 ```
 
 #### Check Controller State
@@ -115,6 +115,94 @@ Launch:
 
 ```bash
 ros2 launch linrob_command_sender start.launch.py
+```
+
+## Package: linrob_sim_cart
+
+### Summary
+
+This package provides a simulation environment for the Linrob axis using Gazebo and ROS 2 Control.
+
+### Configurations
+
+All simulation and controller parameters should be defined in the robot description URDF file at:
+./description/sim_cart.xacro.urdf
+
+### Local Build
+
+Navigate to:
+
+```bash
+cd path/to/Linrob/ros2_ws
+```
+
+Build:
+
+```bash
+colcon build --packages-select linrob_sim_cart
+```
+
+### Launch Simulation
+
+To launch the simulation, run:
+
+```bash
+ros2 launch linrob_sim_cart sim_cart.launch.py
+```
+
+### Resource Activation & Deactivation
+
+By default, after startup and launching, the resource is configured but remains **inactive** until you activate it using ROS 2 controller commands.
+
+#### Activation
+
+To activate the resource controller, run:
+```sh
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
+```
+
+#### Deactivation
+
+To deactivate the resource controller, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster --strict
+```
+
+#### Check Controller State
+
+To verify the controller state:
+```sh
+ros2 control list_controllers
+```
+
+## Running the Simulation in Docker
+
+**Note:** The following commands should be run from your `ros2_ws` directory.
+
+### Build the Docker Image
+
+```bash
+docker build -t linrob_sim_cart -f src/linrob_sim_cart/Dockerfile .
+```
+
+### Run the Simulation (Headless/No GUI)
+
+```bash
+docker run --rm linrob_sim_cart
+```
+
+This will launch the simulation in headless mode.
+Controllers are loaded as inactive by default; activate controllers using ROS 2 control commands.
+
+#### Interacting with the Running Container
+
+To list or activate controllers after the simulation is running, open a new terminal and enter the container:
+
+```bash
+docker exec -it $(docker ps -q -f ancestor=linrob_sim_cart) bash
+source /opt/ros/humble/setup.bash
+ros2 control list_controllers
+ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
 ```
 
 ## ros2-base-humble-deb
