@@ -30,7 +30,7 @@ public:
   /**
    * Destructor.
    */
-  ~Resource() override = default;
+  ~Resource() override;
 
   /**
    * Initialization of the hardware interface from data parsed from the robot's URDF.
@@ -242,6 +242,9 @@ private:
 
   /// Flag to mark if the movement execution was already stopped.
   bool mMovementExecutionStopped {true};
+
+  /// Flag to track if the hardware interface is activated
+  bool mIsActivated {false};
 
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;

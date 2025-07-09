@@ -14,6 +14,11 @@ constexpr std::chrono::milliseconds kStatePollInterval{100};
 constexpr std::chrono::seconds kStateWaitTimeout{10};
 constexpr std::chrono::seconds kSetModeSleep{2};
 
+Resource::~Resource()
+{
+  disconnect();
+}
+
 hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
 {
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource STARTED...");
@@ -86,6 +91,7 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
 
   auto systemModeResult = waitForSystemMode("AUTO_EXTERNAL", kStateWaitTimeout);
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to switch to AUTO_EXTERNAL mode during activation");
       return systemModeResult;
   }
 
@@ -96,6 +102,7 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  mIsActivated = true;
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -119,9 +126,10 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
   std::this_thread::sleep_for(kSetModeSleep);
 
-  auto systemModeResult = checkSystemMode("MANUAL");
+  auto systemModeResult = waitForSystemMode("MANUAL", kStateWaitTimeout);
   if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
   {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to switch to MANUAL mode during deactivation");
     return systemModeResult;
   }
 
@@ -132,7 +140,7 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  disconnect();
+  mIsActivated = false;
 
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Deactivate resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -150,6 +158,11 @@ void Resource::disconnect()
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
+  if (!mIsActivated)
+  {
+    return hardware_interface::return_type::OK;
+  }
+
   // Check if clock types matches.
   if (time.get_clock_type() != mLastPositionCommandTime.get_clock_type())
   {
