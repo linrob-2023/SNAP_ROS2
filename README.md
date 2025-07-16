@@ -8,12 +8,13 @@ This package contains logic to start:
 
 - Position controller
 - Joint State publisher
+- Axis controller
 - Resource plugin that establishes connection between ctrlX datalayer and ROS2 topics. /position_controller/commands for sending commands to the hardware and /joint_states for reading current hardware state.
 
 ### Configurations
 
 All Datalayer nodes addresses and other hardware interface settings should be defined in the robot description urdf file at:
-`./description/robot_description.xacro.urdf`
+./description/robot_description.xacro.urdf
 
 ### Building snap app
 
@@ -54,47 +55,60 @@ Launch package:
 ros2 launch linrob_axis start.launch.py
 ```
 
-## Resource and Controllers Management
+### Resource Activation & Deactivation
 
-By default, after startup and launching, the hardware resource and controllers are configured but remain **inactive** until you activate them.
+By default, after startup and launching, the joint_state_broadcaster is **active** and both the position_controller and axis_controller are **inactive** until you activate them using ROS 2 controller commands.
 
-### Resource Control
+#### Activation
 
-#### List Available Hardware Components
+To activate the position controller, run:
 ```sh
-ros2 control list_hardware_components
+ros2 control switch_controllers --activate position_controller
 ```
 
-#### Activate Hardware Resource
+To activate the axis controller, run:
 ```sh
-ros2 control set_hardware_component_state linrob_hw active
+ros2 control switch_controllers --activate axis_controller
 ```
 
-#### Deactivate Hardware Resource
+To activate both controllers, run:
 ```sh
-ros2 control set_hardware_component_state linrob_hw inactive
+ros2 control switch_controllers --activate position_controller axis_controller --strict
 ```
 
-<br>
+#### Deactivation
 
-### Controller Management
+To deactivate the position controller, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller
+```
 
-#### List Controllers and Their States
+To deactivate the axis controller, run:
+```sh
+ros2 control switch_controllers --deactivate axis_controller
+```
+
+To deactivate both controllers, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller axis_controller --strict
+```
+
+#### Check Controller State
+
+To verify the controller state:
 ```sh
 ros2 control list_controllers
 ```
 
-#### Activate Controllers
-**Note:** Starting controllers will automatically activate the hardware resource if it's not already active.
-```sh
-ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
-```
+### Axis Control Services
 
-#### Deactivate Controllers
-**Note:** Deactivating controllers will keep the hardware resource active. To deactivate the resource, use the hardware component state command above.
-```sh
-ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster --strict
-```
+The package provides ROS2 services for controlling the PLC axis:
+
+- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors
+- **ReferenceAxis** (`/reference_axis`) - Starts a referencing/homing process
+- **StopAxis** (`/stop_axis`) - Stops active movement immediately
+
+Error codes are continuously monitored and published on the `/error_code` topic.
 
 ## Package: linrob_command_sender
 
@@ -167,7 +181,30 @@ To launch the simulation, run:
 ros2 launch linrob_sim_cart sim_cart.launch.py
 ```
 
-**Note:** For resource and controller management, see the [Resource and Controller Management](#resource-and-controller-management) section above.
+### Resource Activation & Deactivation
+
+By default, after startup and launching, the joint_state_broadcaster is **active** and the position_controller is **inactive** until you activate it using ROS 2 controller commands.
+
+#### Activation
+
+To activate the position controller, run:
+```sh
+ros2 control switch_controllers --activate position_controller
+```
+
+#### Deactivation
+
+To deactivate the position controller, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller
+```
+
+#### Check Controller State
+
+To verify the controller state:
+```sh
+ros2 control list_controllers
+```
 
 ## Running the Simulation in Docker
 
@@ -186,16 +223,17 @@ docker run --rm linrob_sim_cart
 ```
 
 This will launch the simulation in headless mode.
-Controllers and hardware components are loaded as inactive by default; use the resource and controller management commands described in the [Resource and Controller Management](#resource-and-controller-management) section.
+The joint_state_broadcaster is loaded as active by default; the position_controller is inactive until activated using ROS 2 control commands.
 
 #### Interacting with the Running Container
 
-To manage resource and controllers after the simulation is running, open a new terminal and enter the container:
+To list or activate controllers after the simulation is running, open a new terminal and enter the container:
 
 ```bash
 docker exec -it $(docker ps -q -f ancestor=linrob_sim_cart) bash
 source /opt/ros/humble/setup.bash
-# Then use any of the ros2 control commands from the Resource and Controller Management section
+ros2 control list_controllers
+ros2 control switch_controllers --activate position_controller
 ```
 
 ## ros2-base-humble-deb

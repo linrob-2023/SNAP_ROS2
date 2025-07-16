@@ -23,6 +23,11 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 {
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Initialize resource STARTED...");
 
+  if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS)
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
   // Connection.
   const auto& params = info.hardware_parameters;
   mConnection.ip = params.at("ip");
@@ -32,6 +37,7 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 
   // Node addresses.
   registerDatalayerNode("new_position", params.at("new_position"));
+  registerDatalayerNode("new_position_timestamp", params.at("new_position_timestamp"));
   registerDatalayerNode("next_pos_index", params.at("next_pos_index"));
   registerDatalayerNode("execute_movements", params.at("execute_movements"));
   registerDatalayerNode("position", params.at("position"));
@@ -39,6 +45,14 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   registerDatalayerNode("status", params.at("status"));
   registerDatalayerNode("read_mode", params.at("read_mode"));
   registerDatalayerNode("set_mode", params.at("set_mode"));
+
+  // Virtual command nodes for axis control services
+  registerDatalayerNode("virtual_reset", params.at("virtual_reset"));
+  registerDatalayerNode("virtual_reference", params.at("virtual_reference"));
+  registerDatalayerNode("virtual_stop", params.at("virtual_stop"));
+
+  // Error code node for reading latest error
+  registerDatalayerNode("error_code", params.at("error_code"));
 
   // Hardware settings.
   mPositionSettings.initialIndex = static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
@@ -163,10 +177,21 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     return hardware_interface::return_type::OK;
   }
 
+  // Handle virtual commands
+  processVirtualCommands();
+
   // Check if clock types matches.
   if (time.get_clock_type() != mLastPositionCommandTime.get_clock_type())
   {
     mLastPositionCommandTime = time;
+  }
+
+  // Calculate time difference since last position command
+  double timeDiffMs = 0.0;
+  if (mPositionSettings.newPositionsReceivedCount > 0)
+  {
+    auto duration = time - mLastPositionCommandTime;
+    timeDiffMs = duration.seconds() * 1000.0;
   }
 
   // Check if new command is received.
@@ -188,9 +213,13 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
   // Update position command buffer with the new position
   mAxisTargetPositionsExt[pos] = mPositionCommand;
+  // Update timestamp buffer with time difference
+  mAxisTargetPositionTimestampExt[pos] = static_cast<float>(timeDiffMs);
 
-  // Send updated buffer and index to the PLC (write array)
+  // Send updated buffers and index to the PLC
   if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
+    return hardware_interface::return_type::ERROR;
+  if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
     return hardware_interface::return_type::ERROR;
   if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
     return hardware_interface::return_type::ERROR;
@@ -215,6 +244,10 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
   // Update current position and velocity info.
   updateResult &= updateDataFromNode("position", comm::datalayer::VariantType::FLOAT64);
   updateResult &= updateDataFromNode("velocity", comm::datalayer::VariantType::FLOAT64);
+
+  // Update error code
+  updateResult &= updateDataFromNode("error_code", comm::datalayer::VariantType::UINT32);
+
   if (!updateResult)
   {
     return hardware_interface::return_type::ERROR;
@@ -230,6 +263,7 @@ std::vector<hardware_interface::StateInterface> Resource::export_state_interface
   std::vector<hardware_interface::StateInterface> state_interfaces;
   state_interfaces.emplace_back("joint_1", "position", &mState.at("position"));
   state_interfaces.emplace_back("joint_1", "velocity", &mState.at("velocity"));
+  state_interfaces.emplace_back("joint_1", "error_code", &mState.at("error_code"));
   return state_interfaces;
 }
 
@@ -237,6 +271,9 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
   command_interfaces.emplace_back("joint_1", "position", &mPositionCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_reset", &mVirtualResetCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_reference", &mVirtualReferenceCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
   return command_interfaces;
 }
 
@@ -391,6 +428,12 @@ void Resource::updateState()
 {
   mState.at("position") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("position").second.getData());
   mState.at("velocity") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("velocity").second.getData());
+
+  uint32_t errorCode = getLatestErrorCode();
+  mState.at("error_code") = static_cast<double>(errorCode);
+  if (errorCode != 0) {
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
+  }
 }
 
 bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
@@ -478,10 +521,12 @@ void Resource::waitUntilRequiredNodesAreValid()
 
 bool Resource::resetPlcBufferAndIndex() {
   resetAxisTargetPositionsExt();
+  resetAxisTargetPositionTimestampExt();
   mPositionSettings.nextPositionIndex = 1;
   auto newPositionWriteResult = writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
+  auto newTimestampWriteResult = writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt);
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
-  return newPositionWriteResult && nextPosIndexWriteResult;
+  return newPositionWriteResult && newTimestampWriteResult && nextPosIndexWriteResult;
 }
 
 void Resource::setLogLevel(const std::string& level)
@@ -515,7 +560,78 @@ void Resource::setLogLevel(const std::string& level)
   }
   logger.set_level(loggerLevel);
 }
+
+void Resource::processVirtualCommands()
+{
+  // virtual_reset
+  if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted)
+  {
+    bool result = writeToDatalayerNode("virtual_reset", true);
+    if (result)
+    {
+      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Virtual reset command sent to PLC");
+      mResetCommandExecuted = true;
+    }
+    else
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual reset command");
+    }
+  }
+  else if (mVirtualResetCommand <= 0.5)
+  {
+    mResetCommandExecuted = false;
+  }
+
+  // virtual_reference
+  if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted)
+  {
+    bool result = writeToDatalayerNode("virtual_reference", true);
+    if (result)
+    {
+      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Virtual reference command sent to PLC");
+      mReferenceCommandExecuted = true;
+    }
+    else
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual reference command");
+    }
+  }
+  else if (mVirtualReferenceCommand <= 0.5)
+  {
+    mReferenceCommandExecuted = false;
+  }
+
+  // virtual_stop
+  if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted)
+  {
+    bool result = writeToDatalayerNode("virtual_stop", true);
+    if (result)
+    {
+      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Virtual stop command sent to PLC");
+      mStopCommandExecuted = true;
+    }
+    else
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual stop command");
+    }
+  }
+  else if (mVirtualStopCommand <= 0.5)
+  {
+    mStopCommandExecuted = false;
+  }
 }
+
+uint32_t Resource::getLatestErrorCode()
+{
+  auto& errorData = mConnection.datalayerNodeMap.at("error_code");
+  if (errorData.second.getType() == comm::datalayer::VariantType::UINT32)
+  {
+    mLatestErrorCode = *reinterpret_cast<uint32_t*>(errorData.second.getData());
+  }
+  return mLatestErrorCode;
+}
+
+}  // namespace linrob
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(linrob::Resource, hardware_interface::SystemInterface)

@@ -8,6 +8,9 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    axis_controller:
+      type: linrob_controllers/AxisController
+
 position_controller:
   ros__parameters:
     state: inactive
@@ -20,3 +23,9 @@ position_controller:
     state_interfaces:
       - position
       - velocity
+
+axis_controller:
+  ros__parameters:
+    state: inactive
+    joints:
+      - joint_1

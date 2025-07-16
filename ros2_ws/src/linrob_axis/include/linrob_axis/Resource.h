@@ -197,14 +197,31 @@ private:
   void setLogLevel(const std::string& level);
 
   /**
+   * Processes virtual commands from the controller
+   */
+  void processVirtualCommands();
+
+  /**
+   * Gets the latest error code from the PLC.
+   * @return The latest error code as uint32_t.
+   */
+  uint32_t getLatestErrorCode();
+
+  /**
    * Helper to reset the axis target positions buffer (local only).
    * Fills the buffer with the current position (rounded to 4 decimal places).
    */
   inline void resetAxisTargetPositionsExt() {
     double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
-    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-      mAxisTargetPositionsExt[i] = pos;
-    }
+    mAxisTargetPositionsExt.fill(pos);
+  }
+
+  /**
+   * Helper to reset the axis target position timestamp buffer (local only).
+   * Fills the buffer with zeros.
+   */
+  inline void resetAxisTargetPositionTimestampExt() {
+    mAxisTargetPositionTimestampExt.fill(0.0f);
   }
 
   /**
@@ -223,10 +240,15 @@ private:
   std::unique_ptr<comm::datalayer::IClient> mClient = nullptr;
 
   /// Hardware state interface.
-  std::unordered_map<std::string, double> mState {{"position", 0.0}, {"velocity", 0.0}};
+  std::unordered_map<std::string, double> mState {{"position", 0.0}, {"velocity", 0.0}, {"error_code", 0.0}};
 
   // Hardware command interface.
   double mPositionCommand {0.0};
+
+  // Virtual command interfaces
+  double mVirtualResetCommand {0.0};
+  double mVirtualReferenceCommand {0.0};
+  double mVirtualStopCommand {0.0};
 
   /// Last new position received.
   double mLastPositionCommand {0.0};
@@ -249,6 +271,15 @@ private:
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
   double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
+   /// Timestamp buffer for target positions (local only).
+  std::array<float, kMaxPositionsExt> mAxisTargetPositionTimestampExt{};
+  
+  /// Latest error code from the axis
+  uint32_t mLatestErrorCode {0U};
+  /// Flags to track command execution state
+  bool mResetCommandExecuted {false};
+  bool mReferenceCommandExecuted {false};
+  bool mStopCommandExecuted {false};
 };
 
 template <typename T>

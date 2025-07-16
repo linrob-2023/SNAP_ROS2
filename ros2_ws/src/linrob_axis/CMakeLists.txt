@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(linrob_axis)
-set(TARGET_PROJECT_NAME linrob_axis)
+set(TARGET_PROJECT_NAME linrob_axis_plugin)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -13,6 +13,8 @@ find_package(std_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(ros2_control REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(controller_interface REQUIRED)
 
 #
 # Set link directories
@@ -48,9 +50,21 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Generate services
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/ResetAxis.srv"
+  "srv/ReferenceAxis.srv"
+  "srv/StopAxis.srv"
+)
+
 # Define the plugin as a shared library
 add_library(${TARGET_PROJECT_NAME} SHARED
   src/Resource.cpp
+)
+
+# Define the controller as a shared library
+add_library(${PROJECT_NAME}_controller SHARED
+  src/axis_controller.cpp
 )
 
 #
@@ -61,6 +75,14 @@ target_include_directories ( ${TARGET_PROJECT_NAME}
   PUBLIC ${LIBRARY_INCLUDES}
 	PRIVATE ${PRIVATE_INCLUDE_DIRS}
 )
+
+# Set target include directories for controller
+target_include_directories ( ${PROJECT_NAME}_controller
+  PUBLIC ${PUBLIC_INCLUDE_DIRS}
+  PUBLIC ${LIBRARY_INCLUDES}
+	PRIVATE ${PRIVATE_INCLUDE_DIRS}
+)
+
 #
 target_link_libraries(${TARGET_PROJECT_NAME} -Wl,--no-undefined)
 target_link_libraries(${TARGET_PROJECT_NAME}
@@ -80,12 +102,33 @@ ament_target_dependencies(${TARGET_PROJECT_NAME}
   pluginlib
 )
 
+# Controller dependencies
+ament_target_dependencies(${PROJECT_NAME}_controller
+  rclcpp
+  std_msgs
+  hardware_interface
+  controller_interface
+  pluginlib
+)
+
+# Make service interfaces available to this target
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(${TARGET_PROJECT_NAME} "${cpp_typesupport_target}")
+target_link_libraries(${PROJECT_NAME}_controller "${cpp_typesupport_target}")
+
 pluginlib_export_plugin_description_file(hardware_interface resource_plugin.xml)
+pluginlib_export_plugin_description_file(controller_interface controller_plugin.xml)
 
 
 # Install shared library
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS ${TARGET_PROJECT_NAME}
+  LIBRARY DESTINATION lib
+)
+
+# Install controller library
+install(
+  TARGETS ${PROJECT_NAME}_controller
   LIBRARY DESTINATION lib
 )
 
@@ -111,5 +154,13 @@ install(
   DIRECTORY description/
   DESTINATION share/${PROJECT_NAME}/description
 )
+
+# Install service files
+install(
+  DIRECTORY srv/
+  DESTINATION share/${PROJECT_NAME}/srv
+)
+
+ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()

@@ -29,7 +29,7 @@ def generate_launch_description():
         [
             FindPackageShare("linrob_axis"),
             "config",
-            "position_controller.yaml"
+            "position_controller_inactive.yaml"
         ]
     )
 
