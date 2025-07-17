@@ -270,10 +270,11 @@ private:
 
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
-  double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
-   /// Timestamp buffer for target positions (local only).
+  std::array<double, kMaxPositionsExt> mAxisTargetPositionsExt{};
+
+  /// Timestamp buffer for target positions (local only).
   std::array<float, kMaxPositionsExt> mAxisTargetPositionTimestampExt{};
-  
+
   /// Latest error code from the axis
   uint32_t mLatestErrorCode {0U};
   /// Flags to track command execution state
