@@ -109,16 +109,22 @@ controller_interface::return_type AxisController::update(
   if (pending_reset_.exchange(false)) {
     command_interfaces_[0].set_value(1.0);  // virtual_reset
     RCLCPP_INFO(get_node()->get_logger(), "Reset command sent to hardware");
+  } else {
+    command_interfaces_[0].set_value(0.0);
   }
 
   if (pending_reference_.exchange(false)) {
     command_interfaces_[1].set_value(1.0);  // virtual_reference
     RCLCPP_INFO(get_node()->get_logger(), "Reference command sent to hardware");
+  } else {
+    command_interfaces_[1].set_value(0.0);
   }
 
   if (pending_stop_.exchange(false)) {
     command_interfaces_[2].set_value(1.0);  // virtual_stop
     RCLCPP_INFO(get_node()->get_logger(), "Stop command sent to hardware");
+  } else {
+    command_interfaces_[2].set_value(0.0);
   }
 
   // Read and publish error code
