@@ -66,9 +66,9 @@
         <param name="set_mode">plc/app/Application/sym/GVL/nOperationModeRequest</param>
 
         <!-- Virtual command variables for axis control services -->
-        <param name="virtual_reset">plc/app/Application/sym/GVL/xVirtReset</param>
-        <param name="virtual_reference">plc/app/Application/sym/GVL/xVirtReference</param>
-        <param name="virtual_stop">plc/app/Application/sym/GVL/xVirtStop</param>
+        <param name="virtual_reset">plc/app/Application/sym/GVL/xResetVirt</param>
+        <param name="virtual_reference">plc/app/Application/sym/GVL/xReferenceVirt</param>
+        <param name="virtual_stop">plc/app/Application/sym/GVL/xStopVirt</param>
 
         <param name="error_code">plc/app/Application/sym/GVL/nLatestErrorCode</param>
 

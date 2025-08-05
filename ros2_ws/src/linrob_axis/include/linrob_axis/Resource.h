@@ -224,7 +224,7 @@ private:
    */
   inline void resetAxisTargetPositionTimestampExt() {
     for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-      mAxisTargetPositionTimestampExt[i] = 0.0f;
+      mAxisTargetPositionTimestampExt[i] = 0.0;
     }
   }
 
@@ -277,7 +277,7 @@ private:
   double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
 
   /// Timestamp buffer for target positions (local only).
-  float mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0f};
+  double mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0};
 
   /// Latest error code from the axis
   uint32_t mLatestErrorCode {0U};

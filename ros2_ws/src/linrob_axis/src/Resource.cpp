@@ -563,14 +563,9 @@ void Resource::setLogLevel(const std::string& level)
 
 void Resource::processVirtualCommands()
 {
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "processVirtualCommands called - Reset: %.2f, Reference: %.2f, Stop: %.2f",
-               mVirtualResetCommand, mVirtualReferenceCommand, mVirtualStopCommand);
-
   // virtual_reset
   if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted)
   {
-    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Service call: virtual_reset - mVirtualResetCommand: %.2f, mResetCommandExecuted: %s",
-                mVirtualResetCommand, mResetCommandExecuted ? "true" : "false");
     bool result = writeToDatalayerNode("virtual_reset", true);
     if (result)
     {
@@ -590,8 +585,6 @@ void Resource::processVirtualCommands()
   // virtual_reference
   if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted)
   {
-    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Service call: virtual_reference - mVirtualReferenceCommand: %.2f, mReferenceCommandExecuted: %s",
-                mVirtualReferenceCommand, mReferenceCommandExecuted ? "true" : "false");
     bool result = writeToDatalayerNode("virtual_reference", true);
     if (result)
     {
@@ -611,8 +604,6 @@ void Resource::processVirtualCommands()
   // virtual_stop
   if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted)
   {
-    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Service call: virtual_stop - mVirtualStopCommand: %.2f, mStopCommandExecuted: %s",
-                mVirtualStopCommand, mStopCommandExecuted ? "true" : "false");
     bool result = writeToDatalayerNode("virtual_stop", true);
     if (result)
     {
