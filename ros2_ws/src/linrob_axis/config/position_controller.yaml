@@ -31,5 +31,4 @@ position_controller:
 axis_controller:
   ros__parameters:
     state: inactive
-    joints:
-      - joint_1
+    joint_name: joint_1
