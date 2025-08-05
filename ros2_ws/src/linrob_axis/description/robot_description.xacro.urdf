@@ -56,6 +56,7 @@
 
         <!-- Datalayer Nodes addresses -->
         <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
+        <param name="new_position_timestamp">plc/app/Application/sym/GVL/alrAxisTargetPositionTimestampExt</param>
         <param name="next_pos_index">plc/app/Application/sym/GVL/nAxisTargetPosExtIdx</param>
         <param name="execute_movements">plc/app/Application/sym/GVL/xAxisTargetPosExtExecute</param>
         <param name="position">plc/app/Application/sym/GVL/lrAxisPositionX</param>
@@ -63,6 +64,13 @@
         <param name="status">plc/app/Application/sym/GVL/anAxisStatus</param>
         <param name="read_mode">plc/app/Application/sym/GVL/sOperationMode</param>
         <param name="set_mode">plc/app/Application/sym/GVL/nOperationModeRequest</param>
+
+        <!-- Virtual command variables for axis control services -->
+        <param name="virtual_reset">plc/app/Application/sym/GVL/xResetVirt</param>
+        <param name="virtual_reference">plc/app/Application/sym/GVL/xReferenceVirt</param>
+        <param name="virtual_stop">plc/app/Application/sym/GVL/xStopVirt</param>
+
+        <param name="error_code">plc/app/Application/sym/GVL/nLatestErrorCode</param>
 
         <param name="initial_position_index">1</param>
         <param name="max_position_indices">1000</param>
@@ -79,10 +87,14 @@
         <param name="min">-15</param>
         <param name="max">15</param>
       </command_interface>
+      <command_interface name="virtual_reset"/>
+      <command_interface name="virtual_reference"/>
+      <command_interface name="virtual_stop"/>
       <state_interface name="position">
         <param name="initial_value">1.0</param>
       </state_interface>
       <state_interface name="velocity"/>
+      <state_interface name="error_code"/>
     </joint>
   </ros2_control>
 </robot>

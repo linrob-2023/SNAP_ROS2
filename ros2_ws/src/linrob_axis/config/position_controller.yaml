@@ -2,11 +2,18 @@ controller_manager:
   ros__parameters:
     update_rate: 500
 
+    hardware_components_initial_state:
+      inactive:
+        - linrob_hw
+
     position_controller:
       type: position_controllers/JointGroupPositionController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+    axis_controller:
+      type: linrob_controllers/AxisController
 
 position_controller:
   ros__parameters:
@@ -20,3 +27,8 @@ position_controller:
     state_interfaces:
       - position
       - velocity
+
+axis_controller:
+  ros__parameters:
+    state: inactive
+    joint_name: joint_1

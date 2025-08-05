@@ -8,6 +8,7 @@ This package contains logic to start:
 
 - Position controller
 - Joint State publisher
+- Axis controller
 - Resource plugin that establishes connection between ctrlX datalayer and ROS2 topics. /position_controller/commands for sending commands to the hardware and /joint_states for reading current hardware state.
 
 ### Configurations
@@ -56,20 +57,40 @@ ros2 launch linrob_axis start.launch.py
 
 ### Resource Activation & Deactivation
 
-By default, after startup and launching, the resource is configured but remains **inactive** until you activate it using ROS 2 controller commands.
+By default, after startup and launching, the joint_state_broadcaster is **active** and both the position_controller and axis_controller are **inactive** until you activate them using ROS 2 controller commands.
 
 #### Activation
 
-To activate the resource controller, run:
+To activate the position controller, run:
 ```sh
-ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
+ros2 control switch_controllers --activate position_controller
+```
+
+To activate the axis controller, run:
+```sh
+ros2 control switch_controllers --activate axis_controller
+```
+
+To activate both controllers, run:
+```sh
+ros2 control switch_controllers --activate position_controller axis_controller --strict
 ```
 
 #### Deactivation
 
-To deactivate the resource controller, run:
+To deactivate the position controller, run:
 ```sh
-ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster --strict
+ros2 control switch_controllers --deactivate position_controller
+```
+
+To deactivate the axis controller, run:
+```sh
+ros2 control switch_controllers --deactivate axis_controller
+```
+
+To deactivate both controllers, run:
+```sh
+ros2 control switch_controllers --deactivate position_controller axis_controller --strict
 ```
 
 #### Check Controller State
@@ -78,6 +99,16 @@ To verify the controller state:
 ```sh
 ros2 control list_controllers
 ```
+
+### Axis Control Services
+
+The package provides ROS2 services for controlling the PLC axis:
+
+- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors
+- **ReferenceAxis** (`/reference_axis`) - Starts a referencing/homing process
+- **StopAxis** (`/stop_axis`) - Stops active movement immediately
+
+Error codes are continuously monitored and published on the `/error_code` topic.
 
 ## Package: linrob_command_sender
 
@@ -152,20 +183,20 @@ ros2 launch linrob_sim_cart sim_cart.launch.py
 
 ### Resource Activation & Deactivation
 
-By default, after startup and launching, the resource is configured but remains **inactive** until you activate it using ROS 2 controller commands.
+By default, after startup and launching, the joint_state_broadcaster is **active** and the position_controller is **inactive** until you activate it using ROS 2 controller commands.
 
 #### Activation
 
-To activate the resource controller, run:
+To activate the position controller, run:
 ```sh
-ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
+ros2 control switch_controllers --activate position_controller
 ```
 
 #### Deactivation
 
-To deactivate the resource controller, run:
+To deactivate the position controller, run:
 ```sh
-ros2 control switch_controllers --deactivate position_controller joint_state_broadcaster --strict
+ros2 control switch_controllers --deactivate position_controller
 ```
 
 #### Check Controller State
@@ -192,7 +223,7 @@ docker run --rm linrob_sim_cart
 ```
 
 This will launch the simulation in headless mode.
-Controllers are loaded as inactive by default; activate controllers using ROS 2 control commands.
+The joint_state_broadcaster is loaded as active by default; the position_controller is inactive until activated using ROS 2 control commands.
 
 #### Interacting with the Running Container
 
@@ -202,7 +233,7 @@ To list or activate controllers after the simulation is running, open a new term
 docker exec -it $(docker ps -q -f ancestor=linrob_sim_cart) bash
 source /opt/ros/humble/setup.bash
 ros2 control list_controllers
-ros2 control switch_controllers --activate position_controller joint_state_broadcaster --strict
+ros2 control switch_controllers --activate position_controller
 ```
 
 ## ros2-base-humble-deb

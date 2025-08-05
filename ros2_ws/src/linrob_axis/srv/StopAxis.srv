@@ -1,0 +1,4 @@
+# Service for stopping active movement
+---
+bool success
+string message
