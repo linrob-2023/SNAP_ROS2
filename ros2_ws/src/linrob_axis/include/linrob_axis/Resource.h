@@ -213,7 +213,9 @@ private:
    */
   inline void resetAxisTargetPositionsExt() {
     double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
-    mAxisTargetPositionsExt.fill(pos);
+    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
+      mAxisTargetPositionsExt[i] = pos;
+    }
   }
 
   /**
@@ -221,7 +223,9 @@ private:
    * Fills the buffer with zeros.
    */
   inline void resetAxisTargetPositionTimestampExt() {
-    mAxisTargetPositionTimestampExt.fill(0.0f);
+    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
+      mAxisTargetPositionTimestampExt[i] = 0.0f;
+    }
   }
 
   /**
@@ -270,10 +274,10 @@ private:
 
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
-  std::array<double, kMaxPositionsExt> mAxisTargetPositionsExt{};
+  double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
 
   /// Timestamp buffer for target positions (local only).
-  std::array<float, kMaxPositionsExt> mAxisTargetPositionTimestampExt{};
+  float mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0f};
 
   /// Latest error code from the axis
   uint32_t mLatestErrorCode {0U};
