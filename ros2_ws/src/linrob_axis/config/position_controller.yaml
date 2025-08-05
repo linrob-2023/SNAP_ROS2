@@ -2,6 +2,10 @@ controller_manager:
   ros__parameters:
     update_rate: 500
 
+    hardware_components_initial_state:
+      inactive:
+        - linrob_hw
+
     position_controller:
       type: position_controllers/JointGroupPositionController
 
