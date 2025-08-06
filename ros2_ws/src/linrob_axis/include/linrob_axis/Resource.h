@@ -151,13 +151,6 @@ private:
   void updateState();
 
   /**
-   * Checks if new position was received.
-   * @param currentTime current time.
-   * @return true if new position was received, false otherwise.
-   */
-  bool checkNewPositionReceived(const rclcpp::Time& currentTime);
-
-  /**
    * Writes data to the specified datalayer node.
    * @tparam T type of the data to be written.
    * @param key key for the datalayer node.
