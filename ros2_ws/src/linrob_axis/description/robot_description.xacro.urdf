@@ -76,7 +76,7 @@
         <param name="max_position_indices">1000</param>
         <param name="execute_movements_on_next_index">3</param>
 
-        <param name="update_frequency_hz">5</param>
+        <param name="update_frequency_hz">10</param>
 
         <param name="log_level">INFO</param>
 
