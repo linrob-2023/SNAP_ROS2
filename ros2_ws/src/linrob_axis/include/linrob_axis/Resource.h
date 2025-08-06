@@ -13,6 +13,7 @@
 #include <rclcpp/time.hpp>
 #include <unordered_map>
 #include <cmath>
+#include <chrono>
 
 namespace linrob
 {
@@ -93,12 +94,6 @@ public:
    * @return vector of command interfaces.
    */
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
-
-  /**
-   * Waits for the axis state to reach the expected state within a timeout.
-   * Returns SUCCESS if reached, FAILURE on timeout, ERROR if error state detected.
-   */
-  hardware_interface::CallbackReturn waitForAxisState(AxisState expectedState, std::chrono::milliseconds timeout);
 
   /**
    * Waits for the system mode to reach the expected mode within a timeout.
@@ -195,6 +190,18 @@ private:
   void processVirtualCommands();
 
   /**
+   * Checks the axis state periodically and updates mAxisReadyForOperation flag.
+   * This is called during read/write operations to monitor when the axis becomes ready.
+   */
+  void checkAxisReadiness();
+
+  /**
+   * Switches the system to AUTO_EXTERNAL mode and waits for confirmation.
+   * @return true if successful, false otherwise
+   */
+  bool switchToAutoExternalMode();
+
+  /**
    * Gets the latest error code from the PLC.
    * @return The latest error code as uint32_t.
    */
@@ -262,8 +269,11 @@ private:
   /// Flag to mark if the movement execution was already stopped.
   bool mMovementExecutionStopped {true};
 
-  /// Flag to track if the hardware interface is activated
-  bool mIsActivated {false};
+  /// Flag to track if the axis is ready for operation (in STANDSTILL state)
+  bool mAxisReadyForOperation {false};
+
+  /// Last time we checked the axis state
+  std::chrono::steady_clock::time_point mLastAxisStateCheck;
 
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
