@@ -177,7 +177,6 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     checkAxisReadiness();
     if (!mAxisReadyForOperation)
     {
-      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis is not ready");
       return hardware_interface::return_type::OK;
     }
   }
@@ -256,6 +255,15 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
 hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
+  if (!mAxisReadyForOperation)
+  {
+    checkAxisReadiness();
+    if (!mAxisReadyForOperation)
+    {
+      return hardware_interface::return_type::OK;
+    }
+  }
+
   auto updateResult = true;
   // Update current system and axis info.
   updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
