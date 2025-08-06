@@ -116,6 +116,9 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  mPositionSettings.newPositionsReceivedCount = 0U;
+  mMovementExecutionStopped = true;
+
   mIsActivated = true;
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -180,13 +183,28 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
   // Handle virtual commands
   processVirtualCommands();
 
-  // Check if clock types matches.
-  if (time.get_clock_type() != mLastPositionCommandTime.get_clock_type())
+  // Check if new position command is received
+  if (mPositionCommand == mLastPositionCommand)
   {
-    mLastPositionCommandTime = time;
+    // No new position received, check if we should stop movement execution
+    if (mPositionSettings.newPositionsReceivedCount > 0)
+    {
+      auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
+      bool newCommandsExpected = time - mLastPositionCommandTime < expectedDurationBetweenCommands;
+
+      if (!newCommandsExpected && !mMovementExecutionStopped)
+      {
+        mPositionSettings.newPositionsReceivedCount = 0U;
+        if (!writeToDatalayerNode("execute_movements", false))
+          return hardware_interface::return_type::ERROR;
+
+        mMovementExecutionStopped = true;
+      }
+    }
+    return hardware_interface::return_type::OK;
   }
 
-  // Calculate time difference since last position command
+  // New position received - calculate time difference since last position command
   double timeDiffMs = 0.0;
   if (mPositionSettings.newPositionsReceivedCount > 0)
   {
@@ -194,12 +212,10 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     timeDiffMs = duration.seconds() * 1000.0;
   }
 
-  // Check if new command is received.
-  auto newPositionReceived = checkNewPositionReceived(time);
-  if (!newPositionReceived)
-  {
-    return hardware_interface::return_type::OK;
-  }
+  // Update tracking variables
+  mLastPositionCommand = mPositionCommand;
+  mLastPositionCommandTime = time;
+  ++mPositionSettings.newPositionsReceivedCount;
 
   // Increment next position index
   if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
@@ -224,11 +240,13 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
   if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
     return hardware_interface::return_type::ERROR;
 
-  // Start movement if at least 2 new positions have been received
-  if (mPositionSettings.newPositionsReceivedCount >= 2)
+  // Start movement if required number of positions have been received
+  if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex)
   {
     if (!writeToDatalayerNode("execute_movements", true))
       return hardware_interface::return_type::ERROR;
+
+    mMovementExecutionStopped = false;
   }
 
   return hardware_interface::return_type::OK;
@@ -434,65 +452,6 @@ void Resource::updateState()
   if (errorCode != 0) {
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
   }
-}
-
-bool Resource::checkNewPositionReceived(const rclcpp::Time& currentTime)
-{
-  // Check if last position and current positions are different.
-  auto positionsReceived = true;
-  positionsReceived &= mPositionCommand != mLastPositionCommand;
-
-  // Position not received.
-  // Check if we should still wait for new position or no new positions will be received.
-  auto newCommandsExpected = true;
-  if (!positionsReceived)
-  {
-    // Assuming we always receive new positions at specified frequency. Therefore each new position is expected to be
-    // received within the specified time (1 sec / frequency). Requires reliable connection between this interface and
-    // hardware.
-    auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
-    newCommandsExpected = currentTime - mLastPositionCommandTime < expectedDurationBetweenCommands;
-  }
-  else
-  {
-    mLastPositionCommand = mPositionCommand;
-    mLastPositionCommandTime = currentTime;
-    ++mPositionSettings.newPositionsReceivedCount;
-  }
-
-  // Check if at least 3 new positions are received.
-  if (newCommandsExpected && (mPositionSettings.newPositionsReceivedCount == mPositionSettings.executeMovementsOnIndex))
-  {
-    mMovementExecutionStopped = false;
-    auto execMovementsResult = writeToDatalayerNode("execute_movements", true);
-    if (!execMovementsResult)
-    {
-      return false;
-    }
-  }
-
-  // Stopped receiving new positions.
-  if (!newCommandsExpected)
-  {
-    mPositionSettings.newPositionsReceivedCount = 0U;
-    if (mMovementExecutionStopped)
-    {
-      return false;
-    }
-    auto newPositionWriteResult = writeToDatalayerNode("new_position", mState.at("position"));
-    if (!newPositionWriteResult)
-    {
-      return false;
-    }
-    auto execMovementsResult = writeToDatalayerNode("execute_movements", false);
-    if (!execMovementsResult)
-    {
-      return false;
-    }
-    mMovementExecutionStopped = true;
-  }
-
-  return true;
 }
 
 void Resource::waitUntilRequiredNodesAreValid()
