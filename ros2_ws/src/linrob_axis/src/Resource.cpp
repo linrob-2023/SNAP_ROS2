@@ -65,6 +65,11 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 
   mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
 
+  // Position tolerance for checking if axis reached target position (default 0.01mm)
+  if (params.find("position_tolerance_mm") != params.end()) {
+    mPositionToleranceMm = std::stod(params.at("position_tolerance_mm"));
+  }
+
   // Logger.
   setLogLevel(params.at("log_level"));
 
@@ -196,11 +201,36 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
       if (!newCommandsExpected && !mMovementExecutionStopped)
       {
-        mPositionSettings.newPositionsReceivedCount = 0U;
-        if (!writeToDatalayerNode("execute_movements", false))
+        // Check if axis is in STANDBY state and within tolerance of last target position
+        auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
+        if (!statusUpdateResult)
+        {
           return hardware_interface::return_type::ERROR;
+        }
 
-        mMovementExecutionStopped = true;
+        auto& statusData = mConnection.datalayerNodeMap.at("status");
+        auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
+
+        double currentPosition = mState.at("position");
+        double positionError = std::abs(currentPosition - mLastPositionCommand) * 1000.0; // Convert to mm for comparison
+
+        if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        {
+          mPositionSettings.newPositionsReceivedCount = 0U;
+          if (!writeToDatalayerNode("execute_movements", false))
+            return hardware_interface::return_type::ERROR;
+
+          mMovementExecutionStopped = true;
+          RCLCPP_INFO(rclcpp::get_logger(LINROB),
+                     "Movement execution stopped. Axis reached target position %.4f m (tolerance: %.3f mm)",
+                     mLastPositionCommand, mPositionToleranceMm);
+        }
+        else
+        {
+          RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                      "Waiting for axis to reach target. State: %u, Position: %.4f m, Target: %.4f m, Error: %.4f mm",
+                      static_cast<unsigned int>(axisStatus), currentPosition, mLastPositionCommand, positionError);
+        }
       }
     }
     return hardware_interface::return_type::OK;

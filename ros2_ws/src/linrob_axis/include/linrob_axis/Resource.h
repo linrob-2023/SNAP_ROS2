@@ -266,6 +266,9 @@ private:
   /// Expected max delay in milliseconds between commands.
   uint32_t mExpectedDelayBetweenCommandsMs {0U};
 
+  /// Position tolerance in mm for checking if axis reached target position.
+  double mPositionToleranceMm {0.01};
+
   /// Flag to mark if the movement execution was already stopped.
   bool mMovementExecutionStopped {true};
 

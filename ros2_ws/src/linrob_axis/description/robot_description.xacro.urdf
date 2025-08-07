@@ -78,6 +78,8 @@
 
         <param name="update_frequency_hz">5</param>
 
+        <param name="position_tolerance_mm">0.01</param>
+
         <param name="log_level">INFO</param>
 
 
