@@ -13,7 +13,7 @@ class StreamPublisher(Node):
 
     def timer_callback(self):
         # Increment by ~0.5 with a bit of randomness
-        self.value += 0.000002 # + random.uniform(-0.1, 0.1)
+        self.value += 0.000001 # + random.uniform(-0.1, 0.1)
 
         msg = Float64MultiArray()
         msg.data = [self.value]
