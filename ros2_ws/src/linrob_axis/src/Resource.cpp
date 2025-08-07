@@ -212,9 +212,14 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
         auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
 
         double currentPosition = mState.at("position");
-        double positionError = std::abs(currentPosition - mLastPositionCommand) * 1000.0; // Convert to mm for comparison
+        double positionError = std::abs(currentPosition - mLastPositionCommand); // Convert to mm for comparison
+        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                     "Target position is %.8f mm at tolerance: %.8f mm", mLastPositionCommand, mPositionToleranceMm);
+        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                     "Current position is %.8f mm, error is %.8f mm", currentPosition, positionError);
 
-        if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        //if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        if (positionError <= mPositionToleranceMm)
         {
           mPositionSettings.newPositionsReceivedCount = 0U;
           if (!writeToDatalayerNode("execute_movements", false))
@@ -222,13 +227,13 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
           mMovementExecutionStopped = true;
           RCLCPP_INFO(rclcpp::get_logger(LINROB),
-                     "Movement execution stopped. Axis reached target position %.4f m (tolerance: %.3f mm)",
+                     "Movement execution stopped. Axis reached target position %.8f mm (tolerance: %.8f mm)",
                      mLastPositionCommand, mPositionToleranceMm);
         }
         else
         {
           RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
-                      "Waiting for axis to reach target. State: %u, Position: %.4f m, Target: %.4f m, Error: %.4f mm",
+                      "Waiting for axis to reach target. State: %u, Position: %.8f mm, Target: %.8f mm, Error: %.8f mm",
                       static_cast<unsigned int>(axisStatus), currentPosition, mLastPositionCommand, positionError);
         }
       }
