@@ -244,7 +244,7 @@ private:
   std::unique_ptr<comm::datalayer::IClient> mClient = nullptr;
 
   /// Hardware state interface.
-  std::unordered_map<std::string, double> mState {{"position", 0.0}, {"velocity", 0.0}, {"error_code", 0.0}};
+  std::unordered_map<std::string, double> mState {{"position", 0.0}, {"velocity", 0.0}, {"error_code", 0.0}, {"axis_ready", 0.0}};
 
   // Hardware command interface.
   double mPositionCommand {0.0};

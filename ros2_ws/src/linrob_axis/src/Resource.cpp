@@ -440,6 +440,8 @@ void Resource::updateState()
   if (errorCode != 0) {
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
   }
+
+  mState.at("axis_ready") = mAxisReadyForOperation ? 1.0 : 0.0;
 }
 
 void Resource::waitUntilRequiredNodesAreValid()
