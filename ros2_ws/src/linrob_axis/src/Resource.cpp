@@ -212,7 +212,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
         auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
 
         double currentPosition = mState.at("position");
-        double positionError = std::abs(currentPosition - mLastPositionCommand); // Convert to mm for comparison
+        double positionError = std::abs(currentPosition - mLastPositionCommand);
         RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
                      "Target position is %.8f mm at tolerance: %.8f mm", mLastPositionCommand, mPositionToleranceMm);
         RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
@@ -229,6 +229,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
           RCLCPP_INFO(rclcpp::get_logger(LINROB),
                      "Movement execution stopped. Axis reached target position %.8f mm (tolerance: %.8f mm)",
                      mLastPositionCommand, mPositionToleranceMm);
+          return hardware_interface::return_type::OK;
         }
         else
         {
@@ -238,7 +239,6 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
         }
       }
     }
-    return hardware_interface::return_type::OK;
   }
 
   // New position received - calculate time difference since last position command
