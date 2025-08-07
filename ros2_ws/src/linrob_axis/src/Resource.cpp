@@ -172,6 +172,10 @@ void Resource::disconnect()
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
+  // Handle virtual commands
+  processVirtualCommands();
+
+  // Check if axis is ready for operation
   if (!mAxisReadyForOperation)
   {
     checkAxisReadiness();
@@ -180,9 +184,6 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
       return hardware_interface::return_type::OK;
     }
   }
-
-  // Handle virtual commands
-  processVirtualCommands();
 
   // Check if new position command is received
   if (mPositionCommand == mLastPositionCommand)
@@ -292,6 +293,7 @@ std::vector<hardware_interface::StateInterface> Resource::export_state_interface
   state_interfaces.emplace_back("joint_1", "position", &mState.at("position"));
   state_interfaces.emplace_back("joint_1", "velocity", &mState.at("velocity"));
   state_interfaces.emplace_back("joint_1", "error_code", &mState.at("error_code"));
+  state_interfaces.emplace_back("joint_1", "axis_ready", &mState.at("axis_ready"));
   return state_interfaces;
 }
 
