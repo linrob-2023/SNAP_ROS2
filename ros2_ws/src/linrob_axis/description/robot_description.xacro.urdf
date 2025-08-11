@@ -78,6 +78,7 @@
 
         <param name="update_frequency_hz">10</param>
 
+        <param name="duplicate_append_limit">5</param>
         <param name="position_tolerance_mm">0.000001</param>
 
         <param name="log_level">INFO</param>

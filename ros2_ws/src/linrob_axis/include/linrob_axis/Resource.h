@@ -263,8 +263,11 @@ private:
   /// Last time a buffer entry (new or duplicate) was written to PLC.
   rclcpp::Time mLastBufferFillTime;
 
-  /// Last time difference between consecutive position commands in ms (used for duplicate buffering).
-  double mLastTimeDiffMs {0.0};
+  /// Limit for how many duplicate positions to append after last new target
+  uint32_t mDuplicateAppendLimit {5};
+
+  /// Counter tracking how many duplicates have been appended since the last new target position.
+  uint32_t mDuplicateAppendsSinceLastNew {0};
 
   /// Position command settings for observing and managing system state.
   PositionSettings mPositionSettings;

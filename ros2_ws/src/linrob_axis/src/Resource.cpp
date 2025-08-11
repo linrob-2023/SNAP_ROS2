@@ -70,6 +70,13 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
     mPositionToleranceMm = std::stod(params.at("position_tolerance_mm"));
   }
 
+  if (params.find("duplicate_append_limit") != params.end()) {
+    int limit = std::stoi(params.at("duplicate_append_limit"));
+    if (limit > 0) {
+      mDuplicateAppendLimit = static_cast<uint32_t>(limit);
+    }
+  }
+
   // Logger.
   setLogLevel(params.at("log_level"));
 
@@ -192,6 +199,10 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
   // Helper lambda to append (duplicate) last known target into buffer while axis moves
   auto appendDuplicateTarget = [&](double target) -> bool {
+    if (mDuplicateAppendsSinceLastNew >= mDuplicateAppendLimit) {
+      RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Duplicate append limit (%u) reached, not appending further targets", mDuplicateAppendLimit);
+      return true;
+    }
     if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
       mPositionSettings.nextPositionIndex = 1;
     else
@@ -201,7 +212,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     if (pos >= kMaxPositionsExt) pos = 0;
 
     mAxisTargetPositionsExt[pos] = target;
-  mAxisTargetPositionTimestampExt[pos] = static_cast<float>(mLastTimeDiffMs);
+    mAxisTargetPositionTimestampExt[pos] = 20.0;
 
     if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
       return false;
@@ -210,6 +221,9 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
       return false;
     mLastBufferFillTime = time;
+    if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
+      ++mDuplicateAppendsSinceLastNew;
+    }
     return true;
   };
 
@@ -266,12 +280,12 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     auto duration = time - mLastPositionCommandTime;
     timeDiffMs = duration.seconds() * 1000.0;
   }
-  mLastTimeDiffMs = timeDiffMs > 0.0 ? timeDiffMs : mLastTimeDiffMs;
 
   // Update tracking variables
   mLastPositionCommand = mPositionCommand;
   mLastPositionCommandTime = time;
   ++mPositionSettings.newPositionsReceivedCount;
+  mDuplicateAppendsSinceLastNew = 0;
 
   // Increment next position index
   if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
