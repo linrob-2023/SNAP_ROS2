@@ -260,6 +260,12 @@ private:
   /// Last time when new position command was received.
   rclcpp::Time mLastPositionCommandTime;
 
+  /// Last time a buffer entry (new or duplicate) was written to PLC.
+  rclcpp::Time mLastBufferFillTime;
+
+  /// Last time difference between consecutive position commands in ms (used for duplicate buffering).
+  double mLastTimeDiffMs {0.0};
+
   /// Position command settings for observing and managing system state.
   PositionSettings mPositionSettings;
 
