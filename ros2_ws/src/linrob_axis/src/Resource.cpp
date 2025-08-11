@@ -236,9 +236,9 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
         RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
                      "(Buffering) Target %.8f mm tol %.8f mm current %.8f error %.8f state %u", mLastPositionCommand, mPositionToleranceMm, currentPosition, positionError, static_cast<unsigned int>(axisStatus));
 
-        if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        if (positionError <= mPositionToleranceMm)
         {
-          // Stop execution; axis reached target and is standstill
+          // Stop execution; axis reached target
             mPositionSettings.newPositionsReceivedCount = 0U;
             if (!writeToDatalayerNode("execute_movements", false))
               return hardware_interface::return_type::ERROR;
