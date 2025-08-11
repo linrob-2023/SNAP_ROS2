@@ -190,51 +190,69 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     }
   }
 
-  // Check if new position command is received
-  if (mPositionCommand == mLastPositionCommand)
+  // Helper lambda to append (duplicate) last known target into buffer while axis moves
+  auto appendDuplicateTarget = [&](double target) -> bool {
+    if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
+      mPositionSettings.nextPositionIndex = 1;
+    else
+      ++mPositionSettings.nextPositionIndex;
+
+    size_t pos = mPositionSettings.nextPositionIndex - 1;
+    if (pos >= kMaxPositionsExt) pos = 0;
+
+    mAxisTargetPositionsExt[pos] = target;
+  mAxisTargetPositionTimestampExt[pos] = static_cast<float>(mLastTimeDiffMs);
+
+    if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
+      return false;
+    if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
+      return false;
+    if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
+      return false;
+    mLastBufferFillTime = time;
+    return true;
+  };
+
+  const bool receivedNewTarget = (mPositionCommand != mLastPositionCommand);
+  if (!receivedNewTarget)
   {
-    // No new position received, check if we should stop movement execution
-    if (mPositionSettings.newPositionsReceivedCount > 0)
+    // No new target provided. Keep feeding last target until axis reached it (STANDSTILL + tolerance) then stop.
+    if (mPositionSettings.newPositionsReceivedCount > 0 && !mMovementExecutionStopped)
     {
+      // Periodically feed duplicates; avoid flooding PLC: only if enough time passed relative to expected delay
       auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
-      bool newCommandsExpected = time - mLastPositionCommandTime < expectedDurationBetweenCommands;
+      bool timeToRefill = (mLastBufferFillTime.nanoseconds() == 0) || (time - mLastBufferFillTime >= expectedDurationBetweenCommands);
 
-      if (!newCommandsExpected && !mMovementExecutionStopped)
+      // Update status & current position if we need to decide stop/continue
+      if (timeToRefill)
       {
-        // Check if axis is in STANDBY state and within tolerance of last target position
-        auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
-        if (!statusUpdateResult)
-        {
+        if (!updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32))
           return hardware_interface::return_type::ERROR;
-        }
-
         auto& statusData = mConnection.datalayerNodeMap.at("status");
         auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
-
         double currentPosition = mState.at("position");
-        double positionError = std::abs(currentPosition - mLastPositionCommand); // Convert to mm for comparison
-        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
-                     "Target position is %.8f mm at tolerance: %.8f mm", mLastPositionCommand, mPositionToleranceMm);
-        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
-                     "Current position is %.8f mm, error is %.8f mm", currentPosition, positionError);
+        double positionError = std::abs(currentPosition - mLastPositionCommand);
 
-        //if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                     "(Buffering) Target %.8f mm tol %.8f mm current %.8f error %.8f state %u", mLastPositionCommand, mPositionToleranceMm, currentPosition, positionError, static_cast<unsigned int>(axisStatus));
+
         if (positionError <= mPositionToleranceMm)
         {
-          mPositionSettings.newPositionsReceivedCount = 0U;
-          if (!writeToDatalayerNode("execute_movements", false))
-            return hardware_interface::return_type::ERROR;
-
-          mMovementExecutionStopped = true;
-          RCLCPP_INFO(rclcpp::get_logger(LINROB),
-                     "Movement execution stopped. Axis reached target position %.8f mm (tolerance: %.8f mm)",
-                     mLastPositionCommand, mPositionToleranceMm);
+          // Stop execution; axis reached target
+            mPositionSettings.newPositionsReceivedCount = 0U;
+            if (!writeToDatalayerNode("execute_movements", false))
+              return hardware_interface::return_type::ERROR;
+            mMovementExecutionStopped = true;
+            RCLCPP_INFO(rclcpp::get_logger(LINROB),
+                        "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
+                        mLastPositionCommand, mPositionToleranceMm);
         }
         else
         {
-          RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
-                      "Waiting for axis to reach target. State: %u, Position: %.8f mm, Target: %.8f mm, Error: %.8f mm",
-                      static_cast<unsigned int>(axisStatus), currentPosition, mLastPositionCommand, positionError);
+          // Not yet at target; feed duplicate target into buffer to avoid jump
+          if (!appendDuplicateTarget(mLastPositionCommand))
+            return hardware_interface::return_type::ERROR;
+          RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
         }
       }
     }
@@ -248,6 +266,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     auto duration = time - mLastPositionCommandTime;
     timeDiffMs = duration.seconds() * 1000.0;
   }
+  mLastTimeDiffMs = timeDiffMs > 0.0 ? timeDiffMs : mLastTimeDiffMs;
 
   // Update tracking variables
   mLastPositionCommand = mPositionCommand;
@@ -276,6 +295,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     return hardware_interface::return_type::ERROR;
   if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
     return hardware_interface::return_type::ERROR;
+  mLastBufferFillTime = time;
 
   // Start movement if required number of positions have been received
   if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex)
