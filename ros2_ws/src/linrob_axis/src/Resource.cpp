@@ -13,6 +13,7 @@ const auto LINROB = "linrob";
 constexpr std::chrono::milliseconds kStatePollInterval{100};
 constexpr std::chrono::seconds kStateWaitTimeout{10};
 constexpr std::chrono::seconds kSetModeSleep{2};
+constexpr std::chrono::seconds kAxisReadinessCheckInterval{2};
 
 Resource::~Resource()
 {
@@ -64,6 +65,11 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
 
   mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
 
+  // Position tolerance for checking if axis reached target position (default 0.01mm)
+  if (params.find("position_tolerance_mm") != params.end()) {
+    mPositionToleranceMm = std::stod(params.at("position_tolerance_mm"));
+  }
+
   // Logger.
   setLogLevel(params.at("log_level"));
 
@@ -89,38 +95,36 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
 
   waitUntilRequiredNodesAreValid();
 
-  auto axisStateResult = waitForAxisState(AxisState::STANDSTILL, kStateWaitTimeout);
-  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS) {
-      return axisStateResult;
+  auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
+  if (axisStateResult == hardware_interface::CallbackReturn::SUCCESS) {
+    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
+    mAxisReadyForOperation = true;
+
+    // Switch to AUTO_EXTERNAL mode since axis is ready
+    if (!switchToAutoExternalMode()) {
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+  } else {
+    RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis is not in STANDSTILL state yet");
+    mAxisReadyForOperation = false;
+    mLastAxisStateCheck = std::chrono::steady_clock::now();
   }
 
-  auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
-  if (!setSystemModeResult)
-  {
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
-  std::this_thread::sleep_for(kSetModeSleep);
-
-  auto systemModeResult = waitForSystemMode("AUTO_EXTERNAL", kStateWaitTimeout);
-  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
-      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to switch to AUTO_EXTERNAL mode during activation");
-      return systemModeResult;
-  }
-
-  auto resetResult = resetPlcBufferAndIndex();
-  if (!resetResult)
-  {
-    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index.");
-    return hardware_interface::CallbackReturn::ERROR;
+  // Only reset PLC if axis is ready for operation
+  if (mAxisReadyForOperation) {
+    auto resetResult = resetPlcBufferAndIndex();
+    if (!resetResult)
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index.");
+      return hardware_interface::CallbackReturn::ERROR;
+    }
   }
 
   mPositionSettings.newPositionsReceivedCount = 0U;
   mMovementExecutionStopped = true;
 
-  mIsActivated = true;
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED.");
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED. Axis ready for operation: %s",
+             mAxisReadyForOperation ? "YES" : "NO");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -157,8 +161,6 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  mIsActivated = false;
-
   RCLCPP_INFO(rclcpp::get_logger(LINROB), "Deactivate resource FINISHED.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -175,13 +177,18 @@ void Resource::disconnect()
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
-  if (!mIsActivated)
-  {
-    return hardware_interface::return_type::OK;
-  }
-
   // Handle virtual commands
   processVirtualCommands();
+
+  // Check if axis is ready for operation
+  if (!mAxisReadyForOperation)
+  {
+    checkAxisReadiness();
+    if (!mAxisReadyForOperation)
+    {
+      return hardware_interface::return_type::OK;
+    }
+  }
 
   // Check if new position command is received
   if (mPositionCommand == mLastPositionCommand)
@@ -194,11 +201,41 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
       if (!newCommandsExpected && !mMovementExecutionStopped)
       {
-        mPositionSettings.newPositionsReceivedCount = 0U;
-        if (!writeToDatalayerNode("execute_movements", false))
+        // Check if axis is in STANDBY state and within tolerance of last target position
+        auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
+        if (!statusUpdateResult)
+        {
           return hardware_interface::return_type::ERROR;
+        }
 
-        mMovementExecutionStopped = true;
+        auto& statusData = mConnection.datalayerNodeMap.at("status");
+        auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
+
+        double currentPosition = mState.at("position");
+        double positionError = std::abs(currentPosition - mLastPositionCommand); // Convert to mm for comparison
+        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                     "Target position is %.8f mm at tolerance: %.8f mm", mLastPositionCommand, mPositionToleranceMm);
+        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                     "Current position is %.8f mm, error is %.8f mm", currentPosition, positionError);
+
+        //if (axisStatus == AxisState::STANDSTILL && positionError <= mPositionToleranceMm)
+        if (positionError <= mPositionToleranceMm)
+        {
+          mPositionSettings.newPositionsReceivedCount = 0U;
+          if (!writeToDatalayerNode("execute_movements", false))
+            return hardware_interface::return_type::ERROR;
+
+          mMovementExecutionStopped = true;
+          RCLCPP_INFO(rclcpp::get_logger(LINROB),
+                     "Movement execution stopped. Axis reached target position %.8f mm (tolerance: %.8f mm)",
+                     mLastPositionCommand, mPositionToleranceMm);
+        }
+        else
+        {
+          RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+                      "Waiting for axis to reach target. State: %u, Position: %.8f mm, Target: %.8f mm, Error: %.8f mm",
+                      static_cast<unsigned int>(axisStatus), currentPosition, mLastPositionCommand, positionError);
+        }
       }
     }
     return hardware_interface::return_type::OK;
@@ -254,6 +291,15 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
 hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
+  if (!mAxisReadyForOperation)
+  {
+    checkAxisReadiness();
+    if (!mAxisReadyForOperation)
+    {
+      return hardware_interface::return_type::OK;
+    }
+  }
+
   auto updateResult = true;
   // Update current system and axis info.
   updateResult &= updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
@@ -282,6 +328,7 @@ std::vector<hardware_interface::StateInterface> Resource::export_state_interface
   state_interfaces.emplace_back("joint_1", "position", &mState.at("position"));
   state_interfaces.emplace_back("joint_1", "velocity", &mState.at("velocity"));
   state_interfaces.emplace_back("joint_1", "error_code", &mState.at("error_code"));
+  state_interfaces.emplace_back("joint_1", "axis_ready", &mState.at("axis_ready"));
   return state_interfaces;
 }
 
@@ -293,30 +340,6 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   command_interfaces.emplace_back("joint_1", "virtual_reference", &mVirtualReferenceCommand);
   command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
   return command_interfaces;
-}
-
-hardware_interface::CallbackReturn Resource::waitForAxisState(AxisState expectedState, std::chrono::milliseconds timeout)
-{
-    auto start = std::chrono::steady_clock::now();
-    const std::chrono::milliseconds pollInterval(kStatePollInterval);
-
-    while (std::chrono::steady_clock::now() - start < timeout) {
-        auto result = checkAxisState(expectedState);
-        if (result == hardware_interface::CallbackReturn::SUCCESS) {
-            RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis reached expected state: %u", static_cast<unsigned int>(expectedState));
-            return result;
-        }
-        auto& statusData = mConnection.datalayerNodeMap.at("status");
-        auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
-        if (axisStatus == AxisState::ERROR_STOP) {
-            RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR_STOP state, aborting wait.");
-            return hardware_interface::CallbackReturn::ERROR;
-        }
-        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting for axis state %u, current: %u", static_cast<unsigned int>(expectedState), static_cast<unsigned int>(axisStatus));
-        std::this_thread::sleep_for(pollInterval);
-    }
-    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Timeout waiting for axis state %u", static_cast<unsigned int>(expectedState));
-    return hardware_interface::CallbackReturn::FAILURE;
 }
 
 hardware_interface::CallbackReturn Resource::waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout)
@@ -452,6 +475,8 @@ void Resource::updateState()
   if (errorCode != 0) {
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
   }
+
+  mState.at("axis_ready") = mAxisReadyForOperation ? 1.0 : 0.0;
 }
 
 void Resource::waitUntilRequiredNodesAreValid()
@@ -588,6 +613,63 @@ uint32_t Resource::getLatestErrorCode()
     mLatestErrorCode = *reinterpret_cast<uint32_t*>(errorData.second.getData());
   }
   return mLatestErrorCode;
+}
+
+bool Resource::switchToAutoExternalMode()
+{
+  // Set system mode to AUTO_EXTERNAL
+  auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
+  if (!setSystemModeResult) {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to set AUTO_EXTERNAL mode");
+    return false;
+  }
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
+  std::this_thread::sleep_for(kSetModeSleep);
+
+  auto systemModeResult = waitForSystemMode("AUTO_EXTERNAL", kStateWaitTimeout);
+  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
+    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to switch to AUTO_EXTERNAL mode");
+    return false;
+  }
+
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Successfully switched to AUTO_EXTERNAL mode");
+  return true;
+}
+
+void Resource::checkAxisReadiness()
+{
+  // Only check periodically to avoid excessive polling
+  auto now = std::chrono::steady_clock::now();
+  if (now - mLastAxisStateCheck < kAxisReadinessCheckInterval) {
+    return;
+  }
+
+  mLastAxisStateCheck = now;
+
+  // Check if axis has reached STANDSTILL state
+  if (!mAxisReadyForOperation) {
+    auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
+    if (axisStateResult == hardware_interface::CallbackReturn::SUCCESS) {
+      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis has reached STANDSTILL state - enabling operations and switching to AUTO_EXTERNAL mode");
+
+      // Switch to AUTO_EXTERNAL mode now that axis is ready
+      if (!switchToAutoExternalMode()) {
+        return;
+      }
+
+      mAxisReadyForOperation = true;
+
+      // Now that axis is ready and mode is set, reset PLC buffer and index
+      auto resetResult = resetPlcBufferAndIndex();
+      if (!resetResult) {
+        RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index after axis became ready");
+        mAxisReadyForOperation = false; // Reset to prevent operations until next successful check
+      }
+    } else if (axisStateResult == hardware_interface::CallbackReturn::ERROR) {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR state - operations will remain disabled");
+    }
+  }
 }
 
 }  // namespace linrob

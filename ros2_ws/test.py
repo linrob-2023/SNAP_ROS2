@@ -8,8 +8,8 @@ class StreamPublisher(Node):
     def __init__(self):
         super().__init__('stream_publisher')
         self.publisher_ = self.create_publisher(Float64MultiArray, '/position_controller/commands', 10)
-        self.timer = self.create_timer(0.002, self.timer_callback)  # 100ms
-        self.value = 0.507  # Starting value
+        self.timer = self.create_timer(0.05, self.timer_callback)  # 100ms
+        self.value = 0.0  # Starting value
 
     def timer_callback(self):
         # Increment by ~0.5 with a bit of randomness
