@@ -73,7 +73,12 @@ ros2 control switch_controllers --activate axis_controller
 
 To activate both controllers, run:
 ```sh
-ros2 control switch_controllers --activate position_controller axis_controller --strict
+ros2 control switch_controllers --activate position_controller axis_controller
+```
+
+To activate the hardware component, run:
+```sh
+ros2 control set_hardware_component_state linrob_hw active
 ```
 
 #### Deactivation
@@ -90,8 +95,14 @@ ros2 control switch_controllers --deactivate axis_controller
 
 To deactivate both controllers, run:
 ```sh
-ros2 control switch_controllers --deactivate position_controller axis_controller --strict
+ros2 control switch_controllers --deactivate position_controller axis_controller
 ```
+
+To deactivate the hardware component, run:
+```sh
+ros2 control set_hardware_component_state linrob_hw inactive
+```
+
 
 #### Check Controller State
 
@@ -104,9 +115,18 @@ ros2 control list_controllers
 
 The package provides ROS2 services for controlling the PLC axis:
 
-- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors
+- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors 
+```sh
+ros2 service call /axis_controller/reset_axis linrob_axis/srv/ResetAxis "{}"
+```
 - **ReferenceAxis** (`/reference_axis`) - Starts a referencing/homing process
+```sh
+ros2 service call /axis_controller/reference_axis linrob_axis/srv/ReferenceAxis "{}"
+```
 - **StopAxis** (`/stop_axis`) - Stops active movement immediately
+```sh
+ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
+```
 
 Error codes are continuously monitored and published on the `/error_code` topic.
 
