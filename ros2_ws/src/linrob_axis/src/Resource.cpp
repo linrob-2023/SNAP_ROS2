@@ -351,15 +351,15 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
     return hardware_interface::return_type::ERROR;
   }
 
-  // If axis is in ERROR_STOP, immediately stop execution of movements
+  // If axis is in ERRORSTOP, immediately stop execution of movements
   {
     auto &statusData = mConnection.datalayerNodeMap.at("status");
     auto axisStatus = static_cast<AxisState>(variantDataToVector<int>(statusData.second)[0U]);
-    if (axisStatus == AxisState::ERROR_STOP)
+    if (axisStatus == AxisState::ERRORSTOP)
     {
       if (!mMovementExecutionStopped)
       {
-        RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis in ERROR_STOP, stopping movement execution");
+        RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis in ERRORSTOP, stopping movement execution");
         if (!writeToDatalayerNode("execute_movements", false))
         {
           return hardware_interface::return_type::ERROR;
