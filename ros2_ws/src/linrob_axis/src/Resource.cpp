@@ -224,6 +224,8 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
       ++mDuplicateAppendsSinceLastNew;
     }
+    // Reset the counter so there's no huge time jump when a new position arrives later
+    mLastPositionCommandTime = time;
     return true;
   };
 
