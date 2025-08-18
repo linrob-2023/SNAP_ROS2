@@ -224,8 +224,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
       ++mDuplicateAppendsSinceLastNew;
     }
-    // Reset the counter so there's no huge time jump when a new position arrives later
-    mLastPositionCommandTime = time;
+    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
     return true;
   };
 
@@ -268,7 +267,8 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
           // Not yet at target; feed duplicate target into buffer to avoid jump
           if (!appendDuplicateTarget(mLastPositionCommand))
             return hardware_interface::return_type::ERROR;
-          RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
+          // Reset the counter so there's no huge time jump when a new position arrives later
+          mLastPositionCommandTime = time;
         }
       }
     }
