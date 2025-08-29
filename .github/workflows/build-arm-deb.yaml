@@ -36,10 +36,10 @@ jobs:
       run: |
         cd ros2_ws/src/linrob_axis
         sudo apt install -y debhelper devscripts fakeroot
-        debuild -us -uc -b -arm64
+        debuild -us -uc -b -aarm64
 
     - name: Upload Debian package
       uses: actions/upload-artifact@v4
       with:
-        name: ros2-arm64-deb
+        name: ros2-aarm64-deb
         path: ~/ros2_ws/src/*.deb
