@@ -35,10 +35,10 @@ jobs:
     - name: Build Debian package (for ARM)
       run: |
         cd ros2_ws/src/linrob_axis
-        dpkg-buildpackage -b -aarmhf
+        dpkg-buildpackage -b -arm64
 
     - name: Upload Debian package
       uses: actions/upload-artifact@v4
       with:
-        name: ros2-armhf-deb
+        name: ros2-arm64-deb
         path: ~/ros2_ws/src/*.deb
