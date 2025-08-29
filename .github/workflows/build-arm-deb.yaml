@@ -35,7 +35,8 @@ jobs:
     - name: Build Debian package (for ARM)
       run: |
         cd ros2_ws/src/linrob_axis
-        dpkg-buildpackage -b -arm64
+        sudo apt install -y debhelper devscripts fakeroot
+        debuild -us -uc -b -arm64
 
     - name: Upload Debian package
       uses: actions/upload-artifact@v4
