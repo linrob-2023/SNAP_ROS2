@@ -1,0 +1,13 @@
+Package: ros-humble-linrob-axis-dbgsym
+Package-Type: ddeb
+Source: ros-humble-linrob-axis
+Version: 0.1.2-0jammy
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: Matomai <info@matom.ai>
+Installed-Size: 2755
+Depends: ros-humble-linrob-axis (= 0.1.2-0jammy)
+Section: debug
+Priority: optional
+Description: debug symbols for ros-humble-linrob-axis
+Build-Ids: 2ca4531a6aa15c0b7c2eb42ec2fda392e1e6293b 35b8bc77cd3ff0358c1673a91c08822724156a5a 3c46e4f4d31d0ee93aef44a680df448a5d3620f8 5b7a7a15121d7812e82203c3afcb4daf5138c28f 5ef892f64037f66478c6087c7d01981478f5ef70 65551e30539effcde3cd334b4909d442df24e975 6c9d61c094e94e2f3e36d235c20b9a4ebcd73248 6ce9b753690a53a2c375319684a2d0b9d8ca78c5 6e33654eddd3b1a0748f42bb3b31fe7fb111ac15 77d911265f5414ab3b791845e752d3d0a84ec8bc 94fa70d897533575f6eea78607a25d7b782d4183 a0cfaf3e90f8685aba945e2207760f8635908d6c e363f8908f17df069dd47765d092b4241c93b07d e4dc4ca8bdb54735ee008c9b8c05d366973d70a6
