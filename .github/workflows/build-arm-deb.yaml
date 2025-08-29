@@ -18,6 +18,16 @@ jobs:
       with:
         required-ros-distributions: humble
 
+    - name: Set up ROS 2 apt repo
+      run: |
+        sudo apt update
+        sudo apt install -y curl gnupg2 lsb-release software-properties-common
+        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+          -o /usr/share/keyrings/ros-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" \
+          | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+        sudo apt update
+
     - name: Install Dependencies
       run: |
         sudo apt update
@@ -32,10 +42,28 @@ jobs:
           debootstrap \
           sbuild
 
+    - name: Install build tools & ROS dependencies
+        run: |
+          sudo apt install -y \
+            build-essential devscripts debhelper dh-make \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            ros-humble-ament-cmake \
+            ros-humble-ament-lint-auto \
+            ros-humble-ament-lint-common \
+            ros-humble-controller-interface \
+            ros-humble-hardware-interface \
+            ros-humble-pluginlib \
+            ros-humble-rclcpp \
+            ros-humble-ros2-control \
+            ros-humble-rosidl-default-generators \
+            ros-humble-std-msgs
+
     - name: Build Debian package (for ARM)
       run: |
         cd ros2_ws/src/linrob_axis
         sudo apt install -y debhelper devscripts fakeroot
+        export CC=aarch64-linux-gnu-gcc
+        export CXX=aarch64-linux-gnu-g++
         debuild -us -uc -b -aarm64
 
     - name: Upload Debian package
