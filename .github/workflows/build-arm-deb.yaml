@@ -43,20 +43,20 @@ jobs:
           sbuild
 
     - name: Install build tools & ROS dependencies
-        run: |
-          sudo apt install -y \
-            build-essential devscripts debhelper dh-make \
-            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-            ros-humble-ament-cmake \
-            ros-humble-ament-lint-auto \
-            ros-humble-ament-lint-common \
-            ros-humble-controller-interface \
-            ros-humble-hardware-interface \
-            ros-humble-pluginlib \
-            ros-humble-rclcpp \
-            ros-humble-ros2-control \
-            ros-humble-rosidl-default-generators \
-            ros-humble-std-msgs
+      run: |
+        sudo apt install -y \
+          build-essential devscripts debhelper dh-make \
+          gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+          ros-humble-ament-cmake \
+          ros-humble-ament-lint-auto \
+          ros-humble-ament-lint-common \
+          ros-humble-controller-interface \
+          ros-humble-hardware-interface \
+          ros-humble-pluginlib \
+          ros-humble-rclcpp \
+          ros-humble-ros2-control \
+          ros-humble-rosidl-default-generators \
+          ros-humble-std-msgs
 
     - name: Build Debian package (for ARM)
       run: |
