@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-deb:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
         arch: [amd64, arm64]

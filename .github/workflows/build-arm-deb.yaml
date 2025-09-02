@@ -20,9 +20,14 @@ jobs:
         run: |
           if [ "${{ matrix.arch }}" = "arm64" ]; then
             sudo dpkg --add-architecture arm64
-            # Use ports.ubuntu.com for arm64
+            # Replace all default Ubuntu repos for arm64 with ports.ubuntu.com
             sudo sed -i -e 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
             sudo sed -i -e 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
+
+            # Ensure backports, updates, and security all point to ports
+            sudo sed -i -e 's|jammy-updates|jammy-updates|g' /etc/apt/sources.list
+            sudo sed -i -e 's|jammy-backports|jammy-backports|g' /etc/apt/sources.list
+            sudo sed -i -e 's|jammy-security|jammy-security|g' /etc/apt/sources.list
           fi
           sudo apt-get update
 
