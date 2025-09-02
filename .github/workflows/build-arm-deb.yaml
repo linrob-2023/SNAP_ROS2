@@ -1,9 +1,9 @@
-name: Build Debian Packages (amd64 + arm64)
+name: ROS2 Debian Build
 
 on:
   push:
     tags:
-      - 'v*'  # e.g., v1.0.0
+      - 'v*'
 
 jobs:
   build-deb:
@@ -13,67 +13,61 @@ jobs:
         arch: [amd64, arm64]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up architecture
-        run: |
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            sudo dpkg --add-architecture arm64
-            # Replace all default Ubuntu repos for arm64 with ports.ubuntu.com
-            sudo sed -i -e 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
-            sudo sed -i -e 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
+    - name: Set up QEMU (for ARM64)
+      if: matrix.arch == 'arm64'
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: arm64
 
-            # Ensure backports, updates, and security all point to ports
-            sudo sed -i -e 's|jammy-updates|jammy-updates|g' /etc/apt/sources.list
-            sudo sed -i -e 's|jammy-backports|jammy-backports|g' /etc/apt/sources.list
-            sudo sed -i -e 's|jammy-security|jammy-security|g' /etc/apt/sources.list
-          fi
-          sudo apt-get update
+    - name: Set up architecture & repos
+      run: |
+        if [ "${{ matrix.arch }}" = "arm64" ]; then
+          sudo dpkg --add-architecture arm64
+          sudo sed -i -e 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
+          sudo sed -i -e 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
+        fi
+        sudo apt-get update
 
-      - name: Enable universe repository
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository universe
-          sudo apt-get update
+    - name: Enable universe repository (needed for ROS tools)
+      run: |
+        sudo apt-get install -y software-properties-common
+        sudo add-apt-repository universe
+        sudo apt-get update
 
-      - name: Install build dependencies
-        run: |
-          # Host packages
-          sudo apt-get install -y \
-            build-essential \
-            fakeroot \
-            dpkg-dev \
-            python3-rosdep \
-            python3-colcon-common-extensions \
-            qemu-user-static
+    - name: Install build dependencies
+      run: |
+        # Host packages
+        sudo apt-get install -y \
+          build-essential \
+          fakeroot \
+          dpkg-dev \
+          qemu-user-static
+        if [ "${{ matrix.arch }}" = "amd64" ]; then
+          sudo apt-get install -y python3-rosdep python3-colcon-common-extensions
+        else
+          # ARM64 cross-build packages
+          sudo apt-get install -y crossbuild-essential-arm64
+        fi
 
-          # Only arm64 cross-build packages
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            sudo apt-get install -y crossbuild-essential-arm64
-          fi
+    - name: Initialize rosdep
+      if: matrix.arch == 'amd64'
+      run: |
+        sudo rosdep init || true
+        rosdep update
 
-      - name: Initialize rosdep
-        run: |
-          sudo rosdep init || true
-          rosdep update
+    - name: Build debian packages
+      run: |
+        cd ros2_ws
+        colcon build --merge-install
+        cd src/linrob_axis
+        bloom-generate rosdebian --os-name ubuntu --os-version 22.04 --ros-distro humble
+        fakeroot debian/rules binary
 
-      - name: Install ROS 2 dependencies
-        run: |
-          rosdep install --from-paths . --ignore-src -y --rosdistro humble --os=ubuntu:jammy
-
-      - name: Build Debian package
-        run: |
-          export DEB_BUILD_OPTIONS="parallel=$(nproc)"
-          if [ "${{ matrix.arch }}" = "amd64" ]; then
-            dpkg-buildpackage -us -uc -a amd64
-          else
-            dpkg-buildpackage -us -uc -a arm64
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: debian-package-${{ matrix.arch }}
-          path: ../*.deb
+    - name: Upload .deb artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: deb-packages-${{ matrix.arch }}
+        path: src/linrob_axis/*.deb
