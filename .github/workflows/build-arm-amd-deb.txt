@@ -1,0 +1,58 @@
+name: Build Debian Packages (amd64 + arm64)
+
+on:
+  push:
+    tags:
+      
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up architecture
+        run: |
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            sudo dpkg --add-architecture arm64
+          fi
+          sudo apt-get update
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get install -y \
+            build-essential \
+            fakeroot \
+            dpkg-dev \
+            python3-rosdep \
+            python3-colcon-common-extensions \
+            qemu-user-static \
+            crossbuild-essential-arm64
+
+      - name: Initialize rosdep
+        run: |
+          sudo rosdep init || true
+          rosdep update
+
+      - name: Install ROS 2 dependencies
+        run: |
+          rosdep install --from-paths . --ignore-src -y --rosdistro humble --os=ubuntu:jammy
+
+      - name: Build Debian package
+        run: |
+          export DEB_BUILD_OPTIONS="parallel=$(nproc)"
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            dpkg-buildpackage -us -uc -a amd64
+          else
+            dpkg-buildpackage -us -uc -a arm64
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package-${{ matrix.arch }}
+          path: ../*.deb
