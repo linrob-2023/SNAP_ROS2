@@ -1,50 +1,62 @@
-name: Build arm64 Debian Package
+name: Build Debian Packages (amd64 + arm64)
 
 on:
   push:
     tags:
-      - 'v*'   # e.g. v1.0.0
+      - 'v*'  # e.g., v1.0.0
 
 jobs:
   build-deb:
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Enable arm64 architecture
+      - name: Set up architecture
         run: |
-
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            sudo dpkg --add-architecture arm64
+            # Use ports.ubuntu.com for arm64
+            sudo sed -i -e 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
+            sudo sed -i -e 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
+          fi
           sudo apt-get update
 
-      - name: Install cross-build dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get install -y \
             build-essential \
-
             fakeroot \
             dpkg-dev \
-
             python3-rosdep \
-            python3-colcon-common-extensions
+            python3-colcon-common-extensions \
+            qemu-user-static \
+            crossbuild-essential-arm64
 
       - name: Initialize rosdep
         run: |
           sudo rosdep init || true
           rosdep update
 
-      - name: Install ROS 2 dependencies for Humble (arm64)
+      - name: Install ROS 2 dependencies
         run: |
           rosdep install --from-paths . --ignore-src -y --rosdistro humble --os=ubuntu:jammy
 
       - name: Build Debian package
         run: |
-          # Build in source since bloom already created debian/ folder
           export DEB_BUILD_OPTIONS="parallel=$(nproc)"
-          dpkg-buildpackage -us -uc -a arm64
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            dpkg-buildpackage -us -uc -a amd64
+          else
+            dpkg-buildpackage -us -uc -a arm64
+          fi
 
-      - name: Upload .deb artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debian-package-arm64
+          name: debian-package-${{ matrix.arch }}
           path: ../*.deb
