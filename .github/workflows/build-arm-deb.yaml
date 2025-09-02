@@ -1,73 +1,63 @@
-name: ROS2 Debian Build
+name: Build ARM64 Debian
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'        # build on new version tags
+    branches:
+      - main        # optionally also on main pushes
 
 jobs:
-  build-deb:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
+  build-arm64:
+    runs-on: ubuntu-22.04-arm64
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up QEMU (for ARM64)
-      if: matrix.arch == 'arm64'
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: arm64
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            fakeroot \
+            dpkg-dev \
+            python3-rosdep \
+            python3-colcon-common-extensions \
+            git
 
-    - name: Set up architecture & repos
-      run: |
-        if [ "${{ matrix.arch }}" = "arm64" ]; then
-          sudo dpkg --add-architecture arm64
-          sudo sed -i -e 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
-          sudo sed -i -e 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
-        fi
-        sudo apt-get update
+      - name: Initialize rosdep
+        run: |
+          sudo rosdep init || true
+          rosdep update
 
-    - name: Enable universe repository (needed for ROS tools)
-      run: |
-        sudo apt-get install -y software-properties-common
-        sudo add-apt-repository universe
-        sudo apt-get update
+      - name: Setup ROS2 environment
+        run: |
+          sudo apt-get install -y curl gnupg2 lsb-release
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+          sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list'
+          sudo apt-get update
+          sudo apt-get install -y ros-humble-desktop
 
-    - name: Install build dependencies
-      run: |
-        # Host packages
-        sudo apt-get install -y \
-          build-essential \
-          fakeroot \
-          dpkg-dev \
-          qemu-user-static
-        if [ "${{ matrix.arch }}" = "amd64" ]; then
-          sudo apt-get install -y python3-rosdep python3-colcon-common-extensions
-        else
-          # ARM64 cross-build packages
-          sudo apt-get install -y crossbuild-essential-arm64
-        fi
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools
+          pip3 install -U colcon-common-extensions bloom
 
-    - name: Initialize rosdep
-      if: matrix.arch == 'amd64'
-      run: |
-        sudo rosdep init || true
-        rosdep update
+      - name: Build ROS2 package
+        run: |
+          cd ros2_ws
+          colcon build --merge-install
+          source install/setup.bash
 
-    - name: Build debian packages
-      run: |
-        cd ros2_ws
-        colcon build --merge-install
-        cd src/linrob_axis
-        bloom-generate rosdebian --os-name ubuntu --os-version 22.04 --ros-distro humble
-        fakeroot debian/rules binary
+      - name: Generate Debian package
+        run: |
+          cd ros2_ws/src/linrob_axis
+          bloom-generate rosdebian --os-name ubuntu --os-version 22.04 --ros-distro humble
+          fakeroot debian/rules binary
 
-    - name: Upload .deb artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: deb-packages-${{ matrix.arch }}
-        path: src/linrob_axis/*.deb
+      - name: Upload ARM64 DEB
+        uses: actions/upload-artifact@v3
+        with:
+          name: linrob_axis-deb-arm64
+          path: ros2_ws/src/linrob_axis/*.deb
