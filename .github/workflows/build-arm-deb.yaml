@@ -33,14 +33,19 @@ jobs:
 
       - name: Install build dependencies
         run: |
+          # Host packages
           sudo apt-get install -y \
             build-essential \
             fakeroot \
             dpkg-dev \
             python3-rosdep \
             python3-colcon-common-extensions \
-            qemu-user-static \
-            crossbuild-essential-arm64
+            qemu-user-static
+
+          # Only arm64 cross-build packages
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            sudo apt-get install -y crossbuild-essential-arm64
+          fi
 
       - name: Initialize rosdep
         run: |
