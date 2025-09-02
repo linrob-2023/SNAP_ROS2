@@ -1,73 +1,50 @@
-name: Build ROS 2 Debian Package for ARM
+name: Build arm64 Debian Package
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'   # e.g. v1.0.0
 
 jobs:
-  build:
+  build-deb:
     runs-on: ubuntu-22.04
-
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup ROS 2
-      uses: ros-tooling/setup-ros@v0.7
-      with:
-        required-ros-distributions: humble
+      - name: Enable arm64 architecture
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
 
-    - name: Set up ROS 2 apt repo
-      run: |
-        sudo apt update
-        sudo apt install -y curl gnupg2 lsb-release software-properties-common
-        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
-          -o /usr/share/keyrings/ros-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" \
-          | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-        sudo apt update
+      - name: Install cross-build dependencies
+        run: |
+          sudo apt-get install -y \
+            build-essential \
+            crossbuild-essential-arm64 \
+            fakeroot \
+            dpkg-dev \
+            qemu-user-static \
+            python3-rosdep \
+            python3-colcon-common-extensions
 
-    - name: Install Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          python3-bloom \
-          python3-rosdep \
-          fakeroot \
-          devscripts \
-          dpkg-cross \
-          qemu-user-static \
-          binfmt-support \
-          debootstrap \
-          sbuild
+      - name: Initialize rosdep
+        run: |
+          sudo rosdep init || true
+          rosdep update
 
-    - name: Install build tools & ROS dependencies
-      run: |
-        sudo apt install -y \
-          build-essential devscripts debhelper dh-make \
-          gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-          ros-humble-ament-cmake \
-          ros-humble-ament-lint-auto \
-          ros-humble-ament-lint-common \
-          ros-humble-controller-interface \
-          ros-humble-hardware-interface \
-          ros-humble-pluginlib \
-          ros-humble-rclcpp \
-          ros-humble-ros2-control \
-          ros-humble-rosidl-default-generators \
-          ros-humble-std-msgs
+      - name: Install ROS 2 dependencies for Humble (arm64)
+        run: |
+          rosdep install --from-paths . --ignore-src -y --rosdistro humble --os=ubuntu:jammy
 
-    - name: Build Debian package (for ARM)
-      run: |
-        cd ros2_ws/src/linrob_axis
-        sudo apt install -y debhelper devscripts fakeroot
-        export CC=aarch64-linux-gnu-gcc
-        export CXX=aarch64-linux-gnu-g++
-        debuild -us -uc -b -aarm64
+      - name: Build Debian package
+        run: |
+          # Build in source since bloom already created debian/ folder
+          export DEB_BUILD_OPTIONS="parallel=$(nproc)"
+          dpkg-buildpackage -us -uc -a arm64
 
-    - name: Upload Debian package
-      uses: actions/upload-artifact@v4
-      with:
-        name: ros2-aarm64-deb
-        path: ~/ros2_ws/src/*.deb
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package-arm64
+          path: ../*.deb
