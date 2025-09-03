@@ -1,0 +1,10 @@
+<library path="linrob_axis_controller">
+  <class name="linrob_controllers/AxisController"
+         type="linrob_controllers::AxisController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+      Axis controller that provides services for reset, reference, and stop commands,
+      and publishes error codes from the PLC.
+    </description>
+  </class>
+</library>

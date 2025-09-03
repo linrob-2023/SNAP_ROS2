@@ -1,0 +1,3 @@
+<library path="linrob_axis_plugin">
+  <class name="linrob/Resource" type="linrob::Resource" base_class_type="hardware_interface::SystemInterface"/>
+</library>

@@ -1,0 +1,3 @@
+shlibs:Depends=libc6 (>= 2.34), libconsole-bridge1.0 (>= 1.0.1+dfsg2), libgcc-s1 (>= 3.3.1), libpython3.10 (>= 3.10.0), libstdc++6 (>= 11), ros-humble-fastcdr
+misc:Depends=
+misc:Pre-Depends=

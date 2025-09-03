@@ -1,0 +1,60 @@
+name: Build ARM64 Debian
+
+on:
+  push:
+    tags:
+      - 'v*'      # build on new version tags
+    branches:
+      - main      # optionally also on main pushes
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-22.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install ROS Environment and Dependencies
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+      - run: "source /opt/ros/humble/setup.bash && ros2 run --help"
+
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+          sudo python3 -m pip install --upgrade pip
+          sudo python3 -m pip install -U pip "setuptools<71.0.0" colcon-common-extensions bloom
+
+      - name: Install ROS dependencies
+        run: |
+          # Initialize and update rosdep
+          sudo rosdep init || true
+          rosdep update
+
+          # Install ROS dependencies using rosdep.
+          rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble -y
+
+      - name: Build ROS2 package
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ros2_ws
+          #colcon build --merge-install --packages-select linrob_axis
+          colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
+
+      - name: Generate Debian package
+        run: |
+          source /opt/ros/humble/setup.bash
+          # Use bloom to generate the debian files and fakeroot to build the package.
+          # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
+          cd ros2_ws/src/linrob_axis
+          bloom-generate rosdebian --os-name ubuntu --os-version 22.04 --ros-distro humble
+          fakeroot debian/rules binary
+
+      - name: Upload ARM64 DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: linrob_axis-deb-arm64
+          path: ros2_ws/src/linrob_axis/*.deb

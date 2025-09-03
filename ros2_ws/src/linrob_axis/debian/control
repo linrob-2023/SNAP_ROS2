@@ -1,0 +1,12 @@
+Source: ros-humble-linrob-axis
+Section: misc
+Priority: optional
+Maintainer: Matomai <info@matom.ai>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-ament-lint-auto <!nocheck>, ros-humble-ament-lint-common <!nocheck>, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-ros2-control, ros-humble-rosidl-default-generators, ros-humble-std-msgs
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-humble-linrob-axis
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-ros2-control, ros-humble-rosidl-default-runtime, ros-humble-std-msgs, ctrlx-datalayer (>= 2.6)
+Description: Position controller responsible for communication between Datalayer and PLC.
