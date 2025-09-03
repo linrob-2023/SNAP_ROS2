@@ -24,6 +24,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y build-essential
           sudo python3 -m pip install --upgrade setuptools
           sudo python3 -m pip install -U pip colcon-common-extensions bloom
 
@@ -40,7 +41,8 @@ jobs:
         run: |
           source /opt/ros/humble/setup.bash
           cd ros2_ws
-          colcon build --merge-install --packages-select linrob_axis
+          #colcon build --merge-install --packages-select linrob_axis
+          colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
 
       - name: Generate Debian package
         run: |
