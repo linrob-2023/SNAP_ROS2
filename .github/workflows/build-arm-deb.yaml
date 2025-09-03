@@ -15,32 +15,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Install ROS Environment and Dependencies
+        uses: ros-tooling/setup-ros-environment@v0.7
+        with:
+          ros-distro: humble
+          required-ros-packages: >
+            ros-humble-ros-base
+            ros-dev-tools
+
+      - name: Install Python dependencies
         run: |
           sudo apt-get update
-          
-          # Install core build tools and rosdep
-          sudo apt-get install -y \
-            build-essential \
-            fakeroot \
-            dpkg-dev \
-            python3-rosdep2 \
-            git
-
-          # Install Python dependencies separately from system dependencies
           sudo python3 -m pip install -U pip setuptools colcon-common-extensions bloom
 
-          # Setup ROS2 environment to provide rosdep with package definitions
-          sudo apt-get install -y curl gnupg2 lsb-release
-          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-          sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list'
-          sudo apt-get update
-
+      - name: Install ROS dependencies
+        run: |
           # Initialize and update rosdep
           sudo rosdep init || true
           rosdep update
 
-          # Install ROS dependencies using rosdep. This will now find all required packages.
+          # Install ROS dependencies using rosdep.
           rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble -y
 
       - name: Build ROS2 package
