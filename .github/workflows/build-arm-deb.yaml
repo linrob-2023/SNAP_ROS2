@@ -3,9 +3,9 @@ name: Build ARM64 Debian
 on:
   push:
     tags:
-      - 'v*'        # build on new version tags
+      - 'v*'      # build on new version tags
     branches:
-      - main        # optionally also on main pushes
+      - main      # optionally also on main pushes
 
 jobs:
   build-arm64:
@@ -15,47 +15,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          # Use python3-pip instead of python-pip for Python 3 compatibility
+
+          # Install core build tools and rosdep
           sudo apt-get install -y \
-            python3-pip \
             build-essential \
             fakeroot \
             dpkg-dev \
             python3-rosdep2 \
             git
 
-          # Use python3 -m pip to ensure the correct pip is used
-          sudo python3 -m pip install colcon-common-extensions
+          # Install Python dependencies separately from system dependencies
+          sudo python3 -m pip install -U pip setuptools colcon-common-extensions bloom
 
-      - name: Initialize rosdep
-        run: |
+          # Initialize and update rosdep
           sudo rosdep init || true
           rosdep update
 
-      - name: Setup ROS2 environment
-        run: |
-          sudo apt-get install -y curl gnupg2 lsb-release
-          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-          sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list'
-          sudo apt-get update
-          sudo apt-get install -y ros-humble-desktop
-
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools
-          pip3 install -U colcon-common-extensions bloom
+          # Install ROS dependencies using rosdep, which automatically finds and installs all
+          # required packages listed in your package.xml files. This is the most reliable method.
+          rosdep install --from-paths src --ignore-src --rosdistro humble -y
 
       - name: Build ROS2 package
         run: |
-          cd ros2_ws
           colcon build --merge-install
-          source install/setup.bash
 
       - name: Generate Debian package
         run: |
+          # Use bloom to generate the debian files and fakeroot to build the package.
+          # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
           cd ros2_ws/src/linrob_axis
           bloom-generate rosdebian --os-name ubuntu --os-version 22.04 --ros-distro humble
           fakeroot debian/rules binary
