@@ -18,15 +18,17 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
+          # Use python3-pip instead of python-pip for Python 3 compatibility
           sudo apt-get install -y \
-            python-pip \
+            python3-pip \
             build-essential \
             fakeroot \
             dpkg-dev \
             python3-rosdep2 \
             git
-            
-          sudo pip install colcon-common-extensions
+
+          # Use python3 -m pip to ensure the correct pip is used
+          sudo python3 -m pip install colcon-common-extensions
 
       - name: Initialize rosdep
         run: |
