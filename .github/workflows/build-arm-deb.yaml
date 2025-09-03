@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-
+          
           # Install core build tools and rosdep
           sudo apt-get install -y \
             build-essential \
@@ -30,12 +30,18 @@ jobs:
           # Install Python dependencies separately from system dependencies
           sudo python3 -m pip install -U pip setuptools colcon-common-extensions bloom
 
+          # Setup ROS2 environment to provide rosdep with package definitions
+          sudo apt-get install -y curl gnupg2 lsb-release
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+          sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list'
+          sudo apt-get update
+          sudo apt-get install -y ros-humble-desktop
+
           # Initialize and update rosdep
           sudo rosdep init || true
           rosdep update
 
-          # Install ROS dependencies using rosdep, which automatically finds and installs all
-          # required packages listed in your package.xml files. This is the most reliable method.
+          # Install ROS dependencies using rosdep. This will now find all required packages.
           rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble -y
 
       - name: Build ROS2 package
