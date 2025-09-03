@@ -24,7 +24,8 @@ jobs:
       - name: Install Python dependencies
         run: |
           sudo apt-get update
-          sudo python3 -m pip install -U pip setuptools colcon-common-extensions bloom
+          sudo python3 -m pip install --upgrade setuptools
+          sudo python3 -m pip install -U pip colcon-common-extensions bloom
 
       - name: Install ROS dependencies
         run: |
