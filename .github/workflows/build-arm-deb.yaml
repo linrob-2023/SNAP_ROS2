@@ -36,10 +36,11 @@ jobs:
 
           # Install ROS dependencies using rosdep, which automatically finds and installs all
           # required packages listed in your package.xml files. This is the most reliable method.
-          rosdep install --from-paths src --ignore-src --rosdistro humble -y
+          rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble -y
 
       - name: Build ROS2 package
         run: |
+          cd ros2_ws
           colcon build --merge-install
 
       - name: Generate Debian package
