@@ -37,11 +37,13 @@ jobs:
 
       - name: Build ROS2 package
         run: |
+          source /opt/ros/humble/setup.bash
           cd ros2_ws
-          colcon build --merge-install
+          colcon build --merge-install --packages-select linrob_axis
 
       - name: Generate Debian package
         run: |
+          source /opt/ros/humble/setup.bash
           # Use bloom to generate the debian files and fakeroot to build the package.
           # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
           cd ros2_ws/src/linrob_axis
