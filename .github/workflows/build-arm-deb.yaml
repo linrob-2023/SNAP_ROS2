@@ -19,12 +19,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            python-pip
             build-essential \
             fakeroot \
             dpkg-dev \
-            python3-rosdep \
-            python3-colcon-common-extensions \
+            python3-rosdep2 \
             git
+            
+          sudo pip install colcon-common-extensions
 
       - name: Initialize rosdep
         run: |
