@@ -19,7 +19,7 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
-        run: "source /opt/ros/humble/setup.bash && ros2 run --help"
+      - run: "source /opt/ros/humble/setup.bash && ros2 run --help"
 
       - name: Install Python dependencies
         run: |
