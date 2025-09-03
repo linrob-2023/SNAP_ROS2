@@ -35,7 +35,6 @@ jobs:
           sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
           sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list'
           sudo apt-get update
-          sudo apt-get install -y ros-humble-desktop
 
           # Initialize and update rosdep
           sudo rosdep init || true
