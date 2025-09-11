@@ -9,6 +9,7 @@
 #include "linrob_axis/srv/reset_axis.hpp"
 #include "linrob_axis/srv/reference_axis.hpp"
 #include "linrob_axis/srv/stop_axis.hpp"
+#include "linrob_axis/srv/start_motion.hpp"
 
 #include <atomic>
 #include <memory>
@@ -49,10 +50,15 @@ private:
     const std::shared_ptr<linrob_axis::srv::StopAxis::Request> request,
     std::shared_ptr<linrob_axis::srv::StopAxis::Response> response);
 
+  void startMotionService(
+    const std::shared_ptr<linrob_axis::srv::StartMotion::Request> request,
+    std::shared_ptr<linrob_axis::srv::StartMotion::Response> response);
+
   // Service servers
   rclcpp::Service<linrob_axis::srv::ResetAxis>::SharedPtr reset_service_;
   rclcpp::Service<linrob_axis::srv::ReferenceAxis>::SharedPtr reference_service_;
   rclcpp::Service<linrob_axis::srv::StopAxis>::SharedPtr stop_service_;
+  rclcpp::Service<linrob_axis::srv::StartMotion>::SharedPtr start_motion_service_;
 
   // Publishers for error code monitoring
   rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr error_code_publisher_;
@@ -61,6 +67,8 @@ private:
   std::string virtual_reset_interface_name_;
   std::string virtual_reference_interface_name_;
   std::string virtual_stop_interface_name_;
+  std::string virtual_start_motion_interface_name_;
+  std::string virtual_target_position_interface_name_;
 
   // State interface names
   std::string error_code_interface_name_;
@@ -69,6 +77,8 @@ private:
   std::atomic<bool> pending_reset_{false};
   std::atomic<bool> pending_reference_{false};
   std::atomic<bool> pending_stop_{false};
+  std::atomic<bool> pending_start_motion_{false};
+  std::atomic<uint8_t> pending_target_position_{0};
 
   // Last error code for publishing
   uint32_t last_error_code_{0};

@@ -51,6 +51,8 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   registerDatalayerNode("virtual_reset", params.at("virtual_reset"));
   registerDatalayerNode("virtual_reference", params.at("virtual_reference"));
   registerDatalayerNode("virtual_stop", params.at("virtual_stop"));
+  registerDatalayerNode("virtual_start_motion", params.at("virtual_start_motion"));
+  registerDatalayerNode("virtual_target_position", params.at("virtual_target_position"));
 
   // Error code node for reading latest error
   registerDatalayerNode("error_code", params.at("error_code"));
@@ -393,6 +395,8 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   command_interfaces.emplace_back("joint_1", "virtual_reset", &mVirtualResetCommand);
   command_interfaces.emplace_back("joint_1", "virtual_reference", &mVirtualReferenceCommand);
   command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_start_motion", &mVirtualStartMotionCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_target_position", &mVirtualTargetPositionCommand);
   return command_interfaces;
 }
 
@@ -656,6 +660,34 @@ void Resource::processVirtualCommands()
   else if (mVirtualStopCommand <= 0.5)
   {
     mStopCommandExecuted = false;
+  }
+
+  // virtual_start_motion (boolean trigger)
+  if (mConnection.datalayerNodeMap.count("virtual_start_motion") &&
+      mConnection.datalayerNodeMap.count("virtual_target_position")) {
+    if (mVirtualStartMotionCommand > 0.5 && !mStartMotionCommandExecuted)
+    {
+      bool result = writeToDatalayerNode("virtual_start_motion", true);
+      if (result)
+      {
+        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Virtual start motion command sent to PLC");
+        mStartMotionCommandExecuted = true;
+      }
+      else
+      {
+        RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual start motion command");
+      }
+    }
+    else if (mVirtualStartMotionCommand <= 0.5)
+    {
+      mStartMotionCommandExecuted = false;
+    }
+
+    // virtual_target_position (always write current value - cast to uint8)
+    {
+      uint8_t target = static_cast<uint8_t>(std::round(mVirtualTargetPositionCommand));
+      writeToDatalayerNode("virtual_target_position", target);
+    }
   }
 }
 
