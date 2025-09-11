@@ -130,27 +130,6 @@ ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 
 Error codes are continuously monitored and published on the `/error_code` topic.
 
-### Command Relay
-
-External applications should publish desired axis position targets (single joint) to:
-
-```
-/client_position_command
-```
-
-The integrated `command_relay` node forwards new values to the internal position controller command topic:
-
-```
-/position_controller/commands
-```
-
-Only changed position values are relayed (simple edge filtering).
-
-#### Publishing a Position Command Example
-
-```bash
-ros2 topic pub --once /client_position_command std_msgs/msg/Float64MultiArray '{data: [5.0]}'
-```
 
 ## Package: linrob_sim_cart
 

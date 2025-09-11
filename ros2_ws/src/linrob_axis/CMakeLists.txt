@@ -67,11 +67,6 @@ add_library(${PROJECT_NAME}_controller SHARED
   src/axis_controller.cpp
 )
 
-# Lightweight relay node
-add_executable(command_relay
-  src/command_relay.cpp
-)
-
 #
 # Set target include directories
 #
@@ -116,11 +111,6 @@ ament_target_dependencies(${PROJECT_NAME}_controller
   pluginlib
 )
 
-ament_target_dependencies(command_relay
-  rclcpp
-  std_msgs
-)
-
 # Make service interfaces available to this target
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(${TARGET_PROJECT_NAME} "${cpp_typesupport_target}")
@@ -140,11 +130,6 @@ install(
 install(
   TARGETS ${PROJECT_NAME}_controller
   LIBRARY DESTINATION lib
-)
-
-install(
-  TARGETS command_relay
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install plugin description file from root
