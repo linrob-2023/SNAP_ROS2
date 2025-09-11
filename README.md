@@ -115,7 +115,7 @@ ros2 control list_controllers
 
 The package provides ROS2 services for controlling the PLC axis:
 
-- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors 
+- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors
 ```sh
 ros2 service call /axis_controller/reset_axis linrob_axis/srv/ResetAxis "{}"
 ```
@@ -130,42 +130,26 @@ ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 
 Error codes are continuously monitored and published on the `/error_code` topic.
 
-## Package: linrob_command_sender
+### Command Relay
 
-### Summary
+External applications should publish desired axis position targets (single joint) to:
 
-This package is responsible for publishing commands to the server.
-
-Starts:
-
-- Client position controller.
-- Client resource plugin that can process client commands and send them to server via command topic.
-
-### Configurations
-
-All plugin parameters should be specified in robot description urdf file.
-Current parameters:
-
-- command_topic - Topic where plugin command publisher will publish new commands.
-
-### Local build
-
-Navigate to:
-
-```bash
-cd path/to/Linrob/ros2_ws
+```
+/client_position_command
 ```
 
-Build:
+The integrated `command_relay` node forwards new values to the internal position controller command topic:
 
-```bash
-colcon build --packages-select linrob_command_sender
+```
+/position_controller/commands
 ```
 
-Launch:
+Only changed position values are relayed (simple edge filtering).
+
+#### Publishing a Position Command Example
 
 ```bash
-ros2 launch linrob_command_sender start.launch.py
+ros2 topic pub --once /client_position_command std_msgs/msg/Float64MultiArray '{data: [5.0]}'
 ```
 
 ## Package: linrob_sim_cart

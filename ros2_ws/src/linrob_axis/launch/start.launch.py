@@ -62,10 +62,21 @@ def generate_launch_description():
         arguments=["axis_controller", "-c", "/controller_manager", "--inactive"],
     )
 
+    command_relay = Node(
+        package="linrob_axis",
+        executable="command_relay",
+        name="linrob_command_relay",
+        parameters=[{
+            "input_topic": "/client_position_command",
+            "output_topic": "/position_controller/commands"
+        }]
+    )
+
     return LaunchDescription([
         publisher,
         controller_manager,
         controller_spawner,
         joint_state_broadcaster_spawner,
-        axis_controller_spawner
+        axis_controller_spawner,
+        command_relay
     ])
