@@ -20,6 +20,16 @@ jobs:
           sudo apt-get update
           sudo dpkg -i ./packages/ctrlx-datalayer-2.6.1.deb || sudo apt-get install -f -y
 
+      - name: Debug: List package files and find header
+        run: |
+          dpkg -l | grep datalayer
+          PKG=$(dpkg -l | grep datalayer | awk '{print $2}')
+          echo "Package name: $PKG"
+          dpkg -L $PKG | grep variant.h || true
+          find /usr/include -type f -name "variant.h" 2>/dev/null || true
+          find /usr/include -type f -name "variant.h" 2>/dev/null || true
+          find /usr -type f -name "variant.h" 2>/dev/null || true
+
       - name: Check for installed headers
         run: |
           ls -l /usr/include/comm/datalayer/variant.h
