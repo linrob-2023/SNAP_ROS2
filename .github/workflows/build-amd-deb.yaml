@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo dpkg -i ./packages/ctrlx-datalayer-2.6.1.deb || sudo apt-get install -f -y
 
-      - name: Debug: List package files and find header
+      - name: Debug list package files and find header
         run: |
           dpkg -l | grep datalayer
           PKG=$(dpkg -l | grep datalayer | awk '{print $2}')
