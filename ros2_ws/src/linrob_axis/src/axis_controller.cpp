@@ -205,7 +205,7 @@ void AxisController::startMotionService(
   const std::shared_ptr<linrob_axis::srv::StartMotion::Request> request,
   std::shared_ptr<linrob_axis::srv::StartMotion::Response> response)
 {
-  RCLCPP_INFO(get_node()->get_logger(), "Start motion service called (start=%s, target=%f)",
+  RCLCPP_INFO(get_node()->get_logger(), "Start motion service called (start=%s, target=%u)",
               request->start ? "true" : "false", request->target_position);
 
   if (request->start) {

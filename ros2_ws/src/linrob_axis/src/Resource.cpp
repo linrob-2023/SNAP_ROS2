@@ -685,8 +685,7 @@ void Resource::processVirtualCommands()
 
     // virtual_target_position (always write current value - cast to uint8)
     {
-      //uint8_t target = static_cast<uint8_t>(std::round(mVirtualTargetPositionCommand));
-      double_t target = static_cast<double_t>(mVirtualTargetPositionCommand);
+      uint8_t target = static_cast<uint8_t>(std::round(mVirtualTargetPositionCommand));
       writeToDatalayerNode("virtual_target_position", target);
     }
   }
