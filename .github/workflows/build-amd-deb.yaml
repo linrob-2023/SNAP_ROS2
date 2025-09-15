@@ -15,6 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install ctrlX Data Layer SDK
+        run: |
+          sudo apt-get update
+          sudo dpkg -i ./packages/ctrlx-datalayer-2.6.1.deb || sudo apt-get install -f -y
+
       - name: Install ROS Environment and Dependencies
         uses: ros-tooling/setup-ros@v0.7
         with:
