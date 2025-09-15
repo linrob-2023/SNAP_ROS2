@@ -20,6 +20,14 @@ jobs:
           sudo apt-get update
           sudo dpkg -i ./packages/ctrlx-datalayer-2.6.1.deb || sudo apt-get install -f -y
 
+      - name: Check for installed headers
+        run: |
+          ls -l /usr/include/comm/datalayer/variant.h
+          ls -l /usr/include/comm/datalayer/c/variant.h
+          echo "#include <comm/datalayer/variant.h>" > test.cpp
+          echo "int main() { return 0; }" >> test.cpp
+          g++ -v -c test.cpp
+
       - name: Install ROS Environment and Dependencies
         uses: ros-tooling/setup-ros@v0.7
         with:
