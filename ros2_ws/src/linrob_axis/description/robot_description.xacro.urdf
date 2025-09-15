@@ -72,6 +72,7 @@
         <param name="virtual_stop">plc/app/Application/sym/GVL/xStopVirt</param>
         <param name="virtual_start_motion">plc/app/Application/sym/GVL/xMoveSingelAxisVirt</param>
         <param name="virtual_target_position">plc/app/Application/sym/GVL/arrMoveSingleAxisPositionVirt/1</param>
+        <param name="virtual_target_velocity">plc/app/Application/sym/GVL/lrMoveSingleAxisVelocityVirt</param>
 
         <param name="error_code">plc/app/Application/sym/GVL/nLatestErrorCode</param>
 
