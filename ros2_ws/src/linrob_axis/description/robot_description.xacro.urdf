@@ -69,8 +69,8 @@
         <param name="virtual_reset">plc/app/Application/sym/GVL/xResetVirt</param>
         <param name="virtual_reference">plc/app/Application/sym/GVL/xReferenceVirt</param>
         <param name="virtual_stop">plc/app/Application/sym/GVL/xStopVirt</param>
-        <param name="virtual_start_motion">TODO:plc/app/Application/sym/GVL/xVirtMove</param>
-        <param name="virtual_target_position">TODO:plc/app/Application/sym/GVL/nVirtTargetPos</param>
+        <param name="virtual_start_motion">plc/app/Application/sym/GVL/xMoveSingelAxisVirt</param>
+        <param name="virtual_target_position">plc/app/Application/sym/GVL/arrMoveSingleAxisPositionVirt/1</param>
 
         <param name="error_code">plc/app/Application/sym/GVL/nLatestErrorCode</param>
 
