@@ -13,7 +13,10 @@ const auto LINROB = "linrob";
 constexpr std::chrono::milliseconds kStatePollInterval{100};
 constexpr std::chrono::seconds kStateWaitTimeout{10};
 constexpr std::chrono::seconds kSetModeSleep{2};
+
 constexpr std::chrono::seconds kAxisReadinessCheckInterval{2};
+constexpr double kMaxAllowedTimeDiffMs = 100.0;
+constexpr double kClampedTimeDiffMs = 50.0;
 
 Resource::~Resource()
 {
@@ -283,10 +286,17 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
   // New position received - calculate time difference since last position command
   double timeDiffMs = 0.0;
-  if (mPositionSettings.newPositionsReceivedCount > 0)
-  {
+  if (mPositionSettings.newPositionsReceivedCount == 0) {
+    // Very first command: set to 0ms
+    timeDiffMs = 0.0;
+  } else {
     auto duration = time - mLastPositionCommandTime;
-    timeDiffMs = duration.seconds() * 1000.0;
+    // If the time since last command is greater than maximum allowed, set to clamped value
+    if (duration.seconds() * 1000.0 > kMaxAllowedTimeDiffMs) {
+      timeDiffMs = kClampedTimeDiffMs;
+    } else {
+      timeDiffMs = duration.seconds() * 1000.0;
+    }
   }
 
   // Update tracking variables
