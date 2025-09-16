@@ -1,0 +1,180 @@
+= Linrob Axis Control Package
+Karim Zanaty <Karim.Zanaty@linrob.io>
+v1.0.0, {docdate}
+:toc:
+:toclevels: 3
+:icons: font
+:sectnums:
+:source-highlighter: pygments
+
+== Overview
+
+The `linrob_axis` package provides hardware interface drivers and controller plugins for controlling linear robotic axes using the ROS 2 control framework.
+
+This package is part of the Linrob robot system and integrates with `ros2_control`, `controller_interface`, and other standard ROS 2 packages.
+
+== Package Contents
+
+This Debian package installs the following components:
+
+- ROS 2 package: `linrob_axis`
+- Plugins for `hardware_interface` and `controller_interface`
+- Launch files and configuration templates
+
+== Features
+
+- Dedicated services for linear axis control
+- Processing and execution of streamed positions as planned by MoveIt
+- Read-out of current position, velocity, and error code
+
+== Installation
+
+To install the package:
+
+[source, bash]
+----
+sudo apt install ./ros-humble-linrob-axis_1.0.0-0jammy_amd64.deb
+----
+
+Make sure all dependencies (e.g., `ros-humble-ros2-control`) are installed.
+The package cltrx-datalayer-2.6.1.deb is required and will be provided on request. This must be installed beforehand.
+
+== Usage
+
+=== Starting the Hardware Interface
+
+[source, bash]
+----
+ros2 launch linrob_axis start.launch.py
+----
+
+This will start the hardware interface node which connects to the linear axis.
+
+==== Resource activation and deactivation
+
+By default, after startup and launching, the joint_state_broadcaster is **active** and both the position_controller and axis_controller are **inactive** until you activate them using ROS 2 controller commands.
+
+===== Activation
+
+To activate the position controller, run:
+[source, bash]
+----
+ros2 control switch_controllers --activate position_controller
+----
+
+To activate the axis controller, run:
+[source, bash]
+----
+ros2 control switch_controllers --activate axis_controller
+----
+
+To activate both controllers, run:
+[source, bash]
+----
+ros2 control switch_controllers --activate position_controller axis_controller
+----
+
+To activate the hardware component, run:
+[source, bash]
+----
+ros2 control set_hardware_component_state linrob_hw active
+----
+
+===== Deactivation
+
+To deactivate the position controller, run:
+[source, bash]
+----
+ros2 control switch_controllers --deactivate position_controller
+----
+
+To deactivate the axis controller, run:
+[source, bash]
+----
+ros2 control switch_controllers --deactivate axis_controller
+----
+
+To deactivate both controllers, run:
+[source, bash]
+----
+ros2 control switch_controllers --deactivate position_controller axis_controller
+----
+
+To deactivate the hardware component, run:
+[source, bash]
+----
+ros2 control set_hardware_component_state linrob_hw inactive
+----
+
+===== Check Controller State
+
+To verify the controller state:
+[source, bash]
+----
+ros2 control list_controllers
+----
+
+=== Configuring the application
+
+The application can be preconfigured by the robot_description.xacro.urdf which can be fount in the _description_ folder of the package.
+
+The following parameters are allowed to be set by the customer
+
+* *ip*: (default: "192.168.1.1") Must not be changed but can be changed to the IP address of the ctrlX CORE if the customer needs to change it.
+* *user*: (default: "boschrexroth") Must not be changed but can be changed to own account username
+* *password*: (default: "boschrexroth") Must not be changed but can be changed to own account password
+* *port*: (default: 443) Should not be changed unless a different port is configured on the ctrlX CORE
+* *execute_movements_on_next_index*: (default: 3) This is the forerun of positions before the axis should acutually execute the movement. When this value is too small, the axis might be faster than new target positions are coming in.
+* *update_frequency_hz*: Should align with the frequency of the MoveIt planner.
+* *duplicate_append_limit*: (default: 5) Number of duplicate target positions if no new target was received. Ensures that the axis will reach the target with out errors.
+* *position_tolerance_mm*: (default: 0.001) Position tolerance in mm for the controller. The target is reached when the current position of the axis is within this tolerance.
+* *log_level*: (default: "info") Log level for the node. Options are: debug, info, warn, error, fatal.
+
+Edit the config file:
+
+[source, yaml]
+----
+hardware:
+  linear_axis:
+    joint_name: "axis_joint"
+    limits:
+      min_position: -1.0
+      max_position: 1.0
+----
+
+=== Example Controller
+
+[source, yaml]
+----
+controller_manager:
+  controllers:
+    axis_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+----
+
+== System Requirements
+
+- ROS 2 Humble
+- Ubuntu 22.04 (Jammy)
+- Real-time kernel (recommended)
+
+== Known Issues
+
+- Currently supports only one linear axis at a time
+- Real-time performance depends on system configuration
+
+== License
+
+This package is licensed under the MIT License. See the `LICENSE` file for details.
+
+== Changelog
+
+* 1.0.0 - Initial release of `linrob_axis` as a Debian package.
+
+== Contact
+
+For questions, bug reports, or contributions:
+
+- GitHub: https://github.com/your-org/linrob_axis
+- Email: support@example.com
+
