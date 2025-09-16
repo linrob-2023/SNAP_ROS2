@@ -32,7 +32,8 @@ jobs:
             libssl-dev \
             libzmq3-dev \
             debhelper \
-            devscripts
+            devscripts \
+            gh
 
       - name: Install ctrlX Data Layer SDK
         run: |
@@ -88,3 +89,10 @@ jobs:
         with:
           name: linrob_axis-deb-amd64
           path: ros2_ws/src/*.deb
+
+      - name: Upload .deb to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          gh release upload "$GITHUB_REF_NAME" ros2_ws/src/*.deb --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
