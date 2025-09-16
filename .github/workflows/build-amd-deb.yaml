@@ -22,7 +22,8 @@ jobs:
             build-essential \
             libsystemd-dev \
             libssl-dev \
-            libzmq3-dev
+            libzmq3-dev \
+            debhelper
 
       - name: Install ctrlX Data Layer SDK
         run: |
