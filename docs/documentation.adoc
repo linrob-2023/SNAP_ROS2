@@ -39,7 +39,7 @@ To install the package:
 
 [source, bash]
 ----
-sudo apt install ./ros-humble-linrob-axis_1.0.0-0jammy_amd64.deb
+sudo apt install ./ros-humble-linrob-axis_<latest.version>-0jammy_amd64.deb
 ----
 
 Make sure all dependencies (e.g., `ros-humble-ros2-control`) are installed.
@@ -176,6 +176,5 @@ IMPORTANT: The execution of streamed positions does not work properly yet and is
 
 For questions, bug reports, or contributions:
 
-- GitHub: https://github.com/your-org/linrob_axis
-- Email: support@example.com
+- Email: info@linrob.io or Karim.Zanaty@linrob.io
 
