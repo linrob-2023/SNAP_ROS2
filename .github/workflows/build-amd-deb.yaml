@@ -8,7 +8,7 @@ on:
       - main      # optionally also on main pushes
 
 jobs:
-  build-arm64:
+  build-amd64:
     runs-on: ubuntu-22.04
 
     steps:
@@ -74,4 +74,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linrob_axis-deb-amd64
-          path: ros2_ws/src/linrob_axis/*.deb
+          path: ros2_ws/src/*.deb
