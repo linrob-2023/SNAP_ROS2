@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite
+  name="linrob_axis.xmllint"
+  tests="3"
+  errors="0"
+  failures="1"
+  time="0.678"
+>
+  <testcase
+    name="controller_plugin.xml"
+    classname="linrob_axis.xmllint"/>
+  <testcase
+    name="package.xml"
+    classname="linrob_axis.xmllint"
+  >
+      <failure message="Diff with 331 lines"><![CDATA[/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml fails to validate
+]]></failure>
+  </testcase>
+  <testcase
+    name="resource_plugin.xml"
+    classname="linrob_axis.xmllint"/>
+  <system-out>Checked files:
+* controller_plugin.xml
+* package.xml
+* resource_plugin.xml</system-out>
+</testsuite>

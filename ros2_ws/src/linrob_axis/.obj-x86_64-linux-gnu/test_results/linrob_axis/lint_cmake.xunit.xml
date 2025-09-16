@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite
+  name="linrob_axis.lint_cmake"
+  tests="10"
+  errors="0"
+  failures="10"
+  time="0.004"
+>
+  <testcase
+    name="readability/mixedcase (CMakeLists.txt:22)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Do not mix upper and lower case commands"/>
+  </testcase>
+  <testcase
+    name="whitespace/mismatch (CMakeLists.txt:23)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Mismatching spaces inside () after command"/>
+  </testcase>
+  <testcase
+    name="whitespace/extra (CMakeLists.txt:30)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Extra spaces between 'set' and its ()"/>
+  </testcase>
+  <testcase
+    name="readability/mixedcase (CMakeLists.txt:32)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Do not mix upper and lower case commands"/>
+  </testcase>
+  <testcase
+    name="whitespace/extra (CMakeLists.txt:32)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Extra spaces between 'SET' and its ()"/>
+  </testcase>
+  <testcase
+    name="whitespace/mismatch (CMakeLists.txt:32)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Mismatching spaces inside () after command"/>
+  </testcase>
+  <testcase
+    name="whitespace/extra (CMakeLists.txt:73)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Extra spaces between 'target_include_directories' and its ()"/>
+  </testcase>
+  <testcase
+    name="whitespace/tabs (CMakeLists.txt:76)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Tab found; please use spaces"/>
+  </testcase>
+  <testcase
+    name="whitespace/extra (CMakeLists.txt:80)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Extra spaces between 'target_include_directories' and its ()"/>
+  </testcase>
+  <testcase
+    name="whitespace/tabs (CMakeLists.txt:83)"
+    classname="linrob_axis.lint_cmake"
+  >
+      <failure message="Tab found; please use spaces"/>
+  </testcase>
+  <system-out>Checked files:
+* CMakeLists.txt</system-out>
+</testsuite>
