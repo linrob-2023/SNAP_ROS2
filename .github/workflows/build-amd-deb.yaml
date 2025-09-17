@@ -90,9 +90,15 @@ jobs:
           name: linrob_axis-deb-amd64
           path: ros2_ws/src/*.deb
 
+      - name: Upload additional .deb from packages folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctrlx-datalayer-deb
+          path: packages/ctrlx-datalayer-2.6.1.deb
+
       - name: Upload .deb to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          gh release upload "$GITHUB_REF_NAME" ros2_ws/src/*.deb --clobber
+          gh release upload "$GITHUB_REF_NAME" ros2_ws/src/*.deb packages/ctrlx-datalayer-2.6.1.deb --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

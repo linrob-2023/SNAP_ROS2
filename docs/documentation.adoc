@@ -25,7 +25,7 @@ This Debian package installs the following components:
 
 - Dedicated services for linear axis control
 - Processing and execution of streamed positions as planned by MoveIt
-- Read-out of current position, velocity, and error code
+- Read-out of current position, velocity, error code, and axis-ready-state
 
 == System Requirements
 
@@ -56,7 +56,9 @@ ros2 launch linrob_axis start.launch.py
 
 This will start the hardware interface node which connects to the linear axis.
 
-The position controller allows the execution of streamed target positions. The positions will be sent to the _/position_controller/commands_ topic as a single number. The axis controller will recognize the frequency of sent data and act accordingly. Based on these times, an interpolation is done in the backend to ensure smooth movements and fulfill the requirements of the PLC backend.
+When the hardware interface is set to _active_, the axis controller will change its operation mode to "AUTO_EXTERNAL" and is ready to receive positioning commands via the position controller. Deactivating the hardware interface will set the axis back to "MANUAL" mode. The handheld device can only be used when the hardware interface is inactive.
+
+The position controller allows the execution of streamed target positions. The positions will be sent to the _/position_controller/commands_ topic as a single float number. The axis controller will recognize the frequency of sent data and act accordingly. Based on these times, an interpolation is done in the backend to ensure smooth movements and fulfill the requirements of the PLC backend.
 
 The axis controller enables certain ROS2 services to command the axis. These are:
 
@@ -165,6 +167,8 @@ The following parameters are allowed to be set by the customer
 NOTE: Currently supports only one linear axis at a time. This will be extended in further developments.
 
 NOTE: The communication with the linear axis is not in real-time. The communication protocols to the datalayer do not allow real-time communication. For most applications, this is not a problem, as the linear axis is controlled in position mode and the internal controller of the axis ensures smooth movements.
+
+WARNING: When commanding a target position with the available services, the velocity is fixed to 25mm/s. This will be extended in future releases.
 
 IMPORTANT: The execution of streamed positions does not work properly yet and is still in a testing phase. Only small position changes (around +/- 0.01mm) are possible without errors. Larger position changes will lead to errors in the drive. This is under investigation and will be fixed in future releases.
 
