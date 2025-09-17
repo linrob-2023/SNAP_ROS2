@@ -92,7 +92,6 @@ jobs:
 
       - name: Create documentation pdf
         run: |
-          cd ../../..
           asciidoctor-pdf -o linrob_axis_documentation.pdf ./docs/documentation.adoc
         
       - name: Upload documentation pdf
