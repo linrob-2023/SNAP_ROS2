@@ -92,13 +92,13 @@ jobs:
 
       - name: Create documentation pdf
         run: |
-          asciidoctor-pdf -o linrob_axis_documentation.pdf ./docs/documentation.adoc
+          asciidoctor-pdf ./docs/documentation.adoc
         
       - name: Upload documentation pdf
         uses: actions/upload-artifact@v4
         with:
           name: linrob_axis-documentation
-          path: docs/linrob_axis_documentation.pdf
+          path: docs/documentation.pdf
 
       - name: Upload AMD64 debian package
         uses: actions/upload-artifact@v4
