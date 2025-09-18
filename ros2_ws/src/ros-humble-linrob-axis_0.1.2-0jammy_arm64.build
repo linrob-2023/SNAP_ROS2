@@ -1,0 +1,12 @@
+ dpkg-buildpackage -us -uc -ui -b -aarm64
+dpkg-buildpackage: info: source package ros-humble-linrob-axis
+dpkg-buildpackage: info: source version 0.1.2-0jammy
+dpkg-buildpackage: info: source distribution jammy
+dpkg-buildpackage: info: source changed by Matomai <info@matom.ai>
+dpkg-architecture: warning: specified GNU system type aarch64-linux-gnu does not match CC system type x86_64-linux-gnu, try setting a correct CC environment variable
+ dpkg-source --before-build .
+dpkg-buildpackage: info: host architecture arm64
+dpkg-source: info: using options from linrob_axis/debian/source/options: --auto-commit
+dpkg-checkbuilddeps: error: Unmet build dependencies: ros-humble-ament-cmake ros-humble-ament-lint-auto ros-humble-ament-lint-common ros-humble-controller-interface ros-humble-hardware-interface ros-humble-pluginlib ros-humble-rclcpp ros-humble-ros2-control ros-humble-rosidl-default-generators ros-humble-std-msgs
+dpkg-buildpackage: warning: build dependencies/conflicts unsatisfied; aborting
+dpkg-buildpackage: warning: (Use -d flag to override.)

@@ -1,0 +1,10 @@
+# Ignore snapcraft artifacts
+ros2-base-humble-deb/
+parts/
+stage/
+prime/
+squashfs-root/
+.snapcraft/
+__pycache__/
+*.deb
+*.log

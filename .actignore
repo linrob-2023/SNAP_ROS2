@@ -1,0 +1,8 @@
+**/squashfs-root
+*.snap
+*.img
+*.AppImage
+*.lock
+*.iso
+parts/
+/ros2-base-humble-deb/*
