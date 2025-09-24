@@ -1,0 +1,120 @@
+name: Build AMD64 Debian
+
+on:
+  push:
+    tags:
+      - 'v*'      # build on new version tags
+    branches:
+      - main      # optionally also on main pushes
+
+env:
+  GIT_TAG: ${{ github.ref_name }}
+
+jobs:
+  build-amd64:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Strip "v" from tag (if present)
+        run: |
+          TAG=${GIT_TAG#v}
+          echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Set up Ruby 3.4
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libsystemd-dev \
+            libssl-dev \
+            libzmq3-dev \
+            debhelper \
+            devscripts \
+            gh
+          gem install asciidoctor-pdf
+
+      - name: Install ctrlX Data Layer SDK
+        run: |
+          sudo apt-get update
+          sudo dpkg -i ./packages/ctrlx-datalayer-2.6.1.deb || sudo apt-get install -f -y
+
+      - name: Install ROS Environment and Dependencies
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+
+      - run: "source /opt/ros/humble/setup.bash && ros2 run --help"
+
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential fakeroot
+          sudo python3 -m pip install --upgrade pip
+          sudo python3 -m pip install -U pip "setuptools<71.0.0" colcon-common-extensions bloom
+
+      - name: Install ROS dependencies
+        run: |
+          # Initialize and update rosdep
+          sudo rosdep init || true
+          rosdep update
+
+          # Install ROS dependencies using rosdep.
+          rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble -y
+
+      - name: Build ROS2 package
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ros2_ws
+          #colcon build --merge-install --packages-select linrob_axis
+          colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
+
+      - name: Generate Debian package
+        run: |
+          source /opt/ros/humble/setup.bash
+          # Use bloom to generate the debian files and fakeroot to build the package.
+          # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
+          cd ros2_ws/src/linrob_axis
+          bloom-generate rosdebian 
+
+          # Update changelog with the version from the tag
+          dch --newversion "$VERSION_TAG-0" --distribution jammy "Release from GitHub tag $VERSION_TAG"
+          dch --release --distribution jammy ""
+          
+          fakeroot debian/rules binary
+
+      - name: Create documentation pdf
+        run: |
+          asciidoctor-pdf ./docs/documentation.adoc
+        
+      - name: Upload documentation pdf
+        uses: actions/upload-artifact@v4
+        with:
+          name: linrob_axis-documentation
+          path: docs/documentation.pdf
+
+      - name: Upload AMD64 debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linrob_axis-deb-amd64
+          path: ros2_ws/src/*.deb
+
+      - name: Upload additional .deb from packages folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctrlx-datalayer-deb
+          path: packages/ctrlx-datalayer-2.6.1.deb
+
+      - name: Upload .deb to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          gh release upload "$GITHUB_REF_NAME" ros2_ws/src/*.deb packages/ctrlx-datalayer-2.6.1.deb docs/documentation.pdf --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

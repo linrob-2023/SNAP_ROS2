@@ -1,0 +1,1630 @@
+Start testing: Aug 22 10:50 UTC
+----------------------------------------------------------
+1/6 Testing: cppcheck
+1/6 Test: cppcheck
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/cppcheck.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_cppcheck/cppcheck.txt" "--command" "/opt/ros/humble/bin/ament_cppcheck" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/cppcheck.xunit.xml" "--include_dirs" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_c" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_fastrtps_c" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_cpp" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_fastrtps_cpp" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_introspection_c" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_introspection_cpp" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_c" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/include" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/../../../../ctrlX/ctrlx-automation-sdk/include" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/../../../../ctrlX/ctrlx-automation-sdk/include/comm.datalayer"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"cppcheck" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_cppcheck --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/cppcheck.xunit.xml --include_dirs /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_c /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_fastrtps_c /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_cpp /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_fastrtps_cpp /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_introspection_c /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_typesupport_introspection_cpp /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_c /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_py /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/include /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/../../../../ctrlX/ctrlx-automation-sdk/include /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/../../../../ctrlX/ctrlx-automation-sdk/include/comm.datalayer
+cppcheck 2.7 has known performance issues and therefore will not be used, set the AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS environment variable to override this.
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/cppcheck.xunit.xml'
+<end of output>
+Test time =   0.35 sec
+----------------------------------------------------------
+Test Passed.
+"cppcheck" end time: Aug 22 10:50 UTC
+"cppcheck" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/6 Testing: flake8
+2/6 Test: flake8
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/flake8.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_flake8/flake8.txt" "--command" "/opt/ros/humble/bin/ament_flake8" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/flake8.xunit.xml"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"flake8" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_flake8 --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/flake8.xunit.xml
+
+1 files checked
+No problems found
+
+Checked files:
+
+* ./launch/start.launch.py
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/flake8.xunit.xml'
+<end of output>
+Test time =   0.55 sec
+----------------------------------------------------------
+Test Passed.
+"flake8" end time: Aug 22 10:50 UTC
+"flake8" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/6 Testing: lint_cmake
+3/6 Test: lint_cmake
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/lint_cmake.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_lint_cmake/lint_cmake.txt" "--command" "/opt/ros/humble/bin/ament_lint_cmake" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/lint_cmake.xunit.xml"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"lint_cmake" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_lint_cmake --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/lint_cmake.xunit.xml
+CMakeLists.txt:22: Do not mix upper and lower case commands [readability/mixedcase]
+CMakeLists.txt:23: Mismatching spaces inside () after command [whitespace/mismatch]
+CMakeLists.txt:30: Extra spaces between 'set' and its () [whitespace/extra]
+CMakeLists.txt:32: Do not mix upper and lower case commands [readability/mixedcase]
+CMakeLists.txt:32: Extra spaces between 'SET' and its () [whitespace/extra]
+CMakeLists.txt:32: Mismatching spaces inside () after command [whitespace/mismatch]
+CMakeLists.txt:73: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
+CMakeLists.txt:76: Tab found; please use spaces [whitespace/tabs]
+CMakeLists.txt:80: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
+CMakeLists.txt:83: Tab found; please use spaces [whitespace/tabs]
+
+
+10 errors
+-- run_test.py: return code 1
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/lint_cmake.xunit.xml'
+<end of output>
+Test time =   0.38 sec
+----------------------------------------------------------
+Test Failed.
+"lint_cmake" end time: Aug 22 10:50 UTC
+"lint_cmake" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/6 Testing: pep257
+4/6 Test: pep257
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_pep257/pep257.txt" "--command" "/opt/ros/humble/bin/ament_pep257" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"pep257" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_pep257 --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml
+checking ./launch/start.launch.py
+No problems found
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml'
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"pep257" end time: Aug 22 10:50 UTC
+"pep257" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/6 Testing: uncrustify
+5/6 Test: uncrustify
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/uncrustify.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_uncrustify/uncrustify.txt" "--command" "/opt/ros/humble/bin/ament_uncrustify" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/uncrustify.xunit.xml"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"uncrustify" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_uncrustify --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/uncrustify.xunit.xml
+Code style divergence in file 'include/linrob_axis/AxisStates.h':
+
+--- include/linrob_axis/AxisStates.h
++++ include/linrob_axis/AxisStates.h.uncrustify
+@@ -11,15 +11,15 @@
+-enum class AxisState : uint8_t
+-{
+-  ABORTING = 0U,
+-  CONTINUOUS_MOTION,
+-  COORDINATED_MOTION,
+-  DISABLED,
+-  DISCRETE_MOTION,
+-  ERRORSTOP,
+-  GANTRY_SLAVE,
+-  HOMING,
+-  STANDSTILL,
+-  STANDSTILL_PENDING,
+-  STOPPING,
+-  SYNCHRONIZED_MOTION
+-};
++  enum class AxisState: uint8_t
++  {
++    ABORTING = 0U,
++    CONTINUOUS_MOTION,
++    COORDINATED_MOTION,
++    DISABLED,
++    DISCRETE_MOTION,
++    ERRORSTOP,
++    GANTRY_SLAVE,
++    HOMING,
++    STANDSTILL,
++    STANDSTILL_PENDING,
++    STOPPING,
++    SYNCHRONIZED_MOTION
++  };
+
+Code style divergence in file 'include/linrob_axis/Connection.h':
+
+--- include/linrob_axis/Connection.h
++++ include/linrob_axis/Connection.h.uncrustify
+@@ -14,13 +14,14 @@
+-struct Connection
+-{
+-  /// IP address.
+-  std::string ip;
+-  /// Username.
+-  std::string user;
+-  /// Password.
+-  std::string password;
+-  /// SSL port.
+-  int sslPort;
+-  /// Data layer nodes addresses.
+-  std::unordered_map<std::string, std::pair<std::string, comm::datalayer::Variant> > datalayerNodeMap;
+-};
++  struct Connection
++  {
++    /// IP address.
++    std::string ip;
++    /// Username.
++    std::string user;
++    /// Password.
++    std::string password;
++    /// SSL port.
++    int sslPort;
++    /// Data layer nodes addresses.
++    std::unordered_map < std::string, std::pair < std::string,
++    comm::datalayer::Variant >> datalayerNodeMap;
++  };
+
+Code style divergence in file 'include/linrob_axis/Mode.h':
+
+--- include/linrob_axis/Mode.h
++++ include/linrob_axis/Mode.h.uncrustify
+@@ -11,6 +11,6 @@
+-enum class Mode : uint8_t
+-{
+-  MANUAL = 0U,
+-  AUTO,
+-  AUTO_EXTERNAL
+-};
++  enum class Mode: uint8_t
++  {
++    MANUAL = 0U,
++    AUTO,
++    AUTO_EXTERNAL
++  };
+
+Code style divergence in file 'include/linrob_axis/PositionSettings.h':
+
+--- include/linrob_axis/PositionSettings.h
++++ include/linrob_axis/PositionSettings.h.uncrustify
+@@ -10,13 +10,13 @@
+-struct PositionSettings
+-{
+-  /// Initial position index.
+-  uint16_t initialIndex;
+-  /// Index where next position will be written in PLC.
+-  uint16_t nextPositionIndex;
+-  /// Max index value for next position before it will be restored to initial index.
+-  uint16_t maxPositionIndices;
+-  /// Number of new positions received.
+-  uint32_t newPositionsReceivedCount;
+-  /// Value at which command to PLC will be sent to execute movements.
+-  uint16_t executeMovementsOnIndex;
+-};
++  struct PositionSettings
++  {
++    /// Initial position index.
++    uint16_t initialIndex;
++    /// Index where next position will be written in PLC.
++    uint16_t nextPositionIndex;
++    /// Max index value for next position before it will be restored to initial index.
++    uint16_t maxPositionIndices;
++    /// Number of new positions received.
++    uint32_t newPositionsReceivedCount;
++    /// Value at which command to PLC will be sent to execute movements.
++    uint16_t executeMovementsOnIndex;
++  };
+
+Code style divergence in file 'include/linrob_axis/Resource.h':
+
+--- include/linrob_axis/Resource.h
++++ include/linrob_axis/Resource.h.uncrustify
+@@ -23,2 +23,2 @@
+-class Resource : public hardware_interface::SystemInterface
+-{
++  class Resource: public hardware_interface::SystemInterface
++  {
+@@ -26,77 +26,87 @@
+-  /**
+-   * Constructor.
+-   */
+-  Resource() = default;
+-
+-  /**
+-   * Destructor.
+-   */
+-  ~Resource() override;
+-
+-  /**
+-   * Initialization of the hardware interface from data parsed from the robot's URDF.
+-   * @param info structure with data from URDF.
+-   * @return State of the function.
+-   */
+-  hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
+-
+-  /**
+-   * Callback function for configure transition.
+-   * @param previous_state previous state of the hardware interface.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
+-
+-  /**
+-   * Function for activating the hardware.AxisState
+-   * @param previous_state previous state of the hardware interface.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+-
+-  /**
+-   * Function for turning off the hardware.
+-   * @param previous_state previous state of the hardware interface.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+-
+-  /**
+-   * Function for writing latest command to the hardware.
+-   * @param time time at the start of this control loop iteration.
+-   * @param period measured time taken by the last control loop iteration.
+-   * @return state of the function.
+-   */
+-  hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+-
+-  /**
+-   * Function for reading the current state of the hardware.
+-   * @param time time at the start of this control loop iteration.
+-   * @param period measured time taken by the last control loop iteration.
+-   * @return state of the function.
+-   */
+-  hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+-
+-  /**
+-   * Disconnects the datalayer client
+-   * @return state of the function.
+-   */
+-  void disconnect();
+-
+-  /**
+-   * Exports all state interfaces for this hardware interface.
+-   * @return vector of state interfaces.
+-   */
+-  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
+-
+-  /**
+-   * Exports all command interfaces for this hardware interface.
+-   * @return vector of command interfaces.
+-   */
+-  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
+-
+-  /**
+-   * Waits for the system mode to reach the expected mode within a timeout.
+-   * Returns SUCCESS if reached, FAILURE on timeout.
+-   */
+-  hardware_interface::CallbackReturn waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout);
++    /**
++     * Constructor.
++     */
++    Resource() = default;
++
++    /**
++     * Destructor.
++     */
++    ~Resource() override;
++
++    /**
++     * Initialization of the hardware interface from data parsed from the robot's URDF.
++     * @param info structure with data from URDF.
++     * @return State of the function.
++     */
++    hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo & info)
++    override;
++
++    /**
++     * Callback function for configure transition.
++     * @param previous_state previous state of the hardware interface.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state)
++    override;
++
++    /**
++     * Function for activating the hardware.AxisState
++     * @param previous_state previous state of the hardware interface.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state)
++    override;
++
++    /**
++     * Function for turning off the hardware.
++     * @param previous_state previous state of the hardware interface.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state)
++    override;
++
++    /**
++     * Function for writing latest command to the hardware.
++     * @param time time at the start of this control loop iteration.
++     * @param period measured time taken by the last control loop iteration.
++     * @return state of the function.
++     */
++    hardware_interface::return_type write(
++      const rclcpp::Time & time,
++      const rclcpp::Duration & period) override;
++
++    /**
++     * Function for reading the current state of the hardware.
++     * @param time time at the start of this control loop iteration.
++     * @param period measured time taken by the last control loop iteration.
++     * @return state of the function.
++     */
++    hardware_interface::return_type read(
++      const rclcpp::Time & time,
++      const rclcpp::Duration & period) override;
++
++    /**
++     * Disconnects the datalayer client
++     * @return state of the function.
++     */
++    void disconnect();
++
++    /**
++     * Exports all state interfaces for this hardware interface.
++     * @return vector of state interfaces.
++     */
++    std::vector < hardware_interface::StateInterface > export_state_interfaces() override;
++
++    /**
++     * Exports all command interfaces for this hardware interface.
++     * @return vector of command interfaces.
++     */
++    std::vector < hardware_interface::CommandInterface > export_command_interfaces() override;
++
++    /**
++     * Waits for the system mode to reach the expected mode within a timeout.
++     * Returns SUCCESS if reached, FAILURE on timeout.
++     */
++    hardware_interface::CallbackReturn waitForSystemMode(
++      const std::string & expectedMode,
++      std::chrono::milliseconds timeout);
+@@ -105,113 +115,115 @@
+-  /**
+-   * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
+-   * created pair in the map at specified key.
+-   * @param key key for the datalayer node.
+-   * @param address address of the datalayer node.
+-   */
+-  void registerDatalayerNode(const std::string& key, const std::string& address);
+-
+-  /**
+-   * Reads datalayer node.
+-   * @param key key for the datalayer node.
+-   * @param expectedType expected variant type of the data.
+-   * @return true if the data was read successfully, false otherwise.
+-   */
+-  bool updateDataFromNode(const std::string& key, comm::datalayer::VariantType expectedType);
+-
+-  /**
+-   * Establishes connection to the datalayer node.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn connect();
+-
+-  /**
+-   * Checks if the axis is in the expected state.
+-   * @param expectedState expected axis state.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn checkAxisState(AxisState expectedState);
+-
+-  /**
+-   * Checks if the system is in the expected mode.
+-   * @param expectedMode expected system mode.
+-   * @return state of the function.
+-   */
+-  hardware_interface::CallbackReturn checkSystemMode(const std::string& expectedMode);
+-
+-  /**
+-   * Updates the state of the axis. Converts data stored in the connection map to the state interface.
+-   * Stored data: current position and velocity.
+-   * @return state of the function.
+-   */
+-  void updateState();
+-
+-  /**
+-   * Writes data to the specified datalayer node.
+-   * @tparam T type of the data to be written.
+-   * @param key key for the datalayer node.
+-   * @param value value to be written to the datalayer node.
+-   * @return true if the data was written successfully, false otherwise.
+-   */
+-  template <typename T>
+-  bool writeToDatalayerNode(const std::string& key, const T& value);
+-
+-  /**
+-   * Converts data soted in the datalayer Variant object to vector of specified type.
+-   * @tparam T type of the data to be converted.
+-   * @param data datalayer Variant object.
+-   * @return vector of converted data.
+-   */
+-  template <typename T>
+-  std::vector<T> variantDataToVector(const comm::datalayer::Variant& data);
+-
+-  /**
+-   * Waits until state, status and mode datalayer nodes are valid.
+-   */
+-  void waitUntilRequiredNodesAreValid();
+-
+-  /**
+-   * Sets the log level for the datalayer system.
+-   *
+-   * Possible log levels:
+-   * - DEBUG
+-   * - INFO
+-   * - WARN
+-   * - ERROR
+-   * - FATAL
+-   *
+-   * @param level log level to be set.
+-   *
+-   */
+-  void setLogLevel(const std::string& level);
+-
+-  /**
+-   * Processes virtual commands from the controller
+-   */
+-  void processVirtualCommands();
+-
+-  /**
+-   * Checks the axis state periodically and updates mAxisReadyForOperation flag.
+-   * This is called during read/write operations to monitor when the axis becomes ready.
+-   */
+-  void checkAxisReadiness();
+-
+-  /**
+-   * Switches the system to AUTO_EXTERNAL mode and waits for confirmation.
+-   * @return true if successful, false otherwise
+-   */
+-  bool switchToAutoExternalMode();
+-
+-  /**
+-   * Gets the latest error code from the PLC.
+-   * @return The latest error code as uint32_t.
+-   */
+-  uint32_t getLatestErrorCode();
+-
+-  /**
+-   * Helper to reset the axis target positions buffer (local only).
+-   * Fills the buffer with the current position (rounded to 4 decimal places).
+-   */
+-  inline void resetAxisTargetPositionsExt() {
+-    double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
+-    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
+-      mAxisTargetPositionsExt[i] = pos;
++    /**
++     * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
++     * created pair in the map at specified key.
++     * @param key key for the datalayer node.
++     * @param address address of the datalayer node.
++     */
++    void registerDatalayerNode(const std::string & key, const std::string & address);
++
++    /**
++     * Reads datalayer node.
++     * @param key key for the datalayer node.
++     * @param expectedType expected variant type of the data.
++     * @return true if the data was read successfully, false otherwise.
++     */
++    bool updateDataFromNode(const std::string & key, comm::datalayer::VariantType expectedType);
++
++    /**
++     * Establishes connection to the datalayer node.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn connect();
++
++    /**
++     * Checks if the axis is in the expected state.
++     * @param expectedState expected axis state.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn checkAxisState(AxisState expectedState);
++
++    /**
++     * Checks if the system is in the expected mode.
++     * @param expectedMode expected system mode.
++     * @return state of the function.
++     */
++    hardware_interface::CallbackReturn checkSystemMode(const std::string & expectedMode);
++
++    /**
++     * Updates the state of the axis. Converts data stored in the connection map to the state interface.
++     * Stored data: current position and velocity.
++     * @return state of the function.
++     */
++    void updateState();
++
++    /**
++     * Writes data to the specified datalayer node.
++     * @tparam T type of the data to be written.
++     * @param key key for the datalayer node.
++     * @param value value to be written to the datalayer node.
++     * @return true if the data was written successfully, false otherwise.
++     */
++    template < typename T >
++    bool writeToDatalayerNode(const std::string & key, const T & value);
++
++    /**
++     * Converts data soted in the datalayer Variant object to vector of specified type.
++     * @tparam T type of the data to be converted.
++     * @param data datalayer Variant object.
++     * @return vector of converted data.
++     */
++    template < typename T >
++    std::vector < T > variantDataToVector(const comm::datalayer::Variant & data);
++
++    /**
++     * Waits until state, status and mode datalayer nodes are valid.
++     */
++    void waitUntilRequiredNodesAreValid();
++
++    /**
++     * Sets the log level for the datalayer system.
++     *
++     * Possible log levels:
++     * - DEBUG
++     * - INFO
++     * - WARN
++     * - ERROR
++     * - FATAL
++     *
++     * @param level log level to be set.
++     *
++     */
++    void setLogLevel(const std::string & level);
++
++    /**
++     * Processes virtual commands from the controller
++     */
++    void processVirtualCommands();
++
++    /**
++     * Checks the axis state periodically and updates mAxisReadyForOperation flag.
++     * This is called during read/write operations to monitor when the axis becomes ready.
++     */
++    void checkAxisReadiness();
++
++    /**
++     * Switches the system to AUTO_EXTERNAL mode and waits for confirmation.
++     * @return true if successful, false otherwise
++     */
++    bool switchToAutoExternalMode();
++
++    /**
++     * Gets the latest error code from the PLC.
++     * @return The latest error code as uint32_t.
++     */
++    uint32_t getLatestErrorCode();
++
++    /**
++     * Helper to reset the axis target positions buffer (local only).
++     * Fills the buffer with the current position (rounded to 4 decimal places).
++     */
++    inline void resetAxisTargetPositionsExt()
++    {
++      double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
++      for (size_t i = 0; i < kMaxPositionsExt; ++i) {
++        mAxisTargetPositionsExt[i] = pos;
++      }
+@@ -218,0 +231,104 @@
++
++    /**
++     * Helper to reset the axis target position timestamp buffer (local only).
++     * Fills the buffer with zeros.
++     */
++    inline void resetAxisTargetPositionTimestampExt()
++    {
++      for (size_t i = 0; i < kMaxPositionsExt; ++i) {
++        mAxisTargetPositionTimestampExt[i] = 0.0;
++      }
++    }
++
++    /**
++     * Helper to reset PLC buffer and index (writes to PLC).
++     * Fills local buffer with current position, resets index, and writes both to the PLC.
++     */
++    bool resetPlcBufferAndIndex();
++
++    /// Connection settings.
++    linrob::Connection mConnection;
++
++    /// Datalayer system.
++    comm::datalayer::DatalayerSystem mDatalayerSystem;
++
++    /// Datalayer client.
++    std::unique_ptr < comm::datalayer::IClient > mClient = nullptr;
++
++    /// Hardware state interface.
++    std::unordered_map < std::string,
++    double >
++    mState {{"position", 0.0}, {"velocity", 0.0}, {"error_code", 0.0}, {"axis_ready", 0.0}};
++
++    // Hardware command interface.
++    double mPositionCommand {0.0};
++
++    // Virtual command interfaces
++    double mVirtualResetCommand {0.0};
++    double mVirtualReferenceCommand {0.0};
++    double mVirtualStopCommand {0.0};
++
++    /// Last new position received.
++    double mLastPositionCommand {0.0};
++
++    /// Last time when new position command was received.
++    rclcpp::Time mLastPositionCommandTime;
++
++    /// Last time a buffer entry (new or duplicate) was written to PLC.
++    rclcpp::Time mLastBufferFillTime;
++
++    /// Limit for how many duplicate positions to append after last new target
++    uint32_t mDuplicateAppendLimit {5};
++
++    /// Counter tracking how many duplicates have been appended since the last new target position.
++    uint32_t mDuplicateAppendsSinceLastNew {0};
++
++    /// Position command settings for observing and managing system state.
++    PositionSettings mPositionSettings;
++
++    /// Expected max delay in milliseconds between commands.
++    uint32_t mExpectedDelayBetweenCommandsMs {0U};
++
++    /// Position tolerance in mm for checking if axis reached target position.
++    double mPositionToleranceMm {0.01};
++
++    /// Flag to mark if the movement execution was already stopped.
++    bool mMovementExecutionStopped {true};
++
++    /// Flag to track if the axis is ready for operation (in STANDSTILL state)
++    bool mAxisReadyForOperation {false};
++
++    /// Last time we checked the axis state
++    std::chrono::steady_clock::time_point mLastAxisStateCheck;
++
++    /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
++    static constexpr size_t kMaxPositionsExt = 1000;
++    double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
++
++    /// Timestamp buffer for target positions (local only).
++    double mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0};
++
++    /// Latest error code from the axis
++    uint32_t mLatestErrorCode {0U};
++    /// Flags to track command execution state
++    bool mResetCommandExecuted {false};
++    bool mReferenceCommandExecuted {false};
++    bool mStopCommandExecuted {false};
++  };
++
++  template < typename T >
++  std::vector < T > Resource::variantDataToVector(const comm::datalayer::Variant & data)
++  {
++    auto expectedType = VARIANT_ARRAY_TYPE_MAP.at(typeid(T).name());
++    if (data.getType() != expectedType) {
++      RCLCPP_ERROR(
++        rclcpp::get_logger("linrob"),
++        "Invalid type for data. Expected: %u; Actual: %u",
++        static_cast < unsigned int > (expectedType),
++        static_cast < unsigned int > (data.getType()));
++      return {};
++    }
++    auto size = data.getCount();
++    auto typeData = static_cast < const T * > (static_cast < const void * > (data.getData()));
++    std::vector < T > result(typeData, typeData + size);
++    return result;
+@@ -221,7 +337,11 @@
+-  /**
+-   * Helper to reset the axis target position timestamp buffer (local only).
+-   * Fills the buffer with zeros.
+-   */
+-  inline void resetAxisTargetPositionTimestampExt() {
+-    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
+-      mAxisTargetPositionTimestampExt[i] = 0.0;
++  template < typename T >
++  bool Resource::writeToDatalayerNode(const std::string & key, const T & value)
++  {
++    auto & data = mConnection.datalayerNodeMap.at(key);
++    data.second.setValue(value);
++    auto writeResult = mClient->writeSync(data.first, &data.second);
++    if (writeResult != DL_OK) {
++      RCLCPP_ERROR(
++        rclcpp::get_logger("linrob"), "Failed to write data at %s. %s",
++        data.first.c_str(), writeResult.toString());
++      return false;
+@@ -228,0 +349 @@
++    return true;
+@@ -230,91 +350,0 @@
+-
+-  /**
+-   * Helper to reset PLC buffer and index (writes to PLC).
+-   * Fills local buffer with current position, resets index, and writes both to the PLC.
+-   */
+-  bool resetPlcBufferAndIndex();
+-
+-  /// Connection settings.
+-  linrob::Connection mConnection;
+-
+-  /// Datalayer system.
+-  comm::datalayer::DatalayerSystem mDatalayerSystem;
+-
+-  /// Datalayer client.
+-  std::unique_ptr<comm::datalayer::IClient> mClient = nullptr;
+-
+-  /// Hardware state interface.
+-  std::unordered_map<std::string, double> mState {{"position", 0.0}, {"velocity", 0.0}, {"error_code", 0.0}, {"axis_ready", 0.0}};
+-
+-  // Hardware command interface.
+-  double mPositionCommand {0.0};
+-
+-  // Virtual command interfaces
+-  double mVirtualResetCommand {0.0};
+-  double mVirtualReferenceCommand {0.0};
+-  double mVirtualStopCommand {0.0};
+-
+-  /// Last new position received.
+-  double mLastPositionCommand {0.0};
+-
+-  /// Last time when new position command was received.
+-  rclcpp::Time mLastPositionCommandTime;
+-
+-  /// Last time a buffer entry (new or duplicate) was written to PLC.
+-  rclcpp::Time mLastBufferFillTime;
+-
+-  /// Limit for how many duplicate positions to append after last new target
+-  uint32_t mDuplicateAppendLimit {5};
+-
+-  /// Counter tracking how many duplicates have been appended since the last new target position.
+-  uint32_t mDuplicateAppendsSinceLastNew {0};
+-
+-  /// Position command settings for observing and managing system state.
+-  PositionSettings mPositionSettings;
+-
+-  /// Expected max delay in milliseconds between commands.
+-  uint32_t mExpectedDelayBetweenCommandsMs {0U};
+-
+-  /// Position tolerance in mm for checking if axis reached target position.
+-  double mPositionToleranceMm {0.01};
+-
+-  /// Flag to mark if the movement execution was already stopped.
+-  bool mMovementExecutionStopped {true};
+-
+-  /// Flag to track if the axis is ready for operation (in STANDSTILL state)
+-  bool mAxisReadyForOperation {false};
+-
+-  /// Last time we checked the axis state
+-  std::chrono::steady_clock::time_point mLastAxisStateCheck;
+-
+-  /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
+-  static constexpr size_t kMaxPositionsExt = 1000;
+-  double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
+-
+-  /// Timestamp buffer for target positions (local only).
+-  double mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0};
+-
+-  /// Latest error code from the axis
+-  uint32_t mLatestErrorCode {0U};
+-  /// Flags to track command execution state
+-  bool mResetCommandExecuted {false};
+-  bool mReferenceCommandExecuted {false};
+-  bool mStopCommandExecuted {false};
+-};
+-
+-template <typename T>
+-std::vector<T> Resource::variantDataToVector(const comm::datalayer::Variant& data)
+-{
+-  auto expectedType = VARIANT_ARRAY_TYPE_MAP.at(typeid(T).name());
+-  if (data.getType() != expectedType)
+-  {
+-    RCLCPP_ERROR(rclcpp::get_logger("linrob"),
+-                 "Invalid type for data. Expected: %u; Actual: %u",
+-                 static_cast<unsigned int>(expectedType),
+-                 static_cast<unsigned int>(data.getType()));
+-    return {};
+-  }
+-  auto size = data.getCount();
+-  auto typeData = static_cast<const T*>(static_cast<const void*>(data.getData()));
+-  std::vector<T> result(typeData, typeData + size);
+-  return result;
+@@ -323,16 +352,0 @@
+-template <typename T>
+-bool Resource::writeToDatalayerNode(const std::string& key, const T& value)
+-{
+-  auto& data = mConnection.datalayerNodeMap.at(key);
+-  data.second.setValue(value);
+-  auto writeResult = mClient->writeSync(data.first, &data.second);
+-  if (writeResult != DL_OK)
+-  {
+-    RCLCPP_ERROR(
+-      rclcpp::get_logger("linrob"), "Failed to write data at %s. %s", data.first.c_str(), writeResult.toString());
+-    return false;
+-  }
+-  return true;
+-}
+-}
+-
+
+Code style divergence in file 'include/linrob_axis/VariantType.h':
+
+--- include/linrob_axis/VariantType.h
++++ include/linrob_axis/VariantType.h.uncrustify
+@@ -10,3 +10,4 @@
+-const std::unordered_map<std::string, comm::datalayer::VariantType> VARIANT_ARRAY_TYPE_MAP = {
+-  {typeid(int).name(), comm::datalayer::VariantType::ARRAY_OF_INT32},
+-  {typeid(float).name(), comm::datalayer::VariantType::ARRAY_OF_FLOAT64}};
++  const std::unordered_map < std::string, comm::datalayer::VariantType > VARIANT_ARRAY_TYPE_MAP = {
++    {typeid(int).name(), comm::datalayer::VariantType::ARRAY_OF_INT32},
++    {typeid(float).name(), comm::datalayer::VariantType::ARRAY_OF_FLOAT64}
++  };
+
+Code style divergence in file 'include/linrob_axis/axis_controller.hpp':
+
+--- include/linrob_axis/axis_controller.hpp
++++ include/linrob_axis/axis_controller.hpp.uncrustify
+@@ -28 +28 @@
+-    const rclcpp::Time& time, const rclcpp::Duration& period) override;
++    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+@@ -32 +32 @@
+-    const rclcpp_lifecycle::State& previous_state) override;
++    const rclcpp_lifecycle::State & previous_state) override;
+@@ -34 +34 @@
+-    const rclcpp_lifecycle::State& previous_state) override;
++    const rclcpp_lifecycle::State & previous_state) override;
+@@ -36 +36 @@
+-    const rclcpp_lifecycle::State& previous_state) override;
++    const rclcpp_lifecycle::State & previous_state) override;
+
+Code style divergence in file 'include/linrob_axis/ctrlx_datalayer_helper.h':
+
+--- include/linrob_axis/ctrlx_datalayer_helper.h
++++ include/linrob_axis/ctrlx_datalayer_helper.h.uncrustify
+@@ -10 +10 @@
+- /*! \file
++/*! \file
+@@ -56,2 +56,2 @@
+-  //! Retrieve environment variable SNAP
+-static const char* snapPath()
++//! Retrieve environment variable SNAP
++static const char * snapPath()
+@@ -75,3 +75,3 @@
+-  const std::string& ip = "192.168.1.1",
+-  const std::string& user = "boschrexroth",
+-  const std::string& password = "boschrexroth",
++  const std::string & ip = "192.168.1.1",
++  const std::string & user = "boschrexroth",
++  const std::string & password = "boschrexroth",
+@@ -80,2 +80 @@
+-  if (isSnap())
+-  {
++  if (isSnap()) {
+@@ -85 +84,2 @@
+-  std::string connectionString = DL_TCP + user + std::string(":") + password + std::string("@") + ip;
++  std::string connectionString = DL_TCP + user + std::string(":") + password + std::string("@") +
++    ip;
+@@ -87,2 +87 @@
+-  if (443 == sslPort)
+-  {
++  if (443 == sslPort) {
+@@ -102,4 +101,5 @@
+-inline comm::datalayer::IClient3* getClient(comm::datalayer::DatalayerSystem& datalayerSystem,
+-                                           const std::string& ip = "192.168.1.1",
+-                                           const std::string& user = "boschrexroth",
+-                                           const std::string& password = "boschrexroth", int sslPort = 443)
++inline comm::datalayer::IClient3 * getClient(
++  comm::datalayer::DatalayerSystem & datalayerSystem,
++  const std::string & ip = "192.168.1.1",
++  const std::string & user = "boschrexroth",
++  const std::string & password = "boschrexroth", int sslPort = 443)
+@@ -108,3 +108,2 @@
+-  comm::datalayer::IClient3* client = datalayerSystem.factory()->createClient3(connectionString);
+-  if (client->isConnected())
+-  {
++  comm::datalayer::IClient3 * client = datalayerSystem.factory()->createClient3(connectionString);
++  if (client->isConnected()) {
+@@ -126,4 +125,5 @@
+-inline comm::datalayer::IProvider3* getProvider(comm::datalayer::DatalayerSystem& datalayerSystem,
+-                                               const std::string& ip = "192.168.1.1",
+-                                               const std::string& user = "boschrexroth",
+-                                               const std::string& password = "boschrexroth", int sslPort = 443)
++inline comm::datalayer::IProvider3 * getProvider(
++  comm::datalayer::DatalayerSystem & datalayerSystem,
++  const std::string & ip = "192.168.1.1",
++  const std::string & user = "boschrexroth",
++  const std::string & password = "boschrexroth", int sslPort = 443)
+@@ -132,3 +132,3 @@
+-  comm::datalayer::IProvider3* provider = datalayerSystem.factory4()->createProvider3(connectionString);
+-  if (provider->start() == DL_OK)
+-  {
++  comm::datalayer::IProvider3 * provider = datalayerSystem.factory4()->createProvider3(
++    connectionString);
++  if (provider->start() == DL_OK) {
+
+Code style divergence in file 'src/Resource.cpp':
+
+--- src/Resource.cpp
++++ src/Resource.cpp.uncrustify
+@@ -23 +23 @@
+-hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
++hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo & info)
+@@ -27 +27,2 @@
+-  if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS)
++  if (hardware_interface::SystemInterface::on_init(info) !=
++    hardware_interface::CallbackReturn::SUCCESS)
+@@ -33 +34 @@
+-  const auto& params = info.hardware_parameters;
++  const auto & params = info.hardware_parameters;
+@@ -59 +60,2 @@
+-  mPositionSettings.initialIndex = static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
++  mPositionSettings.initialIndex =
++    static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
+@@ -61 +63,2 @@
+-  mPositionSettings.maxPositionIndices = static_cast<uint16_t>(std::stoi(params.at("max_position_indices")));
++  mPositionSettings.maxPositionIndices =
++    static_cast<uint16_t>(std::stoi(params.at("max_position_indices")));
+@@ -66 +69,2 @@
+-  mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
++  mExpectedDelayBetweenCommandsMs =
++    static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
+@@ -87 +91 @@
+-hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State&)
++hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State &)
+@@ -91,2 +95 @@
+-  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS)
+-  {
++  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS) {
+@@ -99 +102 @@
+-hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State&)
++hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State &)
+@@ -107 +110,3 @@
+-    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
++    RCLCPP_INFO(
++      rclcpp::get_logger(
++        LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
+@@ -123,2 +128 @@
+-    if (!resetResult)
+-    {
++    if (!resetResult) {
+@@ -133,2 +137,3 @@
+-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED. Axis ready for operation: %s",
+-             mAxisReadyForOperation ? "YES" : "NO");
++  RCLCPP_INFO(
++    rclcpp::get_logger(LINROB), "Resource activation FINISHED. Axis ready for operation: %s",
++    mAxisReadyForOperation ? "YES" : "NO");
+@@ -138 +143 @@
+-hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycle::State&)
++hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycle::State &)
+@@ -143,2 +148 @@
+-  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
+-  {
++  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS) {
+@@ -149,2 +153 @@
+-  if (!setSystemModeResult)
+-  {
++  if (!setSystemModeResult) {
+@@ -154 +157,3 @@
+-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
++  RCLCPP_INFO(
++    rclcpp::get_logger(
++      LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
+@@ -158,2 +163 @@
+-  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
+-  {
++  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
+@@ -166,2 +170 @@
+-  if (!writeResult)
+-  {
++  if (!writeResult) {
+@@ -178,2 +181 @@
+-  if (mClient)
+-  {
++  if (mClient) {
+@@ -185 +187 @@
+-hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
++hardware_interface::return_type Resource::write(const rclcpp::Time & time, const rclcpp::Duration &)
+@@ -191,2 +193 @@
+-  if (!mAxisReadyForOperation)
+-  {
++  if (!mAxisReadyForOperation) {
+@@ -194,2 +195 @@
+-    if (!mAxisReadyForOperation)
+-    {
++    if (!mAxisReadyForOperation) {
+@@ -202,2 +202,32 @@
+-    if (mDuplicateAppendsSinceLastNew >= mDuplicateAppendLimit) {
+-      RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Duplicate append limit (%u) reached, not appending further targets", mDuplicateAppendLimit);
++      if (mDuplicateAppendsSinceLastNew >= mDuplicateAppendLimit) {
++        RCLCPP_DEBUG(
++          rclcpp::get_logger(
++            LINROB), "Duplicate append limit (%u) reached, not appending further targets",
++          mDuplicateAppendLimit);
++        return true;
++      }
++      if (mPositionSettings.nextPositionIndex == kMaxPositionsExt) {
++        mPositionSettings.nextPositionIndex = 1;
++      } else {
++        ++mPositionSettings.nextPositionIndex;
++      }
++
++      size_t pos = mPositionSettings.nextPositionIndex - 1;
++      if (pos >= kMaxPositionsExt) {pos = 0;}
++
++      mAxisTargetPositionsExt[pos] = target;
++      mAxisTargetPositionTimestampExt[pos] = 20.0;
++
++      if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt)) {
++        return false;
++      }
++      if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt)) {
++        return false;
++      }
++      if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex)) {
++        return false;
++      }
++      mLastBufferFillTime = time;
++      if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
++        ++mDuplicateAppendsSinceLastNew;
++      }
+@@ -205,24 +235 @@
+-    }
+-    if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
+-      mPositionSettings.nextPositionIndex = 1;
+-    else
+-      ++mPositionSettings.nextPositionIndex;
+-
+-    size_t pos = mPositionSettings.nextPositionIndex - 1;
+-    if (pos >= kMaxPositionsExt) pos = 0;
+-
+-    mAxisTargetPositionsExt[pos] = target;
+-    mAxisTargetPositionTimestampExt[pos] = 20.0;
+-
+-    if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
+-      return false;
+-    if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
+-      return false;
+-    if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
+-      return false;
+-    mLastBufferFillTime = time;
+-    if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
+-      ++mDuplicateAppendsSinceLastNew;
+-    }
+-    return true;
+-  };
++    };
+@@ -231,2 +238 @@
+-  if (!receivedNewTarget)
+-  {
++  if (!receivedNewTarget) {
+@@ -234,2 +240 @@
+-    if (mPositionSettings.newPositionsReceivedCount > 0 && !mMovementExecutionStopped)
+-    {
++    if (mPositionSettings.newPositionsReceivedCount > 0 && !mMovementExecutionStopped) {
+@@ -237,2 +242,4 @@
+-      auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
+-      bool timeToRefill = (mLastBufferFillTime.nanoseconds() == 0) || (time - mLastBufferFillTime >= expectedDurationBetweenCommands);
++      auto expectedDurationBetweenCommands =
++        rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
++      bool timeToRefill = (mLastBufferFillTime.nanoseconds() == 0) ||
++        (time - mLastBufferFillTime >= expectedDurationBetweenCommands);
+@@ -241,3 +248,2 @@
+-      if (timeToRefill)
+-      {
+-        if (!updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32))
++      if (timeToRefill) {
++        if (!updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32)) {
+@@ -245 +251,2 @@
+-        auto& statusData = mConnection.datalayerNodeMap.at("status");
++        }
++        auto & statusData = mConnection.datalayerNodeMap.at("status");
+@@ -250,5 +257,7 @@
+-        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+-                     "(Buffering) Target %.8f mm tol %.8f mm current %.8f error %.8f state %u", mLastPositionCommand, mPositionToleranceMm, currentPosition, positionError, static_cast<unsigned int>(axisStatus));
+-
+-        if (positionError <= mPositionToleranceMm)
+-        {
++        RCLCPP_DEBUG(
++          rclcpp::get_logger(
++            LINROB),
++          "(Buffering) Target %.8f mm tol %.8f mm current %.8f error %.8f state %u", mLastPositionCommand, mPositionToleranceMm, currentPosition, positionError,
++          static_cast<unsigned int>(axisStatus));
++
++        if (positionError <= mPositionToleranceMm) {
+@@ -256,10 +265,10 @@
+-            mPositionSettings.newPositionsReceivedCount = 0U;
+-            if (!writeToDatalayerNode("execute_movements", false))
+-              return hardware_interface::return_type::ERROR;
+-            mMovementExecutionStopped = true;
+-            RCLCPP_INFO(rclcpp::get_logger(LINROB),
+-                        "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
+-                        mLastPositionCommand, mPositionToleranceMm);
+-        }
+-        else
+-        {
++          mPositionSettings.newPositionsReceivedCount = 0U;
++          if (!writeToDatalayerNode("execute_movements", false)) {
++            return hardware_interface::return_type::ERROR;
++          }
++          mMovementExecutionStopped = true;
++          RCLCPP_INFO(
++            rclcpp::get_logger(LINROB),
++            "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
++            mLastPositionCommand, mPositionToleranceMm);
++        } else {
+@@ -267 +276 @@
+-          if (!appendDuplicateTarget(mLastPositionCommand))
++          if (!appendDuplicateTarget(mLastPositionCommand)) {
+@@ -269 +278,5 @@
+-          RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
++          }
++          RCLCPP_DEBUG(
++            rclcpp::get_logger(
++              LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand,
++            mPositionSettings.nextPositionIndex);
+@@ -278,2 +291 @@
+-  if (mPositionSettings.newPositionsReceivedCount > 0)
+-  {
++  if (mPositionSettings.newPositionsReceivedCount > 0) {
+@@ -291 +303 @@
+-  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
++  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt) {
+@@ -293 +305 @@
+-  else
++  } else {
+@@ -294,0 +307 @@
++  }
+@@ -298 +311 @@
+-  if (pos >= kMaxPositionsExt) pos = 0;
++  if (pos >= kMaxPositionsExt) {pos = 0;}
+@@ -306 +319 @@
+-  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
++  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt)) {
+@@ -308 +321,2 @@
+-  if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
++  }
++  if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt)) {
+@@ -310 +324,2 @@
+-  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
++  }
++  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex)) {
+@@ -311,0 +327 @@
++  }
+@@ -315,3 +331,2 @@
+-  if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex)
+-  {
+-    if (!writeToDatalayerNode("execute_movements", true))
++  if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex) {
++    if (!writeToDatalayerNode("execute_movements", true)) {
+@@ -318,0 +334 @@
++    }
+@@ -326,4 +342,3 @@
+-hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
+-{
+-  if (!mAxisReadyForOperation)
+-  {
++hardware_interface::return_type Resource::read(const rclcpp::Time &, const rclcpp::Duration &)
++{
++  if (!mAxisReadyForOperation) {
+@@ -331,2 +346 @@
+-    if (!mAxisReadyForOperation)
+-    {
++    if (!mAxisReadyForOperation) {
+@@ -349,2 +363 @@
+-  if (!updateResult)
+-  {
++  if (!updateResult) {
+@@ -356 +369 @@
+-    auto &statusData = mConnection.datalayerNodeMap.at("status");
++    auto & statusData = mConnection.datalayerNodeMap.at("status");
+@@ -358,4 +371,2 @@
+-    if (axisStatus == AxisState::ERRORSTOP)
+-    {
+-      if (!mMovementExecutionStopped)
+-      {
++    if (axisStatus == AxisState::ERRORSTOP) {
++      if (!mMovementExecutionStopped) {
+@@ -363,2 +374 @@
+-        if (!writeToDatalayerNode("execute_movements", false))
+-        {
++        if (!writeToDatalayerNode("execute_movements", false)) {
+@@ -397,16 +407,22 @@
+-hardware_interface::CallbackReturn Resource::waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout)
+-{
+-    auto start = std::chrono::steady_clock::now();
+-    const std::chrono::milliseconds pollInterval(kStatePollInterval);
+-
+-    while (std::chrono::steady_clock::now() - start < timeout) {
+-        auto result = checkSystemMode(expectedMode);
+-        if (result == hardware_interface::CallbackReturn::SUCCESS) {
+-            RCLCPP_INFO(rclcpp::get_logger(LINROB), "System reached expected mode: %s", expectedMode.c_str());
+-            return result;
+-        }
+-        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting for system mode '%s'", expectedMode.c_str());
+-        std::this_thread::sleep_for(pollInterval);
+-    }
+-    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Timeout waiting for system mode '%s'", expectedMode.c_str());
+-    return hardware_interface::CallbackReturn::FAILURE;
++hardware_interface::CallbackReturn Resource::waitForSystemMode(
++  const std::string & expectedMode,
++  std::chrono::milliseconds timeout)
++{
++  auto start = std::chrono::steady_clock::now();
++  const std::chrono::milliseconds pollInterval(kStatePollInterval);
++
++  while (std::chrono::steady_clock::now() - start < timeout) {
++    auto result = checkSystemMode(expectedMode);
++    if (result == hardware_interface::CallbackReturn::SUCCESS) {
++      RCLCPP_INFO(
++        rclcpp::get_logger(LINROB), "System reached expected mode: %s",
++        expectedMode.c_str());
++      return result;
++    }
++    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting for system mode '%s'", expectedMode.c_str());
++    std::this_thread::sleep_for(pollInterval);
++  }
++  RCLCPP_ERROR(
++    rclcpp::get_logger(
++      LINROB), "Timeout waiting for system mode '%s'", expectedMode.c_str());
++  return hardware_interface::CallbackReturn::FAILURE;
+@@ -419 +435,3 @@
+-    getConnectionString(mConnection.ip, mConnection.user, mConnection.password, mConnection.sslPort);
++    getConnectionString(
++    mConnection.ip, mConnection.user, mConnection.password,
++    mConnection.sslPort);
+@@ -424,2 +442 @@
+-  if (mClient == nullptr)
+-  {
++  if (mClient == nullptr) {
+@@ -429,2 +446 @@
+-  if (!mClient->isConnected())
+-  {
++  if (!mClient->isConnected()) {
+@@ -441,3 +457,4 @@
+-  auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
+-  if (!statusUpdateResult)
+-  {
++  auto statusUpdateResult = updateDataFromNode(
++    "status",
++    comm::datalayer::VariantType::ARRAY_OF_INT32);
++  if (!statusUpdateResult) {
+@@ -448 +465 @@
+-  auto& statusData = mConnection.datalayerNodeMap.at("status");
++  auto & statusData = mConnection.datalayerNodeMap.at("status");
+@@ -451,6 +468,6 @@
+-  if (axisStatus != expectedState)
+-  {
+-    RCLCPP_INFO(rclcpp::get_logger(LINROB),
+-                "Axis is not in expected state. Expected: %u, Actual: %u",
+-                static_cast<unsigned int>(expectedState),
+-                static_cast<unsigned int>(axisStatus));
++  if (axisStatus != expectedState) {
++    RCLCPP_INFO(
++      rclcpp::get_logger(LINROB),
++      "Axis is not in expected state. Expected: %u, Actual: %u",
++      static_cast<unsigned int>(expectedState),
++      static_cast<unsigned int>(axisStatus));
+@@ -464 +481 @@
+-hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string& expectedMode)
++hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string & expectedMode)
+@@ -467,2 +484 @@
+-  if (!modeUpdateResult)
+-  {
++  if (!modeUpdateResult) {
+@@ -473 +489 @@
+-  const auto& modeData = mConnection.datalayerNodeMap.at("read_mode");
++  const auto & modeData = mConnection.datalayerNodeMap.at("read_mode");
+@@ -476,3 +492,4 @@
+-  if (mode != expectedMode)
+-  {
+-    RCLCPP_INFO(rclcpp::get_logger(LINROB), ("System is not in expected mode: " + expectedMode).c_str());
++  if (mode != expectedMode) {
++    RCLCPP_INFO(
++      rclcpp::get_logger(
++        LINROB), ("System is not in expected mode: " + expectedMode).c_str());
+@@ -484 +501 @@
+-void Resource::registerDatalayerNode(const std::string& key, const std::string& address)
++void Resource::registerDatalayerNode(const std::string & key, const std::string & address)
+@@ -489,3 +506,5 @@
+-bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::VariantType expectedType)
+-{
+-  auto& data = mConnection.datalayerNodeMap.at(key);
++bool Resource::updateDataFromNode(
++  const std::string & key,
++  comm::datalayer::VariantType expectedType)
++{
++  auto & data = mConnection.datalayerNodeMap.at(key);
+@@ -495,8 +514,12 @@
+-  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Result is DL_OK %s.", std::to_string(result == DL_OK).c_str());
+-  RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+-               "Result type is %u. Expected type is %u.",
+-               static_cast<unsigned int>(data.second.getType()),
+-               static_cast<unsigned int>(expectedType));
+-  if (result != DL_OK)
+-  {
+-    RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to read data at %s. %s", data.first.c_str(), result.toString());
++  RCLCPP_DEBUG(
++    rclcpp::get_logger(LINROB), "Result is DL_OK %s.", std::to_string(
++      result == DL_OK).c_str());
++  RCLCPP_DEBUG(
++    rclcpp::get_logger(LINROB),
++    "Result type is %u. Expected type is %u.",
++    static_cast<unsigned int>(data.second.getType()),
++    static_cast<unsigned int>(expectedType));
++  if (result != DL_OK) {
++    RCLCPP_ERROR(
++      rclcpp::get_logger(LINROB), "Failed to read data at %s. %s",
++      data.first.c_str(), result.toString());
+@@ -506,7 +529,7 @@
+-  if (data.second.getType() != expectedType)
+-  {
+-    RCLCPP_ERROR(rclcpp::get_logger(LINROB),
+-                 "Invalid type for data at %s. Expected: %u; Actual: %u",
+-                 data.first.c_str(),
+-                 static_cast<unsigned int>(expectedType),
+-                 static_cast<unsigned int>(data.second.getType()));
++  if (data.second.getType() != expectedType) {
++    RCLCPP_ERROR(
++      rclcpp::get_logger(LINROB),
++      "Invalid type for data at %s. Expected: %u; Actual: %u",
++      data.first.c_str(),
++      static_cast<unsigned int>(expectedType),
++      static_cast<unsigned int>(data.second.getType()));
+@@ -522,2 +545,4 @@
+-  mState.at("position") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("position").second.getData());
+-  mState.at("velocity") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("velocity").second.getData());
++  mState.at("position") =
++    *reinterpret_cast<double *>(mConnection.datalayerNodeMap.at("position").second.getData());
++  mState.at("velocity") =
++    *reinterpret_cast<double *>(mConnection.datalayerNodeMap.at("velocity").second.getData());
+@@ -538,2 +563 @@
+-  while (wait)
+-  {
++  while (wait) {
+@@ -549,3 +573,4 @@
+-    RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
+-                 "Update final result value: %s; If all valid: 1",
+-                 std::to_string(updateResult).c_str());
++    RCLCPP_DEBUG(
++      rclcpp::get_logger(LINROB),
++      "Update final result value: %s; If all valid: 1",
++      std::to_string(updateResult).c_str());
+@@ -558 +583,2 @@
+-bool Resource::resetPlcBufferAndIndex() {
++bool Resource::resetPlcBufferAndIndex()
++{
+@@ -563,2 +589,6 @@
+-  auto newTimestampWriteResult = writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt);
+-  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
++  auto newTimestampWriteResult = writeToDatalayerNode(
++    "new_position_timestamp",
++    mAxisTargetPositionTimestampExt);
++  auto nextPosIndexWriteResult = writeToDatalayerNode(
++    "next_pos_index",
++    mPositionSettings.nextPositionIndex);
+@@ -568 +598 @@
+-void Resource::setLogLevel(const std::string& level)
++void Resource::setLogLevel(const std::string & level)
+@@ -572,2 +602 @@
+-  if (level == "DEBUG")
+-  {
++  if (level == "DEBUG") {
+@@ -575,3 +604 @@
+-  }
+-  else if (level == "INFO")
+-  {
++  } else if (level == "INFO") {
+@@ -579,3 +606 @@
+-  }
+-  else if (level == "WARN")
+-  {
++  } else if (level == "WARN") {
+@@ -583,3 +608 @@
+-  }
+-  else if (level == "ERROR")
+-  {
++  } else if (level == "ERROR") {
+@@ -587,3 +610 @@
+-  }
+-  else if (level == "FATAL")
+-  {
++  } else if (level == "FATAL") {
+@@ -591,3 +612 @@
+-  }
+-  else
+-  {
++  } else {
+@@ -603,2 +622 @@
+-  if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted)
+-  {
++  if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted) {
+@@ -606,2 +624 @@
+-    if (result)
+-    {
++    if (result) {
+@@ -610,3 +627 @@
+-    }
+-    else
+-    {
++    } else {
+@@ -615,3 +630 @@
+-  }
+-  else if (mVirtualResetCommand <= 0.5)
+-  {
++  } else if (mVirtualResetCommand <= 0.5) {
+@@ -622,2 +635 @@
+-  if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted)
+-  {
++  if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted) {
+@@ -625,2 +637 @@
+-    if (result)
+-    {
++    if (result) {
+@@ -629,3 +640 @@
+-    }
+-    else
+-    {
++    } else {
+@@ -634,3 +643 @@
+-  }
+-  else if (mVirtualReferenceCommand <= 0.5)
+-  {
++  } else if (mVirtualReferenceCommand <= 0.5) {
+@@ -641,2 +648 @@
+-  if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted)
+-  {
++  if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted) {
+@@ -644,2 +650 @@
+-    if (result)
+-    {
++    if (result) {
+@@ -648,3 +653 @@
+-    }
+-    else
+-    {
++    } else {
+@@ -653,3 +656 @@
+-  }
+-  else if (mVirtualStopCommand <= 0.5)
+-  {
++  } else if (mVirtualStopCommand <= 0.5) {
+@@ -662,4 +663,3 @@
+-  auto& errorData = mConnection.datalayerNodeMap.at("error_code");
+-  if (errorData.second.getType() == comm::datalayer::VariantType::UINT32)
+-  {
+-    mLatestErrorCode = *reinterpret_cast<uint32_t*>(errorData.second.getData());
++  auto & errorData = mConnection.datalayerNodeMap.at("error_code");
++  if (errorData.second.getType() == comm::datalayer::VariantType::UINT32) {
++    mLatestErrorCode = *reinterpret_cast<uint32_t *>(errorData.second.getData());
+@@ -673 +673,2 @@
+-  auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
++  auto setSystemModeResult =
++    writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
+@@ -679 +680,3 @@
+-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
++  RCLCPP_INFO(
++    rclcpp::get_logger(
++      LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
+@@ -706 +709,4 @@
+-      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis has reached STANDSTILL state - enabling operations and switching to AUTO_EXTERNAL mode");
++      RCLCPP_INFO(
++        rclcpp::get_logger(
++          LINROB),
++        "Axis has reached STANDSTILL state - enabling operations and switching to AUTO_EXTERNAL mode");
+@@ -718 +724,3 @@
+-        RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index after axis became ready");
++        RCLCPP_ERROR(
++          rclcpp::get_logger(
++            LINROB), "Failed to reset PLC buffer and index after axis became ready");
+@@ -722 +730,3 @@
+-      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR state - operations will remain disabled");
++      RCLCPP_ERROR(
++        rclcpp::get_logger(
++          LINROB), "Axis is in ERROR state - operations will remain disabled");
+
+Code style divergence in file 'src/axis_controller.cpp':
+
+--- src/axis_controller.cpp
++++ src/axis_controller.cpp.uncrustify
+@@ -42,2 +42,3 @@
+-    std::bind(&AxisController::resetAxisService, this,
+-              std::placeholders::_1, std::placeholders::_2));
++    std::bind(
++      &AxisController::resetAxisService, this,
++      std::placeholders::_1, std::placeholders::_2));
+@@ -47,2 +48,3 @@
+-    std::bind(&AxisController::referenceAxisService, this,
+-              std::placeholders::_1, std::placeholders::_2));
++    std::bind(
++      &AxisController::referenceAxisService, this,
++      std::placeholders::_1, std::placeholders::_2));
+@@ -52,2 +54,3 @@
+-    std::bind(&AxisController::stopAxisService, this,
+-              std::placeholders::_1, std::placeholders::_2));
++    std::bind(
++      &AxisController::stopAxisService, this,
++      std::placeholders::_1, std::placeholders::_2));
+@@ -147 +150 @@
+-  const std::shared_ptr<linrob_axis::srv::ResetAxis::Request> /*request*/,
++  const std::shared_ptr<linrob_axis::srv::ResetAxis::Request>/*request*/,
+@@ -159 +162 @@
+-  const std::shared_ptr<linrob_axis::srv::ReferenceAxis::Request> /*request*/,
++  const std::shared_ptr<linrob_axis::srv::ReferenceAxis::Request>/*request*/,
+@@ -171 +174 @@
+-  const std::shared_ptr<linrob_axis::srv::StopAxis::Request> /*request*/,
++  const std::shared_ptr<linrob_axis::srv::StopAxis::Request>/*request*/,
+
+10 files with code style divergence
+-- run_test.py: return code 1
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/uncrustify.xunit.xml'
+<end of output>
+Test time =   0.46 sec
+----------------------------------------------------------
+Test Failed.
+"uncrustify" end time: Aug 22 10:50 UTC
+"uncrustify" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/6 Testing: xmllint
+6/6 Test: xmllint
+Command: "/usr/bin/python3" "-u" "/opt/ros/humble/share/ament_cmake_test/cmake/run_test.py" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/xmllint.xunit.xml" "--package-name" "linrob_axis" "--output-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/ament_xmllint/xmllint.txt" "--command" "/opt/ros/humble/bin/ament_xmllint" "--xunit-file" "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/xmllint.xunit.xml"
+Directory: /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis
+"xmllint" start time: Aug 22 10:50 UTC
+Output:
+----------------------------------------------------------
+-- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
+ - /opt/ros/humble/bin/ament_xmllint --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/xmllint.xunit.xml
+File 'package.xml' is invalid:
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml fails to validate
+
+1 files are invalid
+File 'controller_plugin.xml' is valid
+
+File 'resource_plugin.xml' is valid
+
+-- run_test.py: return code 1
+-- run_test.py: verify result file '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/xmllint.xunit.xml'
+<end of output>
+Test time =   1.12 sec
+----------------------------------------------------------
+Test Failed.
+"xmllint" end time: Aug 22 10:50 UTC
+"xmllint" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Aug 22 10:50 UTC
+
+cppcheck =   0.35 sec*proc
+
+flake8 =   0.55 sec*proc
+
+lint_cmake =   0.38 sec*proc
+
+linter =   3.30 sec*proc
+
+pep257 =   0.45 sec*proc
+
+uncrustify =   0.46 sec*proc
+
+xmllint =   1.12 sec*proc
+
