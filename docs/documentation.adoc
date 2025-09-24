@@ -82,6 +82,11 @@ ros2 service call /axis_controller/reference_axis linrob_axis/srv/ReferenceAxis 
 ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 ```
 
+- **StartMotion** (`/start_motion`) - Start moving the axis to the target position.
+```sh
+ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 3}".
+```
+
 ==== Resource activation and deactivation
 
 By default, after startup and launching, the joint_state_broadcaster is **active** and both the position_controller and axis_controller are **inactive** until you activate them using ROS 2 controller commands.
