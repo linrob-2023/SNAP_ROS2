@@ -1,0 +1,4 @@
+# Service for resetting the axis and acknowledging errors
+---
+bool success
+string message

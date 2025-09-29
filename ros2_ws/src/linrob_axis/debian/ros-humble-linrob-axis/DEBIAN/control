@@ -1,0 +1,9 @@
+Package: ros-humble-linrob-axis
+Version: 0.1.2-0jammy
+Architecture: amd64
+Maintainer: Matomai <info@matom.ai>
+Installed-Size: 1307
+Depends: libc6 (>= 2.34), libconsole-bridge1.0 (>= 1.0.1+dfsg2), libgcc-s1 (>= 3.3.1), libpython3.10 (>= 3.10.0), libstdc++6 (>= 11), ros-humble-fastcdr, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-ros2-control, ros-humble-rosidl-default-runtime, ros-humble-std-msgs, ctrlx-datalayer (>= 2.6)
+Section: misc
+Priority: optional
+Description: Position controller responsible for communication between Datalayer and PLC.
