@@ -79,7 +79,7 @@ private:
   std::atomic<bool> pending_reference_{false};
   std::atomic<bool> pending_stop_{false};
   std::atomic<bool> pending_start_motion_{false};
-  std::atomic<uint8_t> pending_target_position_{0};
+  std::atomic<double> pending_target_position_{0.0};
   std::atomic<double> pending_target_velocity_{0.0};
 
   // Last error code for publishing
