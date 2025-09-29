@@ -56,6 +56,7 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   registerDatalayerNode("virtual_stop", params.at("virtual_stop"));
   registerDatalayerNode("virtual_start_motion", params.at("virtual_start_motion"));
   registerDatalayerNode("virtual_target_position", params.at("virtual_target_position"));
+  registerDatalayerNode("virtual_target_velocity", params.at("virtual_target_velocity"));
 
   // Error code node for reading latest error
   registerDatalayerNode("error_code", params.at("error_code"));
@@ -407,6 +408,7 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
   command_interfaces.emplace_back("joint_1", "virtual_start_motion", &mVirtualStartMotionCommand);
   command_interfaces.emplace_back("joint_1", "virtual_target_position", &mVirtualTargetPositionCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_target_velocity", &mVirtualTargetVelocityCommand);
   return command_interfaces;
 }
 
@@ -697,6 +699,11 @@ void Resource::processVirtualCommands()
     {
       double_t target = static_cast<double_t>(std::round(mVirtualTargetPositionCommand));
       writeToDatalayerNode("virtual_target_position", target);
+    }
+
+    // virtual_target_velocity (always write current value)
+    if (mConnection.datalayerNodeMap.count("virtual_target_velocity")) {
+      writeToDatalayerNode("virtual_target_velocity", mVirtualTargetVelocityCommand);
     }
   }
 }

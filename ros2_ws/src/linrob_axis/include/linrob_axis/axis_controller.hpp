@@ -69,6 +69,7 @@ private:
   std::string virtual_stop_interface_name_;
   std::string virtual_start_motion_interface_name_;
   std::string virtual_target_position_interface_name_;
+  std::string virtual_target_velocity_interface_name_;
 
   // State interface names
   std::string error_code_interface_name_;
@@ -79,6 +80,7 @@ private:
   std::atomic<bool> pending_stop_{false};
   std::atomic<bool> pending_start_motion_{false};
   std::atomic<uint8_t> pending_target_position_{0};
+  std::atomic<double> pending_target_velocity_{0.0};
 
   // Last error code for publishing
   uint32_t last_error_code_{0};

@@ -36,6 +36,7 @@ controller_interface::CallbackReturn AxisController::on_configure(
   virtual_stop_interface_name_ = joint_name_ + "/virtual_stop";
   virtual_start_motion_interface_name_ = joint_name_ + "/virtual_start_motion";
   virtual_target_position_interface_name_ = joint_name_ + "/virtual_target_position";
+  virtual_target_velocity_interface_name_ = joint_name_ + "/virtual_target_velocity";
   error_code_interface_name_ = joint_name_ + "/error_code";
 
   // Create service servers
@@ -76,6 +77,7 @@ controller_interface::CallbackReturn AxisController::on_activate(
   pending_stop_.store(false);
   pending_start_motion_.store(false);
   pending_target_position_.store(0);
+  pending_target_velocity_.store(0.0);
 
   RCLCPP_INFO(get_node()->get_logger(), "Axis control controller activated");
   return controller_interface::CallbackReturn::SUCCESS;
@@ -99,6 +101,7 @@ AxisController::command_interface_configuration() const
   config.names.push_back(virtual_stop_interface_name_);
   config.names.push_back(virtual_start_motion_interface_name_);
   config.names.push_back(virtual_target_position_interface_name_);
+  config.names.push_back(virtual_target_velocity_interface_name_);
 
   return config;
 }
@@ -148,6 +151,9 @@ controller_interface::return_type AxisController::update(
 
   // Index 4: virtual_target_position (uint8 encoded as double)
   command_interfaces_[4].set_value(static_cast<double>(pending_target_position_.load()));
+
+  // Index 5: virtual_target_velocity
+  command_interfaces_[5].set_value(pending_target_velocity_.load());
 
   // Read and publish error code
   uint32_t current_error_code = static_cast<uint32_t>(state_interfaces_[0].get_value());
@@ -205,13 +211,14 @@ void AxisController::startMotionService(
   const std::shared_ptr<linrob_axis::srv::StartMotion::Request> request,
   std::shared_ptr<linrob_axis::srv::StartMotion::Response> response)
 {
-  RCLCPP_INFO(get_node()->get_logger(), "Start motion service called (start=%s, target=%f)",
-              request->start ? "true" : "false", request->target_position);
+  RCLCPP_INFO(get_node()->get_logger(), "Start motion service called (start=%s, target=%f, velocity=%f)",
+              request->start ? "true" : "false", request->target_position, request->velocity);
 
   if (request->start) {
     pending_start_motion_.store(true);
   }
   pending_target_position_.store(request->target_position);
+  pending_target_velocity_.store(request->velocity);
 
   response->success = true;
   response->message = "Start motion command queued for execution";
