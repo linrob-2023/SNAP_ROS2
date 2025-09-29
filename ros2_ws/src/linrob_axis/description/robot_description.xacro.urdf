@@ -49,10 +49,10 @@
     <hardware>
         <plugin>linrob/Resource</plugin>
         <!-- Datalayer Connection -->
-        <param name="ip">10.0.2.2</param>
+        <param name="ip">192.168.1.1</param>
         <param name="user">boschrexroth</param>
-        <param name="password">boschrexroth</param>
-        <param name="ssl_port">5443</param>
+        <param name="password">Boschrexroth1</param>
+        <param name="ssl_port">443</param>
 
         <!-- Datalayer Nodes addresses -->
         <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
