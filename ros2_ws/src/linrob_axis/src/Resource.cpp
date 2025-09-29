@@ -40,9 +40,7 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   mConnection.sslPort = std::stoi(params.at("ssl_port"));
 
   // Node addresses.
-
   registerDatalayerNode("new_position", params.at("new_position"));
-  registerDatalayerNode("new_velocity", params.at("new_velocity"));
   registerDatalayerNode("new_position_timestamp", params.at("new_position_timestamp"));
   registerDatalayerNode("next_pos_index", params.at("next_pos_index"));
   registerDatalayerNode("execute_movements", params.at("execute_movements"));
@@ -53,13 +51,11 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   registerDatalayerNode("set_mode", params.at("set_mode"));
 
   // Virtual command nodes for axis control services
-
   registerDatalayerNode("virtual_reset", params.at("virtual_reset"));
   registerDatalayerNode("virtual_reference", params.at("virtual_reference"));
   registerDatalayerNode("virtual_stop", params.at("virtual_stop"));
   registerDatalayerNode("virtual_start_motion", params.at("virtual_start_motion"));
   registerDatalayerNode("virtual_target_position", params.at("virtual_target_position"));
-  registerDatalayerNode("virtual_target_velocity", params.at("virtual_target_velocity"));
 
   // Error code node for reading latest error
   registerDatalayerNode("error_code", params.at("error_code"));
@@ -315,16 +311,13 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
   size_t pos = mPositionSettings.nextPositionIndex - 1;
   if (pos >= kMaxPositionsExt) pos = 0;
 
-
-  // Update position and velocity command buffers with the new values
+  // Update position command buffer with the new position
   mAxisTargetPositionsExt[pos] = mPositionCommand;
-  mAxisTargetVelocitiesExt[pos] = mVirtualTargetVelocityCommand;
+  // Update timestamp buffer with time difference
   mAxisTargetPositionTimestampExt[pos] = static_cast<float>(timeDiffMs);
 
   // Send updated buffers and index to the PLC
   if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
-    return hardware_interface::return_type::ERROR;
-  if (!writeToDatalayerNode("new_velocity", mAxisTargetVelocitiesExt))
     return hardware_interface::return_type::ERROR;
   if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
     return hardware_interface::return_type::ERROR;
@@ -414,7 +407,6 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
   command_interfaces.emplace_back("joint_1", "virtual_start_motion", &mVirtualStartMotionCommand);
   command_interfaces.emplace_back("joint_1", "virtual_target_position", &mVirtualTargetPositionCommand);
-  command_interfaces.emplace_back("joint_1", "virtual_target_velocity", &mVirtualTargetVelocityCommand);
   return command_interfaces;
 }
 
@@ -581,14 +573,12 @@ void Resource::waitUntilRequiredNodesAreValid()
 
 bool Resource::resetPlcBufferAndIndex() {
   resetAxisTargetPositionsExt();
-  resetAxisTargetVelocitiesExt();
   resetAxisTargetPositionTimestampExt();
   mPositionSettings.nextPositionIndex = 1;
   auto newPositionWriteResult = writeToDatalayerNode("new_position", mAxisTargetPositionsExt);
-  auto newVelocityWriteResult = writeToDatalayerNode("new_velocity", mAxisTargetVelocitiesExt);
   auto newTimestampWriteResult = writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt);
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
-  return newPositionWriteResult && newVelocityWriteResult && newTimestampWriteResult && nextPosIndexWriteResult;
+  return newPositionWriteResult && newTimestampWriteResult && nextPosIndexWriteResult;
 }
 
 void Resource::setLogLevel(const std::string& level)

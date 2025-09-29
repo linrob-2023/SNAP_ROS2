@@ -57,7 +57,6 @@
         <!-- Datalayer Nodes addresses -->
         <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
         <param name="new_position_timestamp">plc/app/Application/sym/GVL/alrAxisTargetPositionTimestampExt</param>
-        <param name="new_velocity">plc/app/Application/sym/GVL/alrAxisTargetVelocitiesExt</param>
         <param name="next_pos_index">plc/app/Application/sym/GVL/nAxisTargetPosExtIdx</param>
         <param name="execute_movements">plc/app/Application/sym/GVL/xAxisTargetPosExtExecute</param>
         <param name="position">plc/app/Application/sym/GVL/lrAxisPositionX</param>

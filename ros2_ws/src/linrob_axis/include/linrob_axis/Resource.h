@@ -229,15 +229,6 @@ private:
   }
 
   /**
-   * Helper to reset the axis target velocities buffer (local only).
-   * Fills the buffer with zeros.
-   */
-  inline void resetAxisTargetVelocitiesExt() {
-    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-      mAxisTargetVelocitiesExt[i] = 0.0;
-    }
-
-  /**
    * Helper to reset PLC buffer and index (writes to PLC).
    * Fills local buffer with current position, resets index, and writes both to the PLC.
    */
@@ -264,7 +255,6 @@ private:
   double mVirtualStopCommand {0.0};
   double mVirtualStartMotionCommand {0.0};
   double mVirtualTargetPositionCommand {0.0};
-  double mVirtualTargetVelocityCommand {0.0};
 
   /// Last new position received.
   double mLastPositionCommand {0.0};
@@ -302,9 +292,6 @@ private:
   /// Buffer for array write to new_position (ARRAY[LREAL] in PLC).
   static constexpr size_t kMaxPositionsExt = 1000;
   double mAxisTargetPositionsExt[kMaxPositionsExt] = {0.0};
-
-  /// Buffer for array write to new_velocity (ARRAY[LREAL] in PLC).
-  double mAxisTargetVelocitiesExt[kMaxPositionsExt] = {0.0};
 
   /// Timestamp buffer for target positions (local only).
   double mAxisTargetPositionTimestampExt[kMaxPositionsExt] = {0.0};
