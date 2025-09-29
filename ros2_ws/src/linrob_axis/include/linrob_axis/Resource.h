@@ -253,6 +253,9 @@ private:
   double mVirtualResetCommand {0.0};
   double mVirtualReferenceCommand {0.0};
   double mVirtualStopCommand {0.0};
+  double mVirtualStartMotionCommand {0.0};
+  double mVirtualTargetPositionCommand {0.0};
+  double mVirtualTargetVelocityCommand {0.0};
 
   /// Last new position received.
   double mLastPositionCommand {0.0};
@@ -300,6 +303,7 @@ private:
   bool mResetCommandExecuted {false};
   bool mReferenceCommandExecuted {false};
   bool mStopCommandExecuted {false};
+  bool mStartMotionCommandExecuted {false};
 };
 
 template <typename T>

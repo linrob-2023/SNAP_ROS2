@@ -115,7 +115,7 @@ ros2 control list_controllers
 
 The package provides ROS2 services for controlling the PLC axis:
 
-- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors 
+- **ResetAxis** (`/reset_axis`) - Resets the axis and acknowledges errors
 ```sh
 ros2 service call /axis_controller/reset_axis linrob_axis/srv/ResetAxis "{}"
 ```
@@ -127,46 +127,18 @@ ros2 service call /axis_controller/reference_axis linrob_axis/srv/ReferenceAxis 
 ```sh
 ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 ```
+- **StartMotion** (`/start_motion`) - Starts a motion command to a target position with specified velocity (no arrival check)
+```sh
+ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 3, velocity: 10.0}"
+```
+  - `start` (bool): Set to true to trigger the motion command
+  - `target_position` (uint8): Target position index or identifier
+  - `velocity` (float64): Target velocity for the motion
+
+
 
 Error codes are continuously monitored and published on the `/error_code` topic.
 
-## Package: linrob_command_sender
-
-### Summary
-
-This package is responsible for publishing commands to the server.
-
-Starts:
-
-- Client position controller.
-- Client resource plugin that can process client commands and send them to server via command topic.
-
-### Configurations
-
-All plugin parameters should be specified in robot description urdf file.
-Current parameters:
-
-- command_topic - Topic where plugin command publisher will publish new commands.
-
-### Local build
-
-Navigate to:
-
-```bash
-cd path/to/Linrob/ros2_ws
-```
-
-Build:
-
-```bash
-colcon build --packages-select linrob_command_sender
-```
-
-Launch:
-
-```bash
-ros2 launch linrob_command_sender start.launch.py
-```
 
 ## Package: linrob_sim_cart
 

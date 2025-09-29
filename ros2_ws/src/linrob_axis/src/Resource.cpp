@@ -13,7 +13,10 @@ const auto LINROB = "linrob";
 constexpr std::chrono::milliseconds kStatePollInterval{100};
 constexpr std::chrono::seconds kStateWaitTimeout{10};
 constexpr std::chrono::seconds kSetModeSleep{2};
+
 constexpr std::chrono::seconds kAxisReadinessCheckInterval{2};
+constexpr double kMaxAllowedTimeDiffMs = 100.0;
+constexpr double kClampedTimeDiffMs = 50.0;
 
 Resource::~Resource()
 {
@@ -51,6 +54,9 @@ hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::H
   registerDatalayerNode("virtual_reset", params.at("virtual_reset"));
   registerDatalayerNode("virtual_reference", params.at("virtual_reference"));
   registerDatalayerNode("virtual_stop", params.at("virtual_stop"));
+  registerDatalayerNode("virtual_start_motion", params.at("virtual_start_motion"));
+  registerDatalayerNode("virtual_target_position", params.at("virtual_target_position"));
+  registerDatalayerNode("virtual_target_velocity", params.at("virtual_target_velocity"));
 
   // Error code node for reading latest error
   registerDatalayerNode("error_code", params.at("error_code"));
@@ -277,10 +283,17 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
   // New position received - calculate time difference since last position command
   double timeDiffMs = 0.0;
-  if (mPositionSettings.newPositionsReceivedCount > 0)
-  {
+  if (mPositionSettings.newPositionsReceivedCount == 0) {
+    // Very first command: set to 0ms
+    timeDiffMs = 0.0;
+  } else {
     auto duration = time - mLastPositionCommandTime;
-    timeDiffMs = duration.seconds() * 1000.0;
+    // If the time since last command is greater than maximum allowed, set to clamped value
+    if (duration.seconds() * 1000.0 > kMaxAllowedTimeDiffMs) {
+      timeDiffMs = kClampedTimeDiffMs;
+    } else {
+      timeDiffMs = duration.seconds() * 1000.0;
+    }
   }
 
   // Update tracking variables
@@ -393,6 +406,9 @@ std::vector<hardware_interface::CommandInterface> Resource::export_command_inter
   command_interfaces.emplace_back("joint_1", "virtual_reset", &mVirtualResetCommand);
   command_interfaces.emplace_back("joint_1", "virtual_reference", &mVirtualReferenceCommand);
   command_interfaces.emplace_back("joint_1", "virtual_stop", &mVirtualStopCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_start_motion", &mVirtualStartMotionCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_target_position", &mVirtualTargetPositionCommand);
+  command_interfaces.emplace_back("joint_1", "virtual_target_velocity", &mVirtualTargetVelocityCommand);
   return command_interfaces;
 }
 
@@ -656,6 +672,39 @@ void Resource::processVirtualCommands()
   else if (mVirtualStopCommand <= 0.5)
   {
     mStopCommandExecuted = false;
+  }
+
+  // virtual_start_motion (boolean trigger)
+  if (mConnection.datalayerNodeMap.count("virtual_start_motion") &&
+      mConnection.datalayerNodeMap.count("virtual_target_position")) {
+    if (mVirtualStartMotionCommand > 0.5 && !mStartMotionCommandExecuted)
+    {
+      bool result = writeToDatalayerNode("virtual_start_motion", true);
+      if (result)
+      {
+        RCLCPP_INFO(rclcpp::get_logger(LINROB), "Virtual start motion command sent to PLC");
+        mStartMotionCommandExecuted = true;
+      }
+      else
+      {
+        RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual start motion command");
+      }
+    }
+    else if (mVirtualStartMotionCommand <= 0.5)
+    {
+      mStartMotionCommandExecuted = false;
+    }
+
+    // virtual_target_position (always write current value - cast to uint8)
+    {
+      double_t target = static_cast<double_t>(std::round(mVirtualTargetPositionCommand));
+      writeToDatalayerNode("virtual_target_position", target);
+    }
+
+    // virtual_target_velocity (always write current value)
+    if (mConnection.datalayerNodeMap.count("virtual_target_velocity")) {
+      writeToDatalayerNode("virtual_target_velocity", mVirtualTargetVelocityCommand);
+    }
   }
 }
 
