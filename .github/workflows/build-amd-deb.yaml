@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'      # build on new version tags
-    branches:
-      - main      # optionally also on main pushes
 
 env:
   GIT_TAG: ${{ github.ref_name }}

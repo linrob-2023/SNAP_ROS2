@@ -703,6 +703,8 @@ void Resource::processVirtualCommands()
 
     // virtual_target_velocity (always write current value)
     if (mConnection.datalayerNodeMap.count("virtual_target_velocity")) {
+      // convert target velocity from m/s to mm/s
+      mVirtualTargetVelocityCommand = mVirtualTargetVelocityCommand * 1000.0;
       writeToDatalayerNode("virtual_target_velocity", mVirtualTargetVelocityCommand);
     }
   }
