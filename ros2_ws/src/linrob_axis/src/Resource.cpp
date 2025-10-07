@@ -217,7 +217,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     size_t pos = mPositionSettings.nextPositionIndex - 1;
     if (pos >= kMaxPositionsExt) pos = 0;
 
-    mAxisTargetPositionsExt[pos] = target;
+    mAxisTargetPositionsExt[pos] = target * 1000.0; // convert from m to mm
     mAxisTargetPositionTimestampExt[pos] = 20.0;
 
     if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
@@ -313,7 +313,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
   if (pos >= kMaxPositionsExt) pos = 0;
 
   // Update position command buffer with the new position
-  mAxisTargetPositionsExt[pos] = mPositionCommand;
+  mAxisTargetPositionsExt[pos] = mPositionCommand * 1000.0; // convert from m to mm
   // Update timestamp buffer with time difference
   mAxisTargetPositionTimestampExt[pos] = static_cast<float>(timeDiffMs);
 
