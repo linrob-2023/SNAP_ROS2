@@ -697,9 +697,9 @@ void Resource::processVirtualCommands()
 
     // virtual_target_position (always write current value - cast to uint8)
     {
-      double_t target = static_cast<double_t>(std::round(mVirtualTargetPositionCommand));
-      target = target * 1000.0; // convert target position from m to mm
-      writeToDatalayerNode("virtual_target_position", target);
+      // convert target position from m to mm
+      mVirtualTargetPositionCommand = mVirtualTargetPositionCommand * 1000.0;
+      writeToDatalayerNode("virtual_target_position", mVirtualTargetPositionCommand);
     }
 
     // virtual_target_velocity (always write current value)
