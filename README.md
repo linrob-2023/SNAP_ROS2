@@ -129,7 +129,7 @@ ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 ```
 - **StartMotion** (`/start_motion`) - Starts a motion command to a target position with specified velocity (no arrival check)
 ```sh
-ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 3, velocity: 10.0}"
+ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 0.8, velocity: 0.01}"
 ```
   - `start` (bool): Set to true to trigger the motion command
   - `target_position` (uint8): Target position index or identifier
