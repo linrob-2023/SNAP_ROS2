@@ -11,8 +11,8 @@ class WaveMotionPublisher(Node):
         # Parameters (you could also declare these as ROS 2 params)
         self.amplitude = 150.0            # mm
         self.frequency = 0.05             # Hz
-        self.max_velocity = 150        # mm/s
-        self.max_acceleration = 10    # mm/s²
+        self.max_velocity = 15        # mm/s
+        self.max_acceleration = 0.10    # mm/s²
         self.control_rate = 10        # Hz
 
         self.publisher_ = self.create_publisher(Float64MultiArray, '/position_controller/commands', 10)

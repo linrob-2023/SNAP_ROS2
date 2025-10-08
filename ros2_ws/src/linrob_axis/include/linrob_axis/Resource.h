@@ -214,7 +214,7 @@ private:
   inline void resetAxisTargetPositionsExt() {
     double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
     for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-      mAxisTargetPositionsExt[i] = pos;
+      mAxisTargetPositionsExt[i] = pos * 1000.0; // Convert to mm
     }
   }
 

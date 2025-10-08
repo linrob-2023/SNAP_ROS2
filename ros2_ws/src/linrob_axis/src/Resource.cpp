@@ -13,10 +13,11 @@ const auto LINROB = "linrob";
 constexpr std::chrono::milliseconds kStatePollInterval{100};
 constexpr std::chrono::seconds kStateWaitTimeout{10};
 constexpr std::chrono::seconds kSetModeSleep{2};
+constexpr std::chrono::seconds kResetResetTriggerSleep{2};
 
 constexpr std::chrono::seconds kAxisReadinessCheckInterval{2};
 constexpr double kMaxAllowedTimeDiffMs = 100.0;
-constexpr double kClampedTimeDiffMs = 50.0;
+constexpr double kClampedTimeDiffMs = 100.0;
 
 Resource::~Resource()
 {
@@ -148,7 +149,12 @@ hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycl
 
   if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
   {
-    return axisStateResult;
+    axisStateResult = checkAxisState(AxisState::STOPPED);
+    if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is not in STANDSTILL or STOPPED state during deactivation");
+      return axisStateResult;
+    }
   }
 
   auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::MANUAL));
@@ -217,7 +223,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     size_t pos = mPositionSettings.nextPositionIndex - 1;
     if (pos >= kMaxPositionsExt) pos = 0;
 
-    mAxisTargetPositionsExt[pos] = target;
+    mAxisTargetPositionsExt[pos] = target * 1000.0; // Convert to mm
     mAxisTargetPositionTimestampExt[pos] = 20.0;
 
     if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
@@ -313,7 +319,7 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
   if (pos >= kMaxPositionsExt) pos = 0;
 
   // Update position command buffer with the new position
-  mAxisTargetPositionsExt[pos] = mPositionCommand;
+  mAxisTargetPositionsExt[pos] = mPositionCommand * 1000.0; // Convert to mm
   // Update timestamp buffer with time difference
   mAxisTargetPositionTimestampExt[pos] = static_cast<float>(timeDiffMs);
 
@@ -629,6 +635,17 @@ void Resource::processVirtualCommands()
     else
     {
       RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to send virtual reset command");
+    }
+    // sleep briefly to allow PLC to process reset trigger and then reset
+    std::this_thread::sleep_for(kResetResetTriggerSleep);
+    result = writeToDatalayerNode("virtual_reset", false);
+    if (result)
+    {
+      RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Virtual reset trigger reset to false");
+    }
+    else
+    {
+      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset virtual reset trigger to false");
     }
   }
   else if (mVirtualResetCommand <= 0.5)
