@@ -89,7 +89,7 @@ jobs:
 
       - name: Verify built library
         run: |
-          ls -l ros2_ws/install/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
+          ls -l ros2_ws/install/linrob_axis/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
 
       - name: Create documentation pdf
         run: |
