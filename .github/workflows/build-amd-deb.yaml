@@ -72,10 +72,12 @@ jobs:
           source /opt/ros/humble/setup.bash
           # Use bloom to generate the debian files and fakeroot to build the package.
           # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
-          cd ros2_ws/src/linrob_axis
+          cd ros2_ws/
 
           # Ensure the package build is clean and up to date
           colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
+
+          cd src/linrob_axis
 
           bloom-generate rosdebian 
 
