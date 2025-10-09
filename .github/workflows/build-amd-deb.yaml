@@ -87,7 +87,7 @@ jobs:
           export DESTDIR=$(pwd)/debian/tmp
           fakeroot debian/rules binary
 
-          ls -l ./install/linrob_axis/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
+          ls -l ./install/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
 
       - name: Create documentation pdf
         run: |
