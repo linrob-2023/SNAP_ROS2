@@ -1,8 +1,0 @@
-{
-  "package_name": "linrob_axis",
-  "non_idl_tuples": [
-    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis:srv/ResetAxis.srv",
-    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis:srv/ReferenceAxis.srv",
-    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis:srv/StopAxis.srv"
-  ]
-}
