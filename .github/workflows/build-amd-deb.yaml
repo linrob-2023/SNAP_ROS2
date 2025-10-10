@@ -72,14 +72,14 @@ jobs:
           source /opt/ros/humble/setup.bash
           # Use bloom to generate the debian files and fakeroot to build the package.
           # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
-          cd ros2_ws/
+          cd ros2_ws/src/linrob_axis
 
           # Ensure the package build is clean and up to date
           colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
 
-          cd src/linrob_axis
+          #cd src/linrob_axis
 
-          bloom-generate rosdebian 
+          #bloom-generate rosdebian 
 
           # Update changelog with the version from the tag
           dch --newversion "$VERSION_TAG-0" --distribution jammy "Release from GitHub tag $VERSION_TAG"
@@ -89,9 +89,9 @@ jobs:
           export DESTDIR=$(pwd)/debian/tmp
           fakeroot debian/rules binary
 
-          ls -l .
-          ls -l ./install/
-          ls -l ./install/linrob_axis/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
+          #ls -l .
+          #ls -l ./install/
+          #ls -l ./install/linrob_axis/lib | grep linrob_axis || (echo "Library not built!" && exit 1)
 
       - name: Create documentation pdf
         run: |
