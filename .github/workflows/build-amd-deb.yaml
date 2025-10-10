@@ -74,6 +74,12 @@ jobs:
           # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
           cd ros2_ws/src/linrob_axis
 
+          # Clean any previous build artifacts
+          rm -rf .obj-*
+
+          # Optional but good practice
+          rm -rf debian/tmp
+
           # Ensure the package build is clean and up to date
           colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
 
