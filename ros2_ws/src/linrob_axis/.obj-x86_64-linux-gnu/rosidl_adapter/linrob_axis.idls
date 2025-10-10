@@ -1,3 +1,4 @@
 /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/ResetAxis.idl
 /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/ReferenceAxis.idl
 /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/StopAxis.idl
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/StartMotion.idl

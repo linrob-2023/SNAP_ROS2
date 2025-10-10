@@ -1,5 +1,5 @@
 set(_AMENT_PACKAGE_NAME "linrob_axis")
-set(linrob_axis_VERSION "0.1.2")
+set(linrob_axis_VERSION "0.0.0")
 set(linrob_axis_MAINTAINER "Matomai <info@matom.ai>")
 set(linrob_axis_BUILD_DEPENDS "ros2_control" "hardware_interface" "rosidl_default_generators" "rclcpp" "std_msgs" "controller_interface" "pluginlib")
 set(linrob_axis_BUILDTOOL_DEPENDS "ament_cmake")

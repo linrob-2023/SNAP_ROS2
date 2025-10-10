@@ -1,6 +1,35 @@
 -- run_test.py: invoking following command in '/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis':
  - /opt/ros/humble/bin/ament_pep257 --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml
 
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/__init__.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/srv/__init__.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/srv/_reference_axis.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/srv/_reset_axis.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/srv/_start_motion.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/linrob_axis/srv/_stop_axis.py
+checking ./build/linrob_axis/ament_cmake_python/linrob_axis/setup.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/__init__.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/srv/__init__.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/srv/_reference_axis.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/srv/_reset_axis.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/srv/_start_motion.py
+checking ./build/linrob_axis/rosidl_generator_py/linrob_axis/srv/_stop_axis.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/__init__.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/srv/__init__.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/srv/_reference_axis.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/srv/_reset_axis.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/srv/_start_motion.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/local/lib/python3.10/dist-packages/linrob_axis/srv/_stop_axis.py
+checking ./debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/launch/start.launch.py
+checking ./install/_local_setup_util_ps1.py
+checking ./install/_local_setup_util_sh.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/__init__.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/srv/__init__.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/srv/_reference_axis.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/srv/_reset_axis.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/srv/_start_motion.py
+checking ./install/linrob_axis/local/lib/python3.10/dist-packages/linrob_axis/srv/_stop_axis.py
+checking ./install/linrob_axis/share/linrob_axis/launch/start.launch.py
 checking ./launch/start.launch.py
 No problems found
 

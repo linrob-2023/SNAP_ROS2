@@ -759,6 +759,11 @@ CMakeFiles/linrob_axis_controller.dir/src/axis_controller.cpp.o: ../src/axis_con
   rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__builder.hpp \
   rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__traits.hpp \
   rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp \
+  rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp \
+  rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp \
+  rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp \
+  rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp \
+  rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp \
   /opt/ros/humble/include/pluginlib/pluginlib/class_list_macros.hpp \
   /opt/ros/humble/include/class_loader/class_loader/class_loader.hpp \
   /usr/include/c++/11/cstddef \
@@ -780,6 +785,10 @@ CMakeFiles/linrob_axis_controller.dir/src/axis_controller.cpp.o: ../src/axis_con
 /usr/include/console_bridge_export.h:
 
 /usr/include/c++/11/cstddef:
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp:
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp:
 
 rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__traits.hpp:
 
@@ -1725,6 +1734,8 @@ rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp:
 
 /usr/include/c++/11/iostream:
 
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp:
+
 /usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 
 /usr/include/c++/11/system_error:
@@ -1985,6 +1996,8 @@ rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__struct.hpp:
 
 /opt/ros/humble/include/rmw/rmw/events_statuses/liveliness_changed.h:
 
+rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp:
+
 /usr/include/c++/11/bits/codecvt.h:
 
 /opt/ros/humble/include/rmw/rmw/events_statuses/liveliness_lost.h:
@@ -2154,6 +2167,8 @@ rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__struct.hpp:
 /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/message_initialization.h:
 
 /opt/ros/humble/include/rclcpp/rclcpp/experimental/ros_message_intra_process_buffer.hpp:
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp:
 
 /opt/ros/humble/include/rosidl_runtime_cpp/rosidl_runtime_cpp/bounded_vector.hpp:
 
