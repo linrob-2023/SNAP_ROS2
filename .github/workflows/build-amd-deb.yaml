@@ -72,15 +72,16 @@ jobs:
           source /opt/ros/humble/setup.bash
           cd ros2_ws
           #colcon build --merge-install --packages-select linrob_axis
-          colcon build --merge-install --packages-select linrob_axis --event-handlers console_cohesion+
+          colcon build --packages-select linrob_axis --event-handlers console_cohesion+
 
       - name: Generate Debian package
         run: |
           source /opt/ros/humble/setup.bash
+          source ros2_ws/install/setup.bash
           # Use bloom to generate the debian files and fakeroot to build the package.
           # The package.xml file should be located at ros2_ws/src/linrob_axis/package.xml
           cd ros2_ws/src/linrob_axis
-          bloom-generate rosdebian 
+          # bloom-generate rosdebian 
 
           # Update changelog with the version from the tag
           dch --newversion "$VERSION_TAG-0" --distribution jammy "Release from GitHub tag $VERSION_TAG"
