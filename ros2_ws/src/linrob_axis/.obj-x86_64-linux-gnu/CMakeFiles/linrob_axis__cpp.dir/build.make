@@ -84,6 +84,11 @@ CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_ax
 CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__struct.hpp
 CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__traits.hpp
 CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp
+CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp
+CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp
+CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp
+CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp
+CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp
 CMakeFiles/linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/msg/rosidl_generator_cpp__visibility_control.hpp
 
 rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: /opt/ros/humble/lib/rosidl_generator_cpp/rosidl_generator_cpp
@@ -104,6 +109,7 @@ rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: /opt/ros/humble/share/rosid
 rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: rosidl_adapter/linrob_axis/srv/ResetAxis.idl
 rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: rosidl_adapter/linrob_axis/srv/ReferenceAxis.idl
 rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: rosidl_adapter/linrob_axis/srv/StopAxis.idl
+rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp: rosidl_adapter/linrob_axis/srv/StartMotion.idl
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code for ROS interfaces"
 	/usr/bin/python3 /opt/ros/humble/share/rosidl_generator_cpp/cmake/../../../lib/rosidl_generator_cpp/rosidl_generator_cpp --generator-arguments-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_generator_cpp__arguments.json
 
@@ -149,6 +155,21 @@ rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__traits.hpp: rosidl_genera
 rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp
 
+rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp
+
+rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp
+
 linrob_axis__cpp: CMakeFiles/linrob_axis__cpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reference_axis__builder.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reference_axis__struct.hpp
@@ -158,12 +179,17 @@ linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__builde
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__struct.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__traits.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/reset_axis__type_support.hpp
+linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__builder.hpp
+linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__struct.hpp
+linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__traits.hpp
+linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/start_motion__type_support.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__builder.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__struct.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__traits.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/detail/stop_axis__type_support.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/reference_axis.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/reset_axis.hpp
+linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/start_motion.hpp
 linrob_axis__cpp: rosidl_generator_cpp/linrob_axis/srv/stop_axis.hpp
 linrob_axis__cpp: CMakeFiles/linrob_axis__cpp.dir/build.make
 .PHONY : linrob_axis__cpp

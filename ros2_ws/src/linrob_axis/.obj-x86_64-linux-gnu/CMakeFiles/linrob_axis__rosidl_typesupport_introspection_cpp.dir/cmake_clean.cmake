@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reference_axis__type_support.cpp.o.d"
   "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reset_axis__type_support.cpp.o"
   "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reset_axis__type_support.cpp.o.d"
+  "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/start_motion__type_support.cpp.o"
+  "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/start_motion__type_support.cpp.o.d"
   "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/stop_axis__type_support.cpp.o"
   "CMakeFiles/linrob_axis__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/stop_axis__type_support.cpp.o.d"
   "liblinrob_axis__rosidl_typesupport_introspection_cpp.pdb"
@@ -11,6 +13,8 @@ file(REMOVE_RECURSE
   "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reference_axis__type_support.cpp"
   "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reset_axis__rosidl_typesupport_introspection_cpp.hpp"
   "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/reset_axis__type_support.cpp"
+  "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/start_motion__rosidl_typesupport_introspection_cpp.hpp"
+  "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/start_motion__type_support.cpp"
   "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/stop_axis__rosidl_typesupport_introspection_cpp.hpp"
   "rosidl_typesupport_introspection_cpp/linrob_axis/srv/detail/stop_axis__type_support.cpp"
 )

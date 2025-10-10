@@ -5,10 +5,26 @@ File 'package.xml' is invalid:
 /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
 /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/package.xml fails to validate
 
-1 files are invalid
+File 'debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml' is invalid:
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml fails to validate
+
+File 'install/linrob_axis/share/linrob_axis/package.xml' is invalid:
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/install/linrob_axis/share/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/install/linrob_axis/share/linrob_axis/package.xml fails to validate
+
+3 files are invalid
 File 'controller_plugin.xml' is valid
 
 File 'resource_plugin.xml' is valid
+
+File 'debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/controller_plugin.xml' is valid
+
+File 'debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/resource_plugin.xml' is valid
+
+File 'install/linrob_axis/share/linrob_axis/controller_plugin.xml' is valid
+
+File 'install/linrob_axis/share/linrob_axis/resource_plugin.xml' is valid
 
 
 

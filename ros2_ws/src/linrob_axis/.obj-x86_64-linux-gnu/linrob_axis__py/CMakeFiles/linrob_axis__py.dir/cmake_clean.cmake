@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "../rosidl_generator_py/linrob_axis/srv/_reference_axis_s.c"
   "../rosidl_generator_py/linrob_axis/srv/_reset_axis.py"
   "../rosidl_generator_py/linrob_axis/srv/_reset_axis_s.c"
+  "../rosidl_generator_py/linrob_axis/srv/_start_motion.py"
+  "../rosidl_generator_py/linrob_axis/srv/_start_motion_s.c"
   "../rosidl_generator_py/linrob_axis/srv/_stop_axis.py"
   "../rosidl_generator_py/linrob_axis/srv/_stop_axis_s.c"
   "CMakeFiles/linrob_axis__py"
