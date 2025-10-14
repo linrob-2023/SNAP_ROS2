@@ -266,13 +266,16 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
         if (positionError <= mPositionToleranceMm)
         {
           // Stop execution; axis reached target
-            mPositionSettings.newPositionsReceivedCount = 0U;
-            if (!writeToDatalayerNode("execute_movements", false))
-              return hardware_interface::return_type::ERROR;
-            mMovementExecutionStopped = true;
-            RCLCPP_INFO(rclcpp::get_logger(LINROB),
-                        "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
-                        mLastPositionCommand, mPositionToleranceMm);
+          mPositionSettings.newPositionsReceivedCount = 0U;
+          if (!writeToDatalayerNode("execute_movements", false))
+            return hardware_interface::return_type::ERROR;
+          mMovementExecutionStopped = true;
+          RCLCPP_INFO(rclcpp::get_logger(LINROB),
+                      "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm). Arrays reset.",
+                      mLastPositionCommand, mPositionToleranceMm);
+          // Reset PLC buffer and index
+          if (!resetPlcBufferAndIndex())
+            return hardware_interface::return_type::ERROR;
         }
         else
         {
