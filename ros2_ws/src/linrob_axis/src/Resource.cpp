@@ -782,7 +782,7 @@ void Resource::checkAxisReadiness()
       auto resetResult = resetPlcBufferAndIndex();
       if (!resetResult) {
         RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index after axis became ready");
-        return hardware_interface::CallbackReturn::ERROR;
+        return;
       }
 
       // Mark axis as ready
