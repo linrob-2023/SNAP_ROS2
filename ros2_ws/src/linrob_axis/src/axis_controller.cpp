@@ -3,6 +3,22 @@
 #include <hardware_interface/loaned_state_interface.hpp>
 
 namespace linrob_controllers
+
+namespace {
+constexpr std::chrono::milliseconds kServiceErrorWait{500};
+
+bool isServiceError(uint32_t error_code) {
+  char hex_code[16];
+  snprintf(hex_code, sizeof(hex_code), "%08X", error_code);
+  return error_code != 0 && (strncmp(hex_code, "080F", 4) == 0 || strncmp(hex_code, "090F", 4) == 0);
+}
+
+std::string errorMessage(const char* action, uint32_t error_code) {
+  char hex_code[16];
+  snprintf(hex_code, sizeof(hex_code), "%08X", error_code);
+  return std::string(action) + " command failed with error code: 0x" + hex_code;
+}
+}
 {
 
 AxisController::AxisController()
@@ -179,8 +195,15 @@ void AxisController::resetAxisService(
 
   pending_reset_.store(true);
 
-  response->success = true;
-  response->message = "Reset command queued for execution";
+  std::this_thread::sleep_for(kServiceErrorWait);
+  uint32_t error_code = static_cast<uint32_t>(state_interfaces_[0].get_value());
+  if (isServiceError(error_code)) {
+    response->success = false;
+    response->message = errorMessage("Reset", error_code);
+  } else {
+    response->success = true;
+    response->message = "Reset command queued for execution";
+  }
 }
 
 void AxisController::referenceAxisService(
@@ -191,8 +214,15 @@ void AxisController::referenceAxisService(
 
   pending_reference_.store(true);
 
-  response->success = true;
-  response->message = "Reference command queued for execution";
+  std::this_thread::sleep_for(kServiceErrorWait);
+  uint32_t error_code = static_cast<uint32_t>(state_interfaces_[0].get_value());
+  if (isServiceError(error_code)) {
+    response->success = false;
+    response->message = errorMessage("Reference", error_code);
+  } else {
+    response->success = true;
+    response->message = "Reference command queued for execution";
+  }
 }
 
 void AxisController::stopAxisService(
@@ -203,8 +233,15 @@ void AxisController::stopAxisService(
 
   pending_stop_.store(true);
 
-  response->success = true;
-  response->message = "Stop command queued for execution";
+  std::this_thread::sleep_for(kServiceErrorWait);
+  uint32_t error_code = static_cast<uint32_t>(state_interfaces_[0].get_value());
+  if (isServiceError(error_code)) {
+    response->success = false;
+    response->message = errorMessage("Stop", error_code);
+  } else {
+    response->success = true;
+    response->message = "Stop command queued for execution";
+  }
 }
 
 void AxisController::startMotionService(
@@ -220,8 +257,15 @@ void AxisController::startMotionService(
   pending_target_position_.store(request->target_position);
   pending_target_velocity_.store(request->velocity);
 
-  response->success = true;
-  response->message = "Start motion command queued for execution";
+  std::this_thread::sleep_for(kServiceErrorWait);
+  uint32_t error_code = static_cast<uint32_t>(state_interfaces_[0].get_value());
+  if (isServiceError(error_code)) {
+    response->success = false;
+    response->message = errorMessage("Start motion", error_code);
+  } else {
+    response->success = true;
+    response->message = "Start motion command queued for execution";
+  }
 }
 
 }  // namespace linrob_controllers
