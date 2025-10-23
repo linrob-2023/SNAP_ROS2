@@ -1,4 +1,0 @@
-source;share/linrob_axis/environment/ament_prefix_path.sh
-source;share/linrob_axis/environment/library_path.sh
-source;share/linrob_axis/environment/path.sh
-source;share/linrob_axis/environment/pythonpath.sh

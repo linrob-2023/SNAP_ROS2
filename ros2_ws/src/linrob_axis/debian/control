@@ -8,5 +8,5 @@ Standards-Version: 3.9.2
 
 Package: ros-humble-linrob-axis
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-ros2-control, ros-humble-rosidl-default-runtime, ros-humble-std-msgs, ctrlx-datalayer (>= 2.6)
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-ros2-control, ros-humble-rosidl-default-runtime, ros-humble-std-msgs
 Description: Position controller responsible for communication between Datalayer and PLC.
