@@ -528,6 +528,8 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
   {
     RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to read data at %s. %s", data.first.c_str(), result.toString());
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Failed to update. Returning FALSE.");
+    mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
+    mLatestErrorCode = kConnectionLostErrorCode;
     return false;
   }
   if (data.second.getType() != expectedType)

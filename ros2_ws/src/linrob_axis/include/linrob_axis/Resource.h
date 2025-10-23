@@ -101,6 +101,9 @@ public:
    */
   hardware_interface::CallbackReturn waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout);
 
+  // Error code indicating Data Layer connection loss
+  static constexpr uint32_t kConnectionLostErrorCode = 0x090F9000;
+
 private:
   /**
    * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
@@ -334,6 +337,8 @@ bool Resource::writeToDatalayerNode(const std::string& key, const T& value)
   {
     RCLCPP_ERROR(
       rclcpp::get_logger("linrob"), "Failed to write data at %s. %s", data.first.c_str(), writeResult.toString());
+    mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
+    mLatestErrorCode = kConnectionLostErrorCode;
     return false;
   }
   return true;
