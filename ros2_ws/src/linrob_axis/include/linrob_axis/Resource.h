@@ -104,6 +104,11 @@ public:
   // Error code indicating Data Layer connection loss
   static constexpr uint32_t kConnectionLostErrorCode = 0x090F9000;
 
+  /**
+   * Interval between reconnection attempts when the connection to the Data Layer is lost.
+   */
+  static constexpr std::chrono::seconds kReconnectInterval{5};
+
 private:
   /**
    * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
@@ -237,6 +242,19 @@ private:
    */
   bool resetPlcBufferAndIndex();
 
+  /**
+   * Attempts to (re)establish the Data Layer connection if currently lost.
+   * Returns true if connection has been (re)established successfully.
+   */
+  bool attemptReconnect();
+
+  /**
+   * Ensures an active Data Layer connection. Attempts reconnect if marked lost.
+   * If still unavailable, sets error_code and returns false.
+   * @return true if connection is available for IO operations.
+   */
+  bool ensureConnectionAvailable();
+
   /// Connection settings.
   linrob::Connection mConnection;
 
@@ -307,6 +325,11 @@ private:
   bool mReferenceCommandExecuted {false};
   bool mStopCommandExecuted {false};
   bool mStartMotionCommandExecuted {false};
+
+  /// Flag indicating current connection loss state.
+  bool mConnectionLost {false};
+  /// Timestamp of last reconnection attempt.
+  std::chrono::steady_clock::time_point mLastReconnectAttempt {};
 };
 
 template <typename T>
@@ -339,6 +362,7 @@ bool Resource::writeToDatalayerNode(const std::string& key, const T& value)
       rclcpp::get_logger("linrob"), "Failed to write data at %s. %s", data.first.c_str(), writeResult.toString());
     mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
     mLatestErrorCode = kConnectionLostErrorCode;
+    mConnectionLost = true;
     return false;
   }
   return true;

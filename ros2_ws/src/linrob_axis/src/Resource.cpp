@@ -196,6 +196,10 @@ void Resource::disconnect()
 
 hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 {
+  if (!ensureConnectionAvailable()) {
+    return hardware_interface::return_type::OK;
+  }
+
   // Handle virtual commands
   processVirtualCommands();
 
@@ -239,6 +243,12 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
     return true;
   };
+
+  // Re-check connection before attempting any new writes.
+  if (!ensureConnectionAvailable()) {
+    return hardware_interface::return_type::OK;
+  }
+
 
   const bool receivedNewTarget = (mPositionCommand != mLastPositionCommand);
   if (!receivedNewTarget)
@@ -349,6 +359,10 @@ hardware_interface::return_type Resource::write(const rclcpp::Time& time, const 
 
 hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
+  if (!ensureConnectionAvailable()) {
+    return hardware_interface::return_type::OK;
+  }
+
   if (!mAxisReadyForOperation)
   {
     checkAxisReadiness();
@@ -372,7 +386,7 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
 
   if (!updateResult)
   {
-    return hardware_interface::return_type::ERROR;
+    return hardware_interface::return_type::OK;
   }
 
   // If axis is in ERRORSTOP, immediately stop execution of movements
@@ -386,7 +400,7 @@ hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp
         RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis in ERRORSTOP, stopping movement execution");
         if (!writeToDatalayerNode("execute_movements", false))
         {
-          return hardware_interface::return_type::ERROR;
+          return hardware_interface::return_type::OK;
         }
         mMovementExecutionStopped = true;
       }
@@ -530,6 +544,7 @@ bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::Varia
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Failed to update. Returning FALSE.");
     mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
     mLatestErrorCode = kConnectionLostErrorCode;
+    mConnectionLost = true;
     return false;
   }
   if (data.second.getType() != expectedType)
@@ -592,6 +607,53 @@ bool Resource::resetPlcBufferAndIndex() {
   auto newTimestampWriteResult = writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt);
   auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
   return newPositionWriteResult && newTimestampWriteResult && nextPosIndexWriteResult;
+}
+
+bool Resource::attemptReconnect()
+{
+  // If client exists and is connected, clear lost flag and return.
+  if (mClient && mClient->isConnected()) {
+    if (mConnectionLost) {
+      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Data Layer connection restored.");
+      mConnectionLost = false;
+    }
+    return true;
+  }
+
+  // Rate-limit attempts.
+  auto now = std::chrono::steady_clock::now();
+  if (now - mLastReconnectAttempt < kReconnectInterval) {
+    return false;
+  }
+  mLastReconnectAttempt = now;
+  RCLCPP_WARN(rclcpp::get_logger(LINROB), "Attempting to reconnect to Data Layer...");
+
+  auto result = connect();
+  if (result != hardware_interface::CallbackReturn::SUCCESS) {
+    return false;
+  }
+
+  mConnectionLost = false;
+  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Reconnected to Data Layer (via connect()).");
+
+  // Optionally refresh minimal state so controllers see updated status sooner.
+  if (updateDataFromNode("error_code", comm::datalayer::VariantType::UINT32)) {
+    updateState();
+  }
+  return true;
+}
+
+bool Resource::ensureConnectionAvailable()
+{
+  if (!mConnectionLost) {
+    return true;
+  }
+  attemptReconnect();
+  if (!mConnectionLost) {
+    return true;
+  }
+  mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
+  return false;
 }
 
 void Resource::setLogLevel(const std::string& level)
