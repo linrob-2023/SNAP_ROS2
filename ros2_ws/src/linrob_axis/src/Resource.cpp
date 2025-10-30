@@ -460,7 +460,7 @@ hardware_interface::CallbackReturn Resource::connect()
 
 hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedState)
 {
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Checking axis state...");
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Checking axis state...");
   auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
   if (!statusUpdateResult)
   {
@@ -480,7 +480,7 @@ hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedSt
     return hardware_interface::CallbackReturn::FAILURE;
   }
 
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis state: %u", static_cast<unsigned int>(axisStatus));
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Axis state: %u", static_cast<unsigned int>(axisStatus));
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -549,6 +549,13 @@ void Resource::updateState()
   mState.at("error_code") = static_cast<double>(errorCode);
   if (errorCode != 0) {
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
+  }
+
+  auto axisStateReady = checkAxisState(AxisState::STANDSTILL);
+  if (axisStateReady == hardware_interface::CallbackReturn::SUCCESS) {
+    mState.at("axis_ready") = 1.0;
+  } else {
+    mState.at("axis_ready") = 0.0;
   }
 }
 
