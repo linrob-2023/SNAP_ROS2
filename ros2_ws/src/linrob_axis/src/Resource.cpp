@@ -112,26 +112,22 @@ hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle:
   auto axisStateResult = checkAxisState(AxisState::STANDSTILL);
   if (axisStateResult == hardware_interface::CallbackReturn::SUCCESS) {
     RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
-    mAxisReadyForOperation = true;
 
     // Switch to AUTO_EXTERNAL mode since axis is ready
     if (!switchToAutoExternalMode()) {
       return hardware_interface::CallbackReturn::ERROR;
     }
-  } else {
-    RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis is not in STANDSTILL state yet");
-    mAxisReadyForOperation = false;
-    mLastAxisStateCheck = std::chrono::steady_clock::now();
-  }
-
-  // Only reset PLC if axis is ready for operation
-  if (mAxisReadyForOperation) {
     auto resetResult = resetPlcBufferAndIndex();
     if (!resetResult)
     {
       RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index.");
       return hardware_interface::CallbackReturn::ERROR;
     }
+    mAxisReadyForOperation = true;
+    mState.at("axis_ready") = 1.0;
+  } else {
+    RCLCPP_WARN(rclcpp::get_logger(LINROB), "Axis is not in STANDSTILL state yet");
+    mLastAxisStateCheck = std::chrono::steady_clock::now();
   }
 
   mPositionSettings.newPositionsReceivedCount = 0U;
@@ -478,7 +474,7 @@ hardware_interface::CallbackReturn Resource::connect()
 
 hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedState)
 {
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Checking axis state...");
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Checking axis state...");
   auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
   if (!statusUpdateResult)
   {
@@ -498,7 +494,7 @@ hardware_interface::CallbackReturn Resource::checkAxisState(AxisState expectedSt
     return hardware_interface::CallbackReturn::FAILURE;
   }
 
-  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis state: %u", static_cast<unsigned int>(axisStatus));
+  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Axis state: %u", static_cast<unsigned int>(axisStatus));
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -572,7 +568,12 @@ void Resource::updateState()
     RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Error code: 0x%08X (%u)", errorCode, errorCode);
   }
 
-  mState.at("axis_ready") = mAxisReadyForOperation ? 1.0 : 0.0;
+  auto axisStateReady = checkAxisState(AxisState::STANDSTILL);
+  if (axisStateReady == hardware_interface::CallbackReturn::SUCCESS) {
+    mState.at("axis_ready") = 1.0;
+  } else {
+    mState.at("axis_ready") = 0.0;
+  }
 }
 
 void Resource::waitUntilRequiredNodesAreValid()
@@ -848,14 +849,17 @@ void Resource::checkAxisReadiness()
         return;
       }
 
-      mAxisReadyForOperation = true;
-
       // Now that axis is ready and mode is set, reset PLC buffer and index
       auto resetResult = resetPlcBufferAndIndex();
       if (!resetResult) {
         RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index after axis became ready");
-        mAxisReadyForOperation = false; // Reset to prevent operations until next successful check
+        return;
       }
+
+      // Mark axis as ready
+      mAxisReadyForOperation = true;
+      mState.at("axis_ready") = 1.0;
+
     } else if (axisStateResult == hardware_interface::CallbackReturn::ERROR) {
       RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR state - operations will remain disabled");
     }
