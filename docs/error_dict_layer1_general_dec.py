@@ -237,6 +237,7 @@ error_dict = {
         152002560: "Error in the Sequence Manager",
         152002561: "Forced stop of the ctrlX Motion",
         152002576: "PLC detected error event",
-        152010769: "General error in CXA_Motion"
+        152010769: "General error in CXA_Motion",
+        152014848: "Connection to datalayer lost",
     ]
 }

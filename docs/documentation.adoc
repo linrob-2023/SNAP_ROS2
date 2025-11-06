@@ -58,7 +58,9 @@ This will start the hardware interface node which connects to the linear axis.
 
 When the hardware interface is set to _active_, the axis controller will change its operation mode to "AUTO_EXTERNAL" and is ready to receive positioning commands via the position controller. Deactivating the hardware interface will set the axis back to "MANUAL" mode. The handheld device can only be used when the hardware interface is inactive.
 
-The position controller allows the execution of streamed target positions. The positions will be sent to the _/position_controller/commands_ topic as a single float number. The axis controller will recognize the frequency of sent data and act accordingly. Based on these times, an interpolation is done in the backend to ensure smooth movements and fulfill the requirements of the PLC backend.
+The position controller allows the execution of streamed target positions. The positions will be sent to the 
+`_/position_controller/commands_`
+ topic as a single float number for the joint `joint_1`. The axis controller will recognize the frequency of sent data and act accordingly. Based on these times, an interpolation is done in the backend to ensure smooth movements and fulfill the requirements of the PLC backend.
 
 The axis controller enables certain ROS2 services to command the axis. These are:
 
@@ -82,10 +84,17 @@ ros2 service call /axis_controller/reference_axis linrob_axis/srv/ReferenceAxis 
 ros2 service call /axis_controller/stop_axis linrob_axis/srv/StopAxis "{}"
 ```
 
-- **MoveToPosition** (`/move_to_position`) - Commands a target position with a specified velocity. The velocity is an optional value and will be set to 25mm/s if not specified.
+- **StartMotion** (`/start_motion`) - Commands a target position with a specified velocity. The velocity is an optional value and will be set to 0.025 m/s if not specified.
 ```sh
-ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 3, velocity: 10.0}"
+ros2 service call /axis_controller/start_motion linrob_axis/srv/StartMotion "{start: true, target_position: 3.0, velocity: 0.25}"
 ```
+
+The position is given in meters and must be within the configured limits of the axis. These are -0.005 m to 3.46 m as restricted by the available hardware. Target positions outside this range will lead to errors in the controller.
+
+The velocity is given in meters per second. The soft limit is set to 0.4 m/s. However, the drive has proven be have a hardware limit of around 0.235 m/s and cannot exceed that. Therefore, the suggested maximum velocity is 0.2 m/s to ensure smooth operation.
+
+The maximum acceleration and deceleration (in m/s²) are configured in the ctrlX CORE drive settings and cannot be changed via ROS 2 at the moment.
+These values are set to a maximum of 0.25 m/s² by default. Different operations set different dynamic values inside the controller to ensure smooth(er) movements.
 
 ==== Resource activation and deactivation
 
@@ -150,6 +159,24 @@ To verify the controller state:
 ----
 ros2 control list_controllers
 ----
+
+=== Topics
+
+The package provides the following usable topics:
+
+* error_code (std_msgs/msg/UInt32): Publishes the current error code of the axis.
+
+* dynamic_joint_states (control_msgs/msg/DynamicJointState): Publishes the current joint states of `joint_1` including position, velocity, error_code and axis_ready.
+
+==== /error_code
+
+The error code topic publishes the current error code of the axis on change. It is not printed continuously. A value of 0 indicates no errors, while any non-zero value indicates an error state.
+
+image::assets/error_code_topic.png[]
+
+==== /dynamic_joint_states
+
+The dynamic_joint_states topic publishes the current joint states of the axis `joint_1` including position, velocity, error_code and axis_ready. The position is given in meters, velocity in meters per second, error_code as an unsigned integer, and axis_ready as a boolean indicating if the axis is ready for operation (equals state STANDSTILL).
 
 === Configuring the application
 

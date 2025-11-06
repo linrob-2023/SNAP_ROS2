@@ -239,5 +239,6 @@ error_dict = \
             {"090F6001": "Forced stop of the ctrlX Motion"},
             {"090F6010": "PLC detected error event"},
             {"090F8011": "General error in CXA_Motion"},
+            {"090F9000": "Connection to datalayer lost"},
         ]
     }
