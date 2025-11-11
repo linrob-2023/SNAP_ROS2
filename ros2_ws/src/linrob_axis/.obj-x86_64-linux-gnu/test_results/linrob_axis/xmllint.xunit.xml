@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite
   name="linrob_axis.xmllint"
-  tests="3"
+  tests="9"
   errors="0"
-  failures="1"
-  time="0.678"
+  failures="3"
+  time="1.315"
 >
   <testcase
     name="controller_plugin.xml"
@@ -20,8 +20,42 @@
   <testcase
     name="resource_plugin.xml"
     classname="linrob_axis.xmllint"/>
+  <testcase
+    name="debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/controller_plugin.xml"
+    classname="linrob_axis.xmllint"/>
+  <testcase
+    name="debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml"
+    classname="linrob_axis.xmllint"
+  >
+      <failure message="Diff with 457 lines"><![CDATA[/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml fails to validate
+]]></failure>
+  </testcase>
+  <testcase
+    name="debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/resource_plugin.xml"
+    classname="linrob_axis.xmllint"/>
+  <testcase
+    name="install/linrob_axis/share/linrob_axis/controller_plugin.xml"
+    classname="linrob_axis.xmllint"/>
+  <testcase
+    name="install/linrob_axis/share/linrob_axis/package.xml"
+    classname="linrob_axis.xmllint"
+  >
+      <failure message="Diff with 407 lines"><![CDATA[/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/install/linrob_axis/share/linrob_axis/package.xml:34: element member_of_group: Schemas validity error : Element 'member_of_group': This element is not expected.
+/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/install/linrob_axis/share/linrob_axis/package.xml fails to validate
+]]></failure>
+  </testcase>
+  <testcase
+    name="install/linrob_axis/share/linrob_axis/resource_plugin.xml"
+    classname="linrob_axis.xmllint"/>
   <system-out>Checked files:
 * controller_plugin.xml
 * package.xml
-* resource_plugin.xml</system-out>
+* resource_plugin.xml
+* debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/controller_plugin.xml
+* debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/package.xml
+* debian/ros-humble-linrob-axis/opt/ros/humble/share/linrob_axis/resource_plugin.xml
+* install/linrob_axis/share/linrob_axis/controller_plugin.xml
+* install/linrob_axis/share/linrob_axis/package.xml
+* install/linrob_axis/share/linrob_axis/resource_plugin.xml</system-out>
 </testsuite>

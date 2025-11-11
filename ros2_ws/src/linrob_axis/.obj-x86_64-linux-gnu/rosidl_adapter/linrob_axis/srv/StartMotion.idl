@@ -1,0 +1,29 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from linrob_axis/srv/StartMotion.srv
+// generated code does not contain a copyright notice
+
+
+module linrob_axis {
+  module srv {
+    @verbatim (language="comment", text=
+      "Service for starting a motion to a target position")
+    struct StartMotion_Request {
+      @verbatim (language="comment", text=
+        "Set true to trigger motion command (e.g. GVL/xVirtMove)")
+      boolean start;
+
+      @verbatim (language="comment", text=
+        "Target position identifier / index")
+      double target_position;
+
+      @verbatim (language="comment", text=
+        "Target velocity for the motion")
+      double velocity;
+    };
+    struct StartMotion_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

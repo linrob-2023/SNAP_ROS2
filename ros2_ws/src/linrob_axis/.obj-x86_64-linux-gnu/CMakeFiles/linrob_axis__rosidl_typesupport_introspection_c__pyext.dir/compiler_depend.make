@@ -262,8 +262,15 @@ CMakeFiles/linrob_axis__rosidl_typesupport_introspection_c__pyext.dir/rosidl_gen
   rosidl_generator_c/linrob_axis/srv/detail/reference_axis__functions.h \
   rosidl_generator_c/linrob_axis/srv/detail/stop_axis__type_support.h \
   rosidl_generator_c/linrob_axis/srv/detail/stop_axis__struct.h \
-  rosidl_generator_c/linrob_axis/srv/detail/stop_axis__functions.h
+  rosidl_generator_c/linrob_axis/srv/detail/stop_axis__functions.h \
+  rosidl_generator_c/linrob_axis/srv/detail/start_motion__type_support.h \
+  rosidl_generator_c/linrob_axis/srv/detail/start_motion__struct.h \
+  rosidl_generator_c/linrob_axis/srv/detail/start_motion__functions.h
 
+
+rosidl_generator_c/linrob_axis/srv/detail/start_motion__functions.h:
+
+rosidl_generator_c/linrob_axis/srv/detail/start_motion__type_support.h:
 
 rosidl_generator_c/linrob_axis/srv/detail/stop_axis__functions.h:
 
@@ -586,6 +593,8 @@ rosidl_generator_c/linrob_axis/srv/detail/reference_axis__type_support.h:
 /usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
 
 /usr/include/errno.h:
+
+rosidl_generator_c/linrob_axis/srv/detail/start_motion__struct.h:
 
 /usr/include/python3.10/cpython/fileutils.h:
 

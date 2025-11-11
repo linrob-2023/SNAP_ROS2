@@ -5,7 +5,8 @@
   "idl_tuples": [
     "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/ResetAxis.idl",
     "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/ReferenceAxis.idl",
-    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/StopAxis.idl"
+    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/StopAxis.idl",
+    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis:srv/StartMotion.idl"
   ],
   "target_dependencies": [
     "/opt/ros/humble/lib/rosidl_typesupport_introspection_c/rosidl_typesupport_introspection_c",
@@ -18,6 +19,7 @@
     "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/srv__type_support.c.em",
     "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis/srv/ResetAxis.idl",
     "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis/srv/ReferenceAxis.idl",
-    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis/srv/StopAxis.idl"
+    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis/srv/StopAxis.idl",
+    "/home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/rosidl_adapter/linrob_axis/srv/StartMotion.idl"
   ]
 }

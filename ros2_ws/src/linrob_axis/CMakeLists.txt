@@ -124,7 +124,9 @@ pluginlib_export_plugin_description_file(controller_interface controller_plugin.
 # Install shared library
 install(
   TARGETS ${TARGET_PROJECT_NAME}
+  ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 # Install controller library

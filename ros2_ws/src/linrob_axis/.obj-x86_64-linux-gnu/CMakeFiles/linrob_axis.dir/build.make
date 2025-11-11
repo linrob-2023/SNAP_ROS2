@@ -78,6 +78,9 @@ CMakeFiles/linrob_axis: rosidl_cmake/srv/ReferenceAxis_Response.msg
 CMakeFiles/linrob_axis: ../srv/StopAxis.srv
 CMakeFiles/linrob_axis: rosidl_cmake/srv/StopAxis_Request.msg
 CMakeFiles/linrob_axis: rosidl_cmake/srv/StopAxis_Response.msg
+CMakeFiles/linrob_axis: ../srv/StartMotion.srv
+CMakeFiles/linrob_axis: rosidl_cmake/srv/StartMotion_Request.msg
+CMakeFiles/linrob_axis: rosidl_cmake/srv/StartMotion_Response.msg
 
 linrob_axis: CMakeFiles/linrob_axis
 linrob_axis: CMakeFiles/linrob_axis.dir/build.make
