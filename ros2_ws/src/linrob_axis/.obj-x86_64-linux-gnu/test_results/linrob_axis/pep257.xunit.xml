@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite
   name="linrob_axis.pep257"
-  tests="1"
+  tests="3"
   errors="0"
   failures="0"
-  time="0.025"
+  time="0.057"
 >
   <testcase
     name="./launch/start.launch.py"
     classname="linrob_axis.pep257"/>
+  <testcase
+    name="./src/install/_local_setup_util_ps1.py"
+    classname="linrob_axis.pep257"/>
+  <testcase
+    name="./src/install/_local_setup_util_sh.py"
+    classname="linrob_axis.pep257"/>
   <system-out>Checked files:
-* ./launch/start.launch.py</system-out>
+* ./launch/start.launch.py
+* ./src/install/_local_setup_util_ps1.py
+* ./src/install/_local_setup_util_sh.py</system-out>
 </testsuite>

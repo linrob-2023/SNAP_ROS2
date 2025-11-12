@@ -4,15 +4,15 @@
   tests="10"
   failures="10"
   errors="0"
-  time="0.148"
+  time="0.147"
 >
   <testcase
     name="include/linrob_axis/AxisStates.h"
     classname="linrob_axis.uncrustify"
   >
-      <failure message="Diff with 33 lines"><![CDATA[--- include/linrob_axis/AxisStates.h
+      <failure message="Diff with 35 lines"><![CDATA[--- include/linrob_axis/AxisStates.h
 +++ include/linrob_axis/AxisStates.h.uncrustify
-@@ -11,15 +11,15 @@
+@@ -11,16 +11,16 @@
 -enum class AxisState : uint8_t
 -{
 -  ABORTING = 0U,
@@ -26,7 +26,8 @@
 -  STANDSTILL,
 -  STANDSTILL_PENDING,
 -  STOPPING,
--  SYNCHRONIZED_MOTION
+-  SYNCHRONIZED_MOTION,
+-  STOPPED
 -};
 +  enum class AxisState: uint8_t
 +  {
@@ -41,7 +42,8 @@
 +    STANDSTILL,
 +    STANDSTILL_PENDING,
 +    STOPPING,
-+    SYNCHRONIZED_MOTION
++    SYNCHRONIZED_MOTION,
++    STOPPED
 +  };
 ]]></failure>
   </testcase>
@@ -141,14 +143,14 @@
     name="include/linrob_axis/Resource.h"
     classname="linrob_axis.uncrustify"
   >
-      <failure message="Diff with 636 lines"><![CDATA[--- include/linrob_axis/Resource.h
+      <failure message="Diff with 702 lines"><![CDATA[--- include/linrob_axis/Resource.h
 +++ include/linrob_axis/Resource.h.uncrustify
 @@ -23,2 +23,2 @@
 -class Resource : public hardware_interface::SystemInterface
 -{
 +  class Resource: public hardware_interface::SystemInterface
 +  {
-@@ -26,77 +26,87 @@
+@@ -26,85 +26,95 @@
 -  /**
 -   * Constructor.
 -   */
@@ -226,6 +228,14 @@
 -   * Returns SUCCESS if reached, FAILURE on timeout.
 -   */
 -  hardware_interface::CallbackReturn waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout);
+-
+-  // Error code indicating Data Layer connection loss
+-  static constexpr uint32_t kConnectionLostErrorCode = 0x090F9000;
+-
+-  /**
+-   * Interval between reconnection attempts when the connection to the Data Layer is lost.
+-   */
+-  static constexpr std::chrono::seconds kReconnectInterval{5};
 +    /**
 +     * Constructor.
 +     */
@@ -313,7 +323,15 @@
 +    hardware_interface::CallbackReturn waitForSystemMode(
 +      const std::string & expectedMode,
 +      std::chrono::milliseconds timeout);
-@@ -105,113 +115,115 @@
++
++    // Error code indicating Data Layer connection loss
++    static constexpr uint32_t kConnectionLostErrorCode = 0x090F9000;
++
++    /**
++     * Interval between reconnection attempts when the connection to the Data Layer is lost.
++     */
++    static constexpr std::chrono::seconds kReconnectInterval {5};
+@@ -113,113 +123,115 @@
 -  /**
 -   * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
 -   * created pair in the map at specified key.
@@ -426,7 +444,7 @@
 -  inline void resetAxisTargetPositionsExt() {
 -    double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
 -    for (size_t i = 0; i < kMaxPositionsExt; ++i) {
--      mAxisTargetPositionsExt[i] = pos;
+-      mAxisTargetPositionsExt[i] = pos * 1000.0; // Convert to mm
 +    /**
 +     * Creates data pair with datalayer node address and variant type for storing data read from datalayer node and stores
 +     * created pair in the map at specified key.
@@ -540,9 +558,9 @@
 +    {
 +      double pos = std::round(mState.at("position") * 10000.0) / 10000.0;
 +      for (size_t i = 0; i < kMaxPositionsExt; ++i) {
-+        mAxisTargetPositionsExt[i] = pos;
++        mAxisTargetPositionsExt[i] = pos * 1000.0; // Convert to mm
 +      }
-@@ -218,0 +231,104 @@
+@@ -226,0 +239,126 @@
 +
 +    /**
 +     * Helper to reset the axis target position timestamp buffer (local only).
@@ -560,6 +578,19 @@
 +     * Fills local buffer with current position, resets index, and writes both to the PLC.
 +     */
 +    bool resetPlcBufferAndIndex();
++
++    /**
++     * Attempts to (re)establish the Data Layer connection if currently lost.
++     * Returns true if connection has been (re)established successfully.
++     */
++    bool attemptReconnect();
++
++    /**
++     * Ensures an active Data Layer connection. Attempts reconnect if marked lost.
++     * If still unavailable, sets error_code and returns false.
++     * @return true if connection is available for IO operations.
++     */
++    bool ensureConnectionAvailable();
 +
 +    /// Connection settings.
 +    linrob::Connection mConnection;
@@ -582,6 +613,9 @@
 +    double mVirtualResetCommand {0.0};
 +    double mVirtualReferenceCommand {0.0};
 +    double mVirtualStopCommand {0.0};
++    double mVirtualStartMotionCommand {0.0};
++    double mVirtualTargetPositionCommand {0.0};
++    double mVirtualTargetVelocityCommand {0.0};
 +
 +    /// Last new position received.
 +    double mLastPositionCommand {0.0};
@@ -629,6 +663,12 @@
 +    bool mResetCommandExecuted {false};
 +    bool mReferenceCommandExecuted {false};
 +    bool mStopCommandExecuted {false};
++    bool mStartMotionCommandExecuted {false};
++
++    /// Flag indicating current connection loss state.
++    bool mConnectionLost {false};
++    /// Timestamp of last reconnection attempt.
++    std::chrono::steady_clock::time_point mLastReconnectAttempt {};
 +  };
 +
 +  template < typename T >
@@ -647,7 +687,7 @@
 +    auto typeData = static_cast < const T * > (static_cast < const void * > (data.getData()));
 +    std::vector < T > result(typeData, typeData + size);
 +    return result;
-@@ -221,7 +337,11 @@
+@@ -229,7 +367,14 @@
 -  /**
 -   * Helper to reset the axis target position timestamp buffer (local only).
 -   * Fills the buffer with zeros.
@@ -665,16 +705,32 @@
 +      RCLCPP_ERROR(
 +        rclcpp::get_logger("linrob"), "Failed to write data at %s. %s",
 +        data.first.c_str(), writeResult.toString());
++      mState.at("error_code") = static_cast < double > (kConnectionLostErrorCode);
++      mLatestErrorCode = kConnectionLostErrorCode;
++      mConnectionLost = true;
 +      return false;
-@@ -228,0 +349 @@
+@@ -236,0 +382 @@
 +    return true;
-@@ -230,91 +350,0 @@
+@@ -238,113 +383,0 @@
 -
 -  /**
 -   * Helper to reset PLC buffer and index (writes to PLC).
 -   * Fills local buffer with current position, resets index, and writes both to the PLC.
 -   */
 -  bool resetPlcBufferAndIndex();
+-
+-  /**
+-   * Attempts to (re)establish the Data Layer connection if currently lost.
+-   * Returns true if connection has been (re)established successfully.
+-   */
+-  bool attemptReconnect();
+-
+-  /**
+-   * Ensures an active Data Layer connection. Attempts reconnect if marked lost.
+-   * If still unavailable, sets error_code and returns false.
+-   * @return true if connection is available for IO operations.
+-   */
+-  bool ensureConnectionAvailable();
 -
 -  /// Connection settings.
 -  linrob::Connection mConnection;
@@ -695,6 +751,9 @@
 -  double mVirtualResetCommand {0.0};
 -  double mVirtualReferenceCommand {0.0};
 -  double mVirtualStopCommand {0.0};
+-  double mVirtualStartMotionCommand {0.0};
+-  double mVirtualTargetPositionCommand {0.0};
+-  double mVirtualTargetVelocityCommand {0.0};
 -
 -  /// Last new position received.
 -  double mLastPositionCommand {0.0};
@@ -742,6 +801,12 @@
 -  bool mResetCommandExecuted {false};
 -  bool mReferenceCommandExecuted {false};
 -  bool mStopCommandExecuted {false};
+-  bool mStartMotionCommandExecuted {false};
+-
+-  /// Flag indicating current connection loss state.
+-  bool mConnectionLost {false};
+-  /// Timestamp of last reconnection attempt.
+-  std::chrono::steady_clock::time_point mLastReconnectAttempt {};
 -};
 -
 -template <typename T>
@@ -760,7 +825,7 @@
 -  auto typeData = static_cast<const T*>(static_cast<const void*>(data.getData()));
 -  std::vector<T> result(typeData, typeData + size);
 -  return result;
-@@ -323,16 +352,0 @@
+@@ -353,19 +385,0 @@
 -template <typename T>
 -bool Resource::writeToDatalayerNode(const std::string& key, const T& value)
 -{
@@ -771,6 +836,9 @@
 -  {
 -    RCLCPP_ERROR(
 -      rclcpp::get_logger("linrob"), "Failed to write data at %s. %s", data.first.c_str(), writeResult.toString());
+-    mState.at("error_code") = static_cast<double>(kConnectionLostErrorCode);
+-    mLatestErrorCode = kConnectionLostErrorCode;
+-    mConnectionLost = true;
 -    return false;
 -  }
 -  return true;
@@ -801,16 +869,16 @@
   >
       <failure message="Diff with 14 lines"><![CDATA[--- include/linrob_axis/axis_controller.hpp
 +++ include/linrob_axis/axis_controller.hpp.uncrustify
-@@ -28 +28 @@
+@@ -29 +29 @@
 -    const rclcpp::Time& time, const rclcpp::Duration& period) override;
 +    const rclcpp::Time & time, const rclcpp::Duration & period) override;
-@@ -32 +32 @@
+@@ -33 +33 @@
 -    const rclcpp_lifecycle::State& previous_state) override;
 +    const rclcpp_lifecycle::State & previous_state) override;
-@@ -34 +34 @@
+@@ -35 +35 @@
 -    const rclcpp_lifecycle::State& previous_state) override;
 +    const rclcpp_lifecycle::State & previous_state) override;
-@@ -36 +36 @@
+@@ -37 +37 @@
 -    const rclcpp_lifecycle::State& previous_state) override;
 +    const rclcpp_lifecycle::State & previous_state) override;
 ]]></failure>
@@ -887,95 +955,103 @@
     name="src/Resource.cpp"
     classname="linrob_axis.uncrustify"
   >
-      <failure message="Diff with 577 lines"><![CDATA[--- src/Resource.cpp
+      <failure message="Diff with 621 lines"><![CDATA[--- src/Resource.cpp
 +++ src/Resource.cpp.uncrustify
-@@ -23 +23 @@
+@@ -27 +27 @@
 -hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo& info)
 +hardware_interface::CallbackReturn Resource::on_init(const hardware_interface::HardwareInfo & info)
-@@ -27 +27,2 @@
+@@ -31 +31,2 @@
 -  if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS)
 +  if (hardware_interface::SystemInterface::on_init(info) !=
 +    hardware_interface::CallbackReturn::SUCCESS)
-@@ -33 +34 @@
+@@ -37 +38 @@
 -  const auto& params = info.hardware_parameters;
 +  const auto & params = info.hardware_parameters;
-@@ -59 +60,2 @@
+@@ -66 +67,2 @@
 -  mPositionSettings.initialIndex = static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
 +  mPositionSettings.initialIndex =
 +    static_cast<uint16_t>(std::stoi(params.at("initial_position_index")));
-@@ -61 +63,2 @@
+@@ -68 +70,2 @@
 -  mPositionSettings.maxPositionIndices = static_cast<uint16_t>(std::stoi(params.at("max_position_indices")));
 +  mPositionSettings.maxPositionIndices =
 +    static_cast<uint16_t>(std::stoi(params.at("max_position_indices")));
-@@ -66 +69,2 @@
+@@ -73 +76,2 @@
 -  mExpectedDelayBetweenCommandsMs = static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
 +  mExpectedDelayBetweenCommandsMs =
 +    static_cast<uint32_t>(1000.F / std::stof(params.at("update_frequency_hz")));
-@@ -87 +91 @@
+@@ -94 +98 @@
 -hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State&)
 +hardware_interface::CallbackReturn Resource::on_configure(const rclcpp_lifecycle::State &)
-@@ -91,2 +95 @@
+@@ -98,2 +102 @@
 -  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS)
 -  {
 +  if (connectionResult != hardware_interface::CallbackReturn::SUCCESS) {
-@@ -99 +102 @@
+@@ -106 +109 @@
 -hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State&)
 +hardware_interface::CallbackReturn Resource::on_activate(const rclcpp_lifecycle::State &)
-@@ -107 +110,3 @@
+@@ -114 +117,3 @@
 -    RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
 +    RCLCPP_INFO(
 +      rclcpp::get_logger(
 +        LINROB), "Axis is in STANDSTILL state - proceeding with full activation");
-@@ -123,2 +128 @@
+@@ -121,2 +126 @@
 -    if (!resetResult)
 -    {
 +    if (!resetResult) {
-@@ -133,2 +137,3 @@
+@@ -136,2 +140,3 @@
 -  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Resource activation FINISHED. Axis ready for operation: %s",
 -             mAxisReadyForOperation ? "YES" : "NO");
 +  RCLCPP_INFO(
 +    rclcpp::get_logger(LINROB), "Resource activation FINISHED. Axis ready for operation: %s",
 +    mAxisReadyForOperation ? "YES" : "NO");
-@@ -138 +143 @@
+@@ -141 +146 @@
 -hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycle::State&)
 +hardware_interface::CallbackReturn Resource::on_deactivate(const rclcpp_lifecycle::State &)
-@@ -143,2 +148 @@
+@@ -146,2 +151 @@
 -  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
 -  {
 +  if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS) {
-@@ -149,2 +153 @@
+@@ -149,3 +153,4 @@
+-    if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS)
+-    {
+-      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is not in STANDSTILL or STOPPED state during deactivation");
++    if (axisStateResult != hardware_interface::CallbackReturn::SUCCESS) {
++      RCLCPP_ERROR(
++        rclcpp::get_logger(
++          LINROB), "Axis is not in STANDSTILL or STOPPED state during deactivation");
+@@ -157,2 +162 @@
 -  if (!setSystemModeResult)
 -  {
 +  if (!setSystemModeResult) {
-@@ -154 +157,3 @@
+@@ -162 +166,3 @@
 -  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
 +  RCLCPP_INFO(
 +    rclcpp::get_logger(
 +      LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
-@@ -158,2 +163 @@
+@@ -166,2 +172 @@
 -  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS)
 -  {
 +  if (systemModeResult != hardware_interface::CallbackReturn::SUCCESS) {
-@@ -166,2 +170 @@
+@@ -174,2 +179 @@
 -  if (!writeResult)
 -  {
 +  if (!writeResult) {
-@@ -178,2 +181 @@
+@@ -186,2 +190 @@
 -  if (mClient)
 -  {
 +  if (mClient) {
-@@ -185 +187 @@
+@@ -193 +196 @@
 -hardware_interface::return_type Resource::write(const rclcpp::Time& time, const rclcpp::Duration&)
 +hardware_interface::return_type Resource::write(const rclcpp::Time & time, const rclcpp::Duration &)
-@@ -191,2 +193 @@
+@@ -203,2 +206 @@
 -  if (!mAxisReadyForOperation)
 -  {
 +  if (!mAxisReadyForOperation) {
-@@ -194,2 +195 @@
+@@ -206,2 +208 @@
 -    if (!mAxisReadyForOperation)
 -    {
 +    if (!mAxisReadyForOperation) {
-@@ -202,2 +202,32 @@
+@@ -214,2 +215,36 @@
 -    if (mDuplicateAppendsSinceLastNew >= mDuplicateAppendLimit) {
 -      RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Duplicate append limit (%u) reached, not appending further targets", mDuplicateAppendLimit);
 +      if (mDuplicateAppendsSinceLastNew >= mDuplicateAppendLimit) {
@@ -994,7 +1070,7 @@
 +      size_t pos = mPositionSettings.nextPositionIndex - 1;
 +      if (pos >= kMaxPositionsExt) {pos = 0;}
 +
-+      mAxisTargetPositionsExt[pos] = target;
++      mAxisTargetPositionsExt[pos] = target * 1000.0; // Convert to mm
 +      mAxisTargetPositionTimestampExt[pos] = 20.0;
 +
 +      if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt)) {
@@ -1010,7 +1086,11 @@
 +      if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
 +        ++mDuplicateAppendsSinceLastNew;
 +      }
-@@ -205,24 +235 @@
++      RCLCPP_DEBUG(
++        rclcpp::get_logger(
++          LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand,
++        mPositionSettings.nextPositionIndex);
+@@ -217,25 +252 @@
 -    }
 -    if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
 -      mPositionSettings.nextPositionIndex = 1;
@@ -1020,7 +1100,7 @@
 -    size_t pos = mPositionSettings.nextPositionIndex - 1;
 -    if (pos >= kMaxPositionsExt) pos = 0;
 -
--    mAxisTargetPositionsExt[pos] = target;
+-    mAxisTargetPositionsExt[pos] = target * 1000.0; // Convert to mm
 -    mAxisTargetPositionTimestampExt[pos] = 20.0;
 -
 -    if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
@@ -1033,35 +1113,36 @@
 -    if (mDuplicateAppendsSinceLastNew < UINT32_MAX) {
 -      ++mDuplicateAppendsSinceLastNew;
 -    }
+-    RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
 -    return true;
 -  };
 +    };
-@@ -231,2 +238 @@
+@@ -250,2 +261 @@
 -  if (!receivedNewTarget)
 -  {
 +  if (!receivedNewTarget) {
-@@ -234,2 +240 @@
+@@ -253,2 +263 @@
 -    if (mPositionSettings.newPositionsReceivedCount > 0 && !mMovementExecutionStopped)
 -    {
 +    if (mPositionSettings.newPositionsReceivedCount > 0 && !mMovementExecutionStopped) {
-@@ -237,2 +242,4 @@
+@@ -256,2 +265,4 @@
 -      auto expectedDurationBetweenCommands = rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
 -      bool timeToRefill = (mLastBufferFillTime.nanoseconds() == 0) || (time - mLastBufferFillTime >= expectedDurationBetweenCommands);
 +      auto expectedDurationBetweenCommands =
 +        rclcpp::Duration(std::chrono::milliseconds(mExpectedDelayBetweenCommandsMs));
 +      bool timeToRefill = (mLastBufferFillTime.nanoseconds() == 0) ||
 +        (time - mLastBufferFillTime >= expectedDurationBetweenCommands);
-@@ -241,3 +248,2 @@
+@@ -260,3 +271,2 @@
 -      if (timeToRefill)
 -      {
 -        if (!updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32))
 +      if (timeToRefill) {
 +        if (!updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32)) {
-@@ -245 +251,2 @@
+@@ -264 +274,2 @@
 -        auto& statusData = mConnection.datalayerNodeMap.at("status");
 +        }
 +        auto & statusData = mConnection.datalayerNodeMap.at("status");
-@@ -250,5 +257,7 @@
+@@ -269,5 +280,7 @@
 -        RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
 -                     "(Buffering) Target %.8f mm tol %.8f mm current %.8f error %.8f state %u", mLastPositionCommand, mPositionToleranceMm, currentPosition, positionError, static_cast<unsigned int>(axisStatus));
 -
@@ -1074,104 +1155,105 @@
 +          static_cast<unsigned int>(axisStatus));
 +
 +        if (positionError <= mPositionToleranceMm) {
-@@ -256,10 +265,10 @@
--            mPositionSettings.newPositionsReceivedCount = 0U;
--            if (!writeToDatalayerNode("execute_movements", false))
--              return hardware_interface::return_type::ERROR;
--            mMovementExecutionStopped = true;
--            RCLCPP_INFO(rclcpp::get_logger(LINROB),
--                        "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
--                        mLastPositionCommand, mPositionToleranceMm);
+@@ -276 +289 @@
+-          if (!writeToDatalayerNode("execute_movements", false))
++          if (!writeToDatalayerNode("execute_movements", false)) {
+@@ -277,0 +291 @@
++          }
+@@ -279,3 +293,5 @@
+-          RCLCPP_INFO(rclcpp::get_logger(LINROB),
+-                      "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm). Arrays reset.",
+-                      mLastPositionCommand, mPositionToleranceMm);
++          RCLCPP_INFO(
++            rclcpp::get_logger(
++              LINROB),
++            "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm). Arrays reset.",
++            mLastPositionCommand, mPositionToleranceMm);
+@@ -283 +299 @@
+-          if (!resetPlcBufferAndIndex())
++          if (!resetPlcBufferAndIndex()) {
+@@ -285,3 +301,2 @@
 -        }
 -        else
 -        {
-+          mPositionSettings.newPositionsReceivedCount = 0U;
-+          if (!writeToDatalayerNode("execute_movements", false)) {
-+            return hardware_interface::return_type::ERROR;
 +          }
-+          mMovementExecutionStopped = true;
-+          RCLCPP_INFO(
-+            rclcpp::get_logger(LINROB),
-+            "Movement execution stopped. Axis reached target %.8f mm (tolerance %.8f mm)",
-+            mLastPositionCommand, mPositionToleranceMm);
 +        } else {
-@@ -267 +276 @@
+@@ -289 +304 @@
 -          if (!appendDuplicateTarget(mLastPositionCommand))
 +          if (!appendDuplicateTarget(mLastPositionCommand)) {
-@@ -269 +278,5 @@
--          RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand, mPositionSettings.nextPositionIndex);
+@@ -290,0 +306 @@
 +          }
-+          RCLCPP_DEBUG(
-+            rclcpp::get_logger(
-+              LINROB), "Buffered duplicate target %.8f mm at index %u", mLastPositionCommand,
-+            mPositionSettings.nextPositionIndex);
-@@ -278,2 +291 @@
--  if (mPositionSettings.newPositionsReceivedCount > 0)
--  {
-+  if (mPositionSettings.newPositionsReceivedCount > 0) {
-@@ -291 +303 @@
+@@ -321 +337 @@
 -  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt)
 +  if (mPositionSettings.nextPositionIndex == kMaxPositionsExt) {
-@@ -293 +305 @@
+@@ -323 +339 @@
 -  else
 +  } else {
-@@ -294,0 +307 @@
+@@ -324,0 +341 @@
 +  }
-@@ -298 +311 @@
+@@ -328 +345 @@
 -  if (pos >= kMaxPositionsExt) pos = 0;
 +  if (pos >= kMaxPositionsExt) {pos = 0;}
-@@ -306 +319 @@
+@@ -336 +353 @@
 -  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt))
 +  if (!writeToDatalayerNode("new_position", mAxisTargetPositionsExt)) {
-@@ -308 +321,2 @@
+@@ -338 +355,2 @@
 -  if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt))
 +  }
 +  if (!writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt)) {
-@@ -310 +324,2 @@
+@@ -340 +358,2 @@
 -  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex))
 +  }
 +  if (!writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex)) {
-@@ -311,0 +327 @@
+@@ -341,0 +361 @@
 +  }
-@@ -315,3 +331,2 @@
+@@ -345,3 +365,2 @@
 -  if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex)
 -  {
 -    if (!writeToDatalayerNode("execute_movements", true))
 +  if (mPositionSettings.newPositionsReceivedCount >= mPositionSettings.executeMovementsOnIndex) {
 +    if (!writeToDatalayerNode("execute_movements", true)) {
-@@ -318,0 +334 @@
+@@ -348,0 +368 @@
 +    }
-@@ -326,4 +342,3 @@
+@@ -356 +376 @@
 -hardware_interface::return_type Resource::read(const rclcpp::Time&, const rclcpp::Duration&)
--{
++hardware_interface::return_type Resource::read(const rclcpp::Time &, const rclcpp::Duration &)
+@@ -362,2 +382 @@
 -  if (!mAxisReadyForOperation)
 -  {
-+hardware_interface::return_type Resource::read(const rclcpp::Time &, const rclcpp::Duration &)
-+{
 +  if (!mAxisReadyForOperation) {
-@@ -331,2 +346 @@
+@@ -365,2 +384 @@
 -    if (!mAxisReadyForOperation)
 -    {
 +    if (!mAxisReadyForOperation) {
-@@ -349,2 +363 @@
+@@ -383,2 +401 @@
 -  if (!updateResult)
 -  {
 +  if (!updateResult) {
-@@ -356 +369 @@
+@@ -390 +407 @@
 -    auto &statusData = mConnection.datalayerNodeMap.at("status");
 +    auto & statusData = mConnection.datalayerNodeMap.at("status");
-@@ -358,4 +371,2 @@
+@@ -392,4 +409,2 @@
 -    if (axisStatus == AxisState::ERRORSTOP)
 -    {
 -      if (!mMovementExecutionStopped)
 -      {
 +    if (axisStatus == AxisState::ERRORSTOP) {
 +      if (!mMovementExecutionStopped) {
-@@ -363,2 +374 @@
+@@ -397,2 +412 @@
 -        if (!writeToDatalayerNode("execute_movements", false))
 -        {
 +        if (!writeToDatalayerNode("execute_movements", false)) {
-@@ -397,16 +407,22 @@
+@@ -429,2 +443,6 @@
+-  command_interfaces.emplace_back("joint_1", "virtual_target_position", &mVirtualTargetPositionCommand);
+-  command_interfaces.emplace_back("joint_1", "virtual_target_velocity", &mVirtualTargetVelocityCommand);
++  command_interfaces.emplace_back(
++    "joint_1", "virtual_target_position",
++    &mVirtualTargetPositionCommand);
++  command_interfaces.emplace_back(
++    "joint_1", "virtual_target_velocity",
++    &mVirtualTargetVelocityCommand);
+@@ -434,16 +452,22 @@
 -hardware_interface::CallbackReturn Resource::waitForSystemMode(const std::string& expectedMode, std::chrono::milliseconds timeout)
 -{
 -    auto start = std::chrono::steady_clock::now();
@@ -1210,20 +1292,20 @@
 +    rclcpp::get_logger(
 +      LINROB), "Timeout waiting for system mode '%s'", expectedMode.c_str());
 +  return hardware_interface::CallbackReturn::FAILURE;
-@@ -419 +435,3 @@
+@@ -456 +480,3 @@
 -    getConnectionString(mConnection.ip, mConnection.user, mConnection.password, mConnection.sslPort);
 +    getConnectionString(
 +    mConnection.ip, mConnection.user, mConnection.password,
 +    mConnection.sslPort);
-@@ -424,2 +442 @@
+@@ -461,2 +487 @@
 -  if (mClient == nullptr)
 -  {
 +  if (mClient == nullptr) {
-@@ -429,2 +446 @@
+@@ -466,2 +491 @@
 -  if (!mClient->isConnected())
 -  {
 +  if (!mClient->isConnected()) {
-@@ -441,3 +457,4 @@
+@@ -478,3 +502,4 @@
 -  auto statusUpdateResult = updateDataFromNode("status", comm::datalayer::VariantType::ARRAY_OF_INT32);
 -  if (!statusUpdateResult)
 -  {
@@ -1231,10 +1313,10 @@
 +    "status",
 +    comm::datalayer::VariantType::ARRAY_OF_INT32);
 +  if (!statusUpdateResult) {
-@@ -448 +465 @@
+@@ -485 +510 @@
 -  auto& statusData = mConnection.datalayerNodeMap.at("status");
 +  auto & statusData = mConnection.datalayerNodeMap.at("status");
-@@ -451,6 +468,6 @@
+@@ -488,6 +513,6 @@
 -  if (axisStatus != expectedState)
 -  {
 -    RCLCPP_INFO(rclcpp::get_logger(LINROB),
@@ -1247,17 +1329,17 @@
 +      "Axis is not in expected state. Expected: %u, Actual: %u",
 +      static_cast<unsigned int>(expectedState),
 +      static_cast<unsigned int>(axisStatus));
-@@ -464 +481 @@
+@@ -501 +526 @@
 -hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string& expectedMode)
 +hardware_interface::CallbackReturn Resource::checkSystemMode(const std::string & expectedMode)
-@@ -467,2 +484 @@
+@@ -504,2 +529 @@
 -  if (!modeUpdateResult)
 -  {
 +  if (!modeUpdateResult) {
-@@ -473 +489 @@
+@@ -510 +534 @@
 -  const auto& modeData = mConnection.datalayerNodeMap.at("read_mode");
 +  const auto & modeData = mConnection.datalayerNodeMap.at("read_mode");
-@@ -476,3 +492,4 @@
+@@ -513,3 +537,4 @@
 -  if (mode != expectedMode)
 -  {
 -    RCLCPP_INFO(rclcpp::get_logger(LINROB), ("System is not in expected mode: " + expectedMode).c_str());
@@ -1265,10 +1347,10 @@
 +    RCLCPP_INFO(
 +      rclcpp::get_logger(
 +        LINROB), ("System is not in expected mode: " + expectedMode).c_str());
-@@ -484 +501 @@
+@@ -521 +546 @@
 -void Resource::registerDatalayerNode(const std::string& key, const std::string& address)
 +void Resource::registerDatalayerNode(const std::string & key, const std::string & address)
-@@ -489,3 +506,5 @@
+@@ -526,3 +551,5 @@
 -bool Resource::updateDataFromNode(const std::string& key, comm::datalayer::VariantType expectedType)
 -{
 -  auto& data = mConnection.datalayerNodeMap.at(key);
@@ -1277,7 +1359,7 @@
 +  comm::datalayer::VariantType expectedType)
 +{
 +  auto & data = mConnection.datalayerNodeMap.at(key);
-@@ -495,8 +514,12 @@
+@@ -532,8 +559,12 @@
 -  RCLCPP_DEBUG(rclcpp::get_logger(LINROB), "Result is DL_OK %s.", std::to_string(result == DL_OK).c_str());
 -  RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
 -               "Result type is %u. Expected type is %u.",
@@ -1298,7 +1380,7 @@
 +    RCLCPP_ERROR(
 +      rclcpp::get_logger(LINROB), "Failed to read data at %s. %s",
 +      data.first.c_str(), result.toString());
-@@ -506,7 +529,7 @@
+@@ -546,7 +577,7 @@
 -  if (data.second.getType() != expectedType)
 -  {
 -    RCLCPP_ERROR(rclcpp::get_logger(LINROB),
@@ -1313,18 +1395,18 @@
 +      data.first.c_str(),
 +      static_cast<unsigned int>(expectedType),
 +      static_cast<unsigned int>(data.second.getType()));
-@@ -522,2 +545,4 @@
+@@ -562,2 +593,4 @@
 -  mState.at("position") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("position").second.getData());
 -  mState.at("velocity") = *reinterpret_cast<double*>(mConnection.datalayerNodeMap.at("velocity").second.getData());
 +  mState.at("position") =
 +    *reinterpret_cast<double *>(mConnection.datalayerNodeMap.at("position").second.getData());
 +  mState.at("velocity") =
 +    *reinterpret_cast<double *>(mConnection.datalayerNodeMap.at("velocity").second.getData());
-@@ -538,2 +563 @@
+@@ -583,2 +616 @@
 -  while (wait)
 -  {
 +  while (wait) {
-@@ -549,3 +573,4 @@
+@@ -594,3 +626,4 @@
 -    RCLCPP_DEBUG(rclcpp::get_logger(LINROB),
 -                 "Update final result value: %s; If all valid: 1",
 -                 std::to_string(updateResult).c_str());
@@ -1332,11 +1414,11 @@
 +      rclcpp::get_logger(LINROB),
 +      "Update final result value: %s; If all valid: 1",
 +      std::to_string(updateResult).c_str());
-@@ -558 +583,2 @@
+@@ -603 +636,2 @@
 -bool Resource::resetPlcBufferAndIndex() {
 +bool Resource::resetPlcBufferAndIndex()
 +{
-@@ -563,2 +589,6 @@
+@@ -608,2 +642,6 @@
 -  auto newTimestampWriteResult = writeToDatalayerNode("new_position_timestamp", mAxisTargetPositionTimestampExt);
 -  auto nextPosIndexWriteResult = writeToDatalayerNode("next_pos_index", mPositionSettings.nextPositionIndex);
 +  auto newTimestampWriteResult = writeToDatalayerNode(
@@ -1345,93 +1427,123 @@
 +  auto nextPosIndexWriteResult = writeToDatalayerNode(
 +    "next_pos_index",
 +    mPositionSettings.nextPositionIndex);
-@@ -568 +598 @@
+@@ -660 +698 @@
 -void Resource::setLogLevel(const std::string& level)
 +void Resource::setLogLevel(const std::string & level)
-@@ -572,2 +602 @@
+@@ -664,2 +702 @@
 -  if (level == "DEBUG")
 -  {
 +  if (level == "DEBUG") {
-@@ -575,3 +604 @@
+@@ -667,3 +704 @@
 -  }
 -  else if (level == "INFO")
 -  {
 +  } else if (level == "INFO") {
-@@ -579,3 +606 @@
+@@ -671,3 +706 @@
 -  }
 -  else if (level == "WARN")
 -  {
 +  } else if (level == "WARN") {
-@@ -583,3 +608 @@
+@@ -675,3 +708 @@
 -  }
 -  else if (level == "ERROR")
 -  {
 +  } else if (level == "ERROR") {
-@@ -587,3 +610 @@
+@@ -679,3 +710 @@
 -  }
 -  else if (level == "FATAL")
 -  {
 +  } else if (level == "FATAL") {
-@@ -591,3 +612 @@
+@@ -683,3 +712 @@
 -  }
 -  else
 -  {
 +  } else {
-@@ -603,2 +622 @@
+@@ -695,2 +722 @@
 -  if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted)
 -  {
 +  if (mVirtualResetCommand > 0.5 && !mResetCommandExecuted) {
-@@ -606,2 +624 @@
+@@ -698,2 +724 @@
 -    if (result)
 -    {
 +    if (result) {
-@@ -610,3 +627 @@
+@@ -702,3 +727 @@
 -    }
 -    else
 -    {
 +    } else {
-@@ -615,3 +630 @@
+@@ -710,2 +733 @@
+-    if (result)
+-    {
++    if (result) {
+@@ -713,3 +735 @@
+-    }
+-    else
+-    {
++    } else {
+@@ -718,3 +738 @@
 -  }
 -  else if (mVirtualResetCommand <= 0.5)
 -  {
 +  } else if (mVirtualResetCommand <= 0.5) {
-@@ -622,2 +635 @@
+@@ -725,2 +743 @@
 -  if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted)
 -  {
 +  if (mVirtualReferenceCommand > 0.5 && !mReferenceCommandExecuted) {
-@@ -625,2 +637 @@
+@@ -728,2 +745 @@
 -    if (result)
 -    {
 +    if (result) {
-@@ -629,3 +640 @@
+@@ -732,3 +748 @@
 -    }
 -    else
 -    {
 +    } else {
-@@ -634,3 +643 @@
+@@ -737,3 +751 @@
 -  }
 -  else if (mVirtualReferenceCommand <= 0.5)
 -  {
 +  } else if (mVirtualReferenceCommand <= 0.5) {
-@@ -641,2 +648 @@
+@@ -744,2 +756 @@
 -  if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted)
 -  {
 +  if (mVirtualStopCommand > 0.5 && !mStopCommandExecuted) {
-@@ -644,2 +650 @@
+@@ -747,2 +758 @@
 -    if (result)
 -    {
 +    if (result) {
-@@ -648,3 +653 @@
+@@ -751,3 +761 @@
 -    }
 -    else
 -    {
 +    } else {
-@@ -653,3 +656 @@
+@@ -756,3 +764 @@
 -  }
 -  else if (mVirtualStopCommand <= 0.5)
 -  {
 +  } else if (mVirtualStopCommand <= 0.5) {
-@@ -662,4 +663,3 @@
+@@ -764,3 +770,3 @@
+-      mConnection.datalayerNodeMap.count("virtual_target_position")) {
+-    if (mVirtualStartMotionCommand > 0.5 && !mStartMotionCommandExecuted)
+-    {
++    mConnection.datalayerNodeMap.count("virtual_target_position"))
++  {
++    if (mVirtualStartMotionCommand > 0.5 && !mStartMotionCommandExecuted) {
+@@ -768,2 +774 @@
+-      if (result)
+-      {
++      if (result) {
+@@ -772,3 +777 @@
+-      }
+-      else
+-      {
++      } else {
+@@ -777,3 +780 @@
+-    }
+-    else if (mVirtualStartMotionCommand <= 0.5)
+-    {
++    } else if (mVirtualStartMotionCommand <= 0.5) {
+@@ -801,4 +802,3 @@
 -  auto& errorData = mConnection.datalayerNodeMap.at("error_code");
 -  if (errorData.second.getType() == comm::datalayer::VariantType::UINT32)
 -  {
@@ -1439,27 +1551,27 @@
 +  auto & errorData = mConnection.datalayerNodeMap.at("error_code");
 +  if (errorData.second.getType() == comm::datalayer::VariantType::UINT32) {
 +    mLatestErrorCode = *reinterpret_cast<uint32_t *>(errorData.second.getData());
-@@ -673 +673,2 @@
+@@ -812 +812,2 @@
 -  auto setSystemModeResult = writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
 +  auto setSystemModeResult =
 +    writeToDatalayerNode("set_mode", static_cast<uint8_t>(Mode::AUTO_EXTERNAL));
-@@ -679 +680,3 @@
+@@ -818 +819,3 @@
 -  RCLCPP_INFO(rclcpp::get_logger(LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
 +  RCLCPP_INFO(
 +    rclcpp::get_logger(
 +      LINROB), "Waiting %ld seconds for PLC to change operation mode...", kSetModeSleep.count());
-@@ -706 +709,4 @@
+@@ -845 +848,4 @@
 -      RCLCPP_INFO(rclcpp::get_logger(LINROB), "Axis has reached STANDSTILL state - enabling operations and switching to AUTO_EXTERNAL mode");
 +      RCLCPP_INFO(
 +        rclcpp::get_logger(
 +          LINROB),
 +        "Axis has reached STANDSTILL state - enabling operations and switching to AUTO_EXTERNAL mode");
-@@ -718 +724,3 @@
+@@ -855 +861,3 @@
 -        RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Failed to reset PLC buffer and index after axis became ready");
 +        RCLCPP_ERROR(
 +          rclcpp::get_logger(
 +            LINROB), "Failed to reset PLC buffer and index after axis became ready");
-@@ -722 +730,3 @@
+@@ -864 +872,3 @@
 -      RCLCPP_ERROR(rclcpp::get_logger(LINROB), "Axis is in ERROR state - operations will remain disabled");
 +      RCLCPP_ERROR(
 +        rclcpp::get_logger(
@@ -1470,35 +1582,69 @@
     name="src/axis_controller.cpp"
     classname="linrob_axis.uncrustify"
   >
-      <failure message="Diff with 29 lines"><![CDATA[--- src/axis_controller.cpp
+      <failure message="Diff with 63 lines"><![CDATA[--- src/axis_controller.cpp
 +++ src/axis_controller.cpp.uncrustify
-@@ -42,2 +42,3 @@
+@@ -6,2 +6,2 @@
+-
+-namespace {
++namespace
++{
+@@ -10 +10,2 @@
+-bool isServiceError(uint32_t error_code) {
++bool isServiceError(uint32_t error_code)
++{
+@@ -13,4 +14,6 @@
+-  return error_code != 0 && (strncmp(hex_code, "080F", 4) == 0 || strncmp(hex_code, "090F", 4) == 0);
+-}
+-
+-std::string errorMessage(const char* action, uint32_t error_code) {
++  return error_code != 0 &&
++         (strncmp(hex_code, "080F", 4) == 0 || strncmp(hex_code, "090F", 4) == 0);
++}
++
++std::string errorMessage(const char * action, uint32_t error_code)
++{
+@@ -24 +26,0 @@
+-
+@@ -64,2 +66,3 @@
 -    std::bind(&AxisController::resetAxisService, this,
 -              std::placeholders::_1, std::placeholders::_2));
 +    std::bind(
 +      &AxisController::resetAxisService, this,
 +      std::placeholders::_1, std::placeholders::_2));
-@@ -47,2 +48,3 @@
+@@ -69,2 +72,3 @@
 -    std::bind(&AxisController::referenceAxisService, this,
 -              std::placeholders::_1, std::placeholders::_2));
 +    std::bind(
 +      &AxisController::referenceAxisService, this,
 +      std::placeholders::_1, std::placeholders::_2));
-@@ -52,2 +54,3 @@
+@@ -74,2 +78,3 @@
 -    std::bind(&AxisController::stopAxisService, this,
 -              std::placeholders::_1, std::placeholders::_2));
 +    std::bind(
 +      &AxisController::stopAxisService, this,
 +      std::placeholders::_1, std::placeholders::_2));
-@@ -147 +150 @@
+@@ -79,2 +84,3 @@
+-    std::bind(&AxisController::startMotionService, this,
+-              std::placeholders::_1, std::placeholders::_2));
++    std::bind(
++      &AxisController::startMotionService, this,
++      std::placeholders::_1, std::placeholders::_2));
+@@ -194 +200 @@
 -  const std::shared_ptr<linrob_axis::srv::ResetAxis::Request> /*request*/,
 +  const std::shared_ptr<linrob_axis::srv::ResetAxis::Request>/*request*/,
-@@ -159 +162 @@
+@@ -213 +219 @@
 -  const std::shared_ptr<linrob_axis::srv::ReferenceAxis::Request> /*request*/,
 +  const std::shared_ptr<linrob_axis::srv::ReferenceAxis::Request>/*request*/,
-@@ -171 +174 @@
+@@ -232 +238 @@
 -  const std::shared_ptr<linrob_axis::srv::StopAxis::Request> /*request*/,
 +  const std::shared_ptr<linrob_axis::srv::StopAxis::Request>/*request*/,
+@@ -254,2 +260,3 @@
+-  RCLCPP_INFO(get_node()->get_logger(), "Start motion service called (start=%s, target=%f, velocity=%f)",
+-              request->start ? "true" : "false", request->target_position, request->velocity);
++  RCLCPP_INFO(
++    get_node()->get_logger(), "Start motion service called (start=%s, target=%f, velocity=%f)",
++    request->start ? "true" : "false", request->target_position, request->velocity);
 ]]></failure>
   </testcase>
   <system-out>Checked files:

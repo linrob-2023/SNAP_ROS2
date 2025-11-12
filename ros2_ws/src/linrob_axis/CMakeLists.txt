@@ -52,10 +52,10 @@ endif()
 
 # Generate services
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/StartMotion.srv"
   "srv/ResetAxis.srv"
   "srv/ReferenceAxis.srv"
   "srv/StopAxis.srv"
-  "srv/StartMotion.srv"
 )
 
 # Define the plugin as a shared library

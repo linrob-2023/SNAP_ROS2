@@ -16,7 +16,7 @@ set(_linrob_axis_CONFIG_INCLUDED TRUE)
 
 # output package information
 if(NOT linrob_axis_FIND_QUIETLY)
-  message(STATUS "Found linrob_axis: 0.1.2 (${linrob_axis_DIR})")
+  message(STATUS "Found linrob_axis: 1.1.15 (${linrob_axis_DIR})")
 endif()
 
 # warn when using a deprecated package

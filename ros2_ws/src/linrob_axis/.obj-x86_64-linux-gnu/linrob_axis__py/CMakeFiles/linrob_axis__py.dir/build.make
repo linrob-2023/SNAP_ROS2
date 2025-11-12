@@ -72,10 +72,12 @@ include linrob_axis__py/CMakeFiles/linrob_axis__py.dir/progress.make
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_introspection_c.c
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_c.c
+linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_start_motion.py
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reset_axis.py
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reference_axis.py
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_stop_axis.py
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/__init__.py
+linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_start_motion_s.c
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reset_axis_s.c
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reference_axis_s.c
 linrob_axis__py/CMakeFiles/linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_stop_axis_s.c
@@ -93,6 +95,7 @@ rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/rosidl_generator_py/resource/_msg.py.em
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/rosidl_generator_py/resource/_srv_pkg_typesupport_entry_point.c.em
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/rosidl_generator_py/resource/_srv.py.em
+rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/linrob_axis/srv/StartMotion.idl
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/linrob_axis/srv/ResetAxis.idl
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/linrob_axis/srv/ReferenceAxis.idl
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/linrob_axis/srv/StopAxis.idl
@@ -105,6 +108,9 @@ rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_introspecti
 rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_c.c: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_c.c
 
+rosidl_generator_py/linrob_axis/srv/_start_motion.py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/srv/_start_motion.py
+
 rosidl_generator_py/linrob_axis/srv/_reset_axis.py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/srv/_reset_axis.py
 
@@ -116,6 +122,9 @@ rosidl_generator_py/linrob_axis/srv/_stop_axis.py: rosidl_generator_py/linrob_ax
 
 rosidl_generator_py/linrob_axis/srv/__init__.py: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/srv/__init__.py
+
+rosidl_generator_py/linrob_axis/srv/_start_motion_s.c: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/srv/_start_motion_s.c
 
 rosidl_generator_py/linrob_axis/srv/_reset_axis_s.c: rosidl_generator_py/linrob_axis/_linrob_axis_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/linrob_axis/srv/_reset_axis_s.c
@@ -135,6 +144,8 @@ linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reference_axis.py
 linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reference_axis_s.c
 linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reset_axis.py
 linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_reset_axis_s.c
+linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_start_motion.py
+linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_start_motion_s.c
 linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_stop_axis.py
 linrob_axis__py: rosidl_generator_py/linrob_axis/srv/_stop_axis_s.c
 linrob_axis__py: linrob_axis__py/CMakeFiles/linrob_axis__py.dir/build.make

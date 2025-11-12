@@ -52,7 +52,7 @@
         <param name="ip">10.0.2.2</param>
         <param name="user">boschrexroth</param>
         <param name="password">boschrexroth</param>
-        <param name="ssl_port">5443</param>
+        <param name="ssl_port">8443</param>
 
         <!-- Datalayer Nodes addresses -->
         <param name="new_position">plc/app/Application/sym/GVL/alrAxisTargetPositionsExt</param>
@@ -69,12 +69,15 @@
         <param name="virtual_reset">plc/app/Application/sym/GVL/xResetVirt</param>
         <param name="virtual_reference">plc/app/Application/sym/GVL/xReferenceVirt</param>
         <param name="virtual_stop">plc/app/Application/sym/GVL/xStopVirt</param>
+        <param name="virtual_start_motion">plc/app/Application/sym/GVL/xMoveSingelAxisVirt</param>
+        <param name="virtual_target_position">plc/app/Application/sym/GVL/arrMoveSingleAxisPositionVirt/1</param>
+        <param name="virtual_target_velocity">plc/app/Application/sym/GVL/arrMoveSingleAxisVelocityVirt/1</param>
 
         <param name="error_code">plc/app/Application/sym/GVL/nLatestErrorCode</param>
 
         <param name="initial_position_index">1</param>
         <param name="max_position_indices">1000</param>
-        <param name="execute_movements_on_next_index">3</param>
+        <param name="execute_movements_on_next_index">15</param>
 
         <param name="update_frequency_hz">10</param>
 
@@ -87,12 +90,15 @@
     </hardware>
     <joint name="joint_1">
       <command_interface name="position">
-        <param name="min">-15</param>
-        <param name="max">15</param>
+        <param name="min">-0.005</param>
+        <param name="max">3.46</param>
       </command_interface>
       <command_interface name="virtual_reset"/>
       <command_interface name="virtual_reference"/>
       <command_interface name="virtual_stop"/>
+      <command_interface name="virtual_start_motion"/>
+      <command_interface name="virtual_target_position"/>
+      <command_interface name="virtual_target_velocity"/>
       <state_interface name="position">
         <param name="initial_value">1.0</param>
       </state_interface>

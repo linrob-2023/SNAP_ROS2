@@ -4,7 +4,7 @@
   tests="10"
   errors="0"
   failures="10"
-  time="0.004"
+  time="0.005"
 >
   <testcase
     name="readability/mixedcase (CMakeLists.txt:22)"
@@ -43,25 +43,25 @@
       <failure message="Mismatching spaces inside () after command"/>
   </testcase>
   <testcase
-    name="whitespace/extra (CMakeLists.txt:73)"
+    name="whitespace/extra (CMakeLists.txt:74)"
     classname="linrob_axis.lint_cmake"
   >
       <failure message="Extra spaces between 'target_include_directories' and its ()"/>
   </testcase>
   <testcase
-    name="whitespace/tabs (CMakeLists.txt:76)"
+    name="whitespace/tabs (CMakeLists.txt:77)"
     classname="linrob_axis.lint_cmake"
   >
       <failure message="Tab found; please use spaces"/>
   </testcase>
   <testcase
-    name="whitespace/extra (CMakeLists.txt:80)"
+    name="whitespace/extra (CMakeLists.txt:81)"
     classname="linrob_axis.lint_cmake"
   >
       <failure message="Extra spaces between 'target_include_directories' and its ()"/>
   </testcase>
   <testcase
-    name="whitespace/tabs (CMakeLists.txt:83)"
+    name="whitespace/tabs (CMakeLists.txt:84)"
     classname="linrob_axis.lint_cmake"
   >
       <failure message="Tab found; please use spaces"/>

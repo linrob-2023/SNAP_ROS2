@@ -2,6 +2,8 @@
  - /opt/ros/humble/bin/ament_pep257 --xunit-file /home/boschrexroth/ctrlx-automation-sdk/samples-python/SNAP_ROS2/ros2_ws/src/linrob_axis/.obj-x86_64-linux-gnu/test_results/linrob_axis/pep257.xunit.xml
 
 checking ./launch/start.launch.py
+checking ./src/install/_local_setup_util_ps1.py
+checking ./src/install/_local_setup_util_sh.py
 No problems found
 
 

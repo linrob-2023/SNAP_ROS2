@@ -7,10 +7,10 @@ CMakeLists.txt:30: Extra spaces between 'set' and its () [whitespace/extra]
 CMakeLists.txt:32: Do not mix upper and lower case commands [readability/mixedcase]
 CMakeLists.txt:32: Extra spaces between 'SET' and its () [whitespace/extra]
 CMakeLists.txt:32: Mismatching spaces inside () after command [whitespace/mismatch]
-CMakeLists.txt:73: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
-CMakeLists.txt:76: Tab found; please use spaces [whitespace/tabs]
-CMakeLists.txt:80: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
-CMakeLists.txt:83: Tab found; please use spaces [whitespace/tabs]
+CMakeLists.txt:74: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
+CMakeLists.txt:77: Tab found; please use spaces [whitespace/tabs]
+CMakeLists.txt:81: Extra spaces between 'target_include_directories' and its () [whitespace/extra]
+CMakeLists.txt:84: Tab found; please use spaces [whitespace/tabs]
 
 
 10 errors

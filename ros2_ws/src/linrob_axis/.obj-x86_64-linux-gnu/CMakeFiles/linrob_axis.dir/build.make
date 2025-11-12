@@ -69,6 +69,9 @@ include CMakeFiles/linrob_axis.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/linrob_axis.dir/progress.make
 
+CMakeFiles/linrob_axis: ../srv/StartMotion.srv
+CMakeFiles/linrob_axis: rosidl_cmake/srv/StartMotion_Request.msg
+CMakeFiles/linrob_axis: rosidl_cmake/srv/StartMotion_Response.msg
 CMakeFiles/linrob_axis: ../srv/ResetAxis.srv
 CMakeFiles/linrob_axis: rosidl_cmake/srv/ResetAxis_Request.msg
 CMakeFiles/linrob_axis: rosidl_cmake/srv/ResetAxis_Response.msg

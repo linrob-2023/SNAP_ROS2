@@ -2,7 +2,7 @@
 #include <hardware_interface/loaned_command_interface.hpp>
 #include <hardware_interface/loaned_state_interface.hpp>
 
-namespace linrob_controllers
+
 
 namespace {
 constexpr std::chrono::milliseconds kServiceErrorWait{500};
@@ -19,6 +19,9 @@ std::string errorMessage(const char* action, uint32_t error_code) {
   return std::string(action) + " command failed with error code: 0x" + hex_code;
 }
 }
+
+namespace linrob_controllers
+
 {
 
 AxisController::AxisController()
